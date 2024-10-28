@@ -12,7 +12,7 @@ pipeline {
 
     environment {
         SERVER_PORT = '8080'
-        SERVER_NAME = 'SCG'
+        SERVER_NAME = 'scg'
         EC2_IP = credentials('k11c206_IP')
         SSH_INFO = credentials('k11c206_SSH')
     }
