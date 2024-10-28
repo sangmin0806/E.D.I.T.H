@@ -45,7 +45,7 @@ pipeline {
                     chmod +x ./gradlew
                     ./gradlew build
                     ls build/libs
-                    docker build -t ${SERVER_NAME}:latest .
+                    docker build -t scg:latest .
                     """
                 }
             }
@@ -86,12 +86,12 @@ pipeline {
                 script {
                     sh """
                     ssh -o StrictHostKeyChecking=no -i $SSH_INFO $SSH_INFO_USR@$EC2_IP <<-EOF
-                    docker stop ${SERVER_NAME} || true
-                    docker rm ${SERVER_NAME} || true
-                    docker rmi ${SERVER_NAME}:latest || true
+                    docker stop scg || true
+                    docker rm scg || true
+                    docker rmi scg:latest || true
                     docker system prune -f --volumes
-                    docker pull ${SERVER_NAME}:latest
-                    docker run -it -d --name ${SERVER_NAME} -p $SERVER_PORT:$SERVER_PORT ${SERVER_NAME}:latest
+                    docker pull scg:latest
+                    docker run -it -d --name scg -p $SERVER_PORT:$SERVER_PORT scg:latest
                     EOF
                     """.stripIndent()
                 }
