@@ -87,7 +87,7 @@ pipeline {
 
         stage('Deploy to EC2') {
             when {
-                "${CHECKOUT_FOLDER}/${SERVER_NAME}/**"
+                changeset "${CHECKOUT_FOLDER}/${SERVER_NAME}/**"
             }
             steps {
                 script {
