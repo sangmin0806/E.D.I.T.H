@@ -15,6 +15,7 @@ pipeline {
         SERVER_NAME = 'SCG'
         EC2_IP = credentials('k11c206_IP')
         SSH_INFO = credentials('k11c206_SSH')
+        SPRING_JWT_SECRET = credentials('SPRING_JWT_SECRET')
     }
 
     stages {
