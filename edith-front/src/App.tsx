@@ -3,8 +3,10 @@ import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 const MainPage = React.lazy(() => import("./pages/common/MainPage"));
-const LoginPage = React.lazy(() => import("./pages/common/LoginPage"));
 const JoinPage = React.lazy(() => import("./pages/common/JoinPage"));
+const FinishJoinPage = React.lazy(
+  () => import("./pages/common/FinishJoinPage")
+);
 
 const Portfolio = React.lazy(() => import("./pages/repos/Portfolio"));
 const RepoDashboard = React.lazy(() => import("./pages/repos/RepoDashboard"));
@@ -20,8 +22,8 @@ function App() {
           <Routes>
             {/* Common Domain */}
             <Route path="/" element={<MainPage />} />
-            <Route path="/login" element={<LoginPage />} />
             <Route path="/join" element={<JoinPage />} />
+            <Route path="/join/finish" element={<FinishJoinPage />} />
             {/* Repo Domain */}
             <Route path="/repository/list" element={<RepoList />} />
             <Route path="/repository/enroll" element={<RepoEnroll />} />
