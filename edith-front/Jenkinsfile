@@ -12,6 +12,7 @@ pipeline {
 
     environment {
         REPO_URL = 'https://lab.ssafy.com/s11-final/S11P31C206.git'
+        CHECKOUT_BRANCH = '*/be/feature/S11P31C206-32-frontend-dockerfile'
         CHECKOUT_FOLDER = 'edith-front'
         SERVER_PORT = '3000'
         SERVER_NAME = 'frontend'
@@ -25,7 +26,7 @@ pipeline {
             steps {
                 // backend 브랜치의 accompanyboard 폴더만 체크아웃
                 checkout([$class: 'GitSCM',
-                    branches: [[name: '*/develop']],
+                    branches: [[name: "${CHECKOUT_BRANCH}"]],
                     userRemoteConfigs: [[
                         url: "${REPO_URL}",
                         credentialsId: 'GitLab_Personal_Access_Token'
