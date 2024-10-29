@@ -20,4 +20,4 @@ RUN ln -snf /usr/share/zoneinfo/Asia/Seoul /etc/localtime && echo Asia/Seoul > /
 COPY --from=builder /home/gradle/project/build/libs/SCG-0.0.1-SNAPSHOT.jar /SCG.jar
 
 # 실행
-ENTRYPOINT ["java", "-jar", "-Dserver.port=8080", "-Duser.timezone=Asia/Seoul", "/SCG.jar"]
+ENTRYPOINT ["java", "-jar","-Dspring.profiles.active=prod", "-Dserver.port=8080", "-Duser.timezone=Asia/Seoul", "/SCG.jar"]
