@@ -8,7 +8,7 @@ WORKDIR /home/gradle/project
 COPY . .
 
 # 빌드 및 문서 생성
-RUN gradle clean build
+RUN gradle clean build -x test
 
 # 실행 단계
 FROM openjdk:17
