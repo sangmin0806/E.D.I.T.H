@@ -80,6 +80,7 @@ pipeline {
                     sh """
                     docker tag ${DOCKER_IMG_NAME}:latest ${DOCKER_REPO_USR}/${DOCKER_REPO_PSW}:${DOCKER_IMG_NAME}-latest
                     docker push ${DOCKER_REPO_USR}/${DOCKER_REPO_PSW}:${DOCKER_IMG_NAME}-latest
+                    docker rmi ${DOCKER_IMG_NAME}:latest || true
                     """
                 }
             }
