@@ -44,7 +44,7 @@ pipeline {
                     skipRemainingStages = false
                     sh """
                     cd edith-front
-                    docker build -t ${SERVER_NAME}:latest .
+                    docker build -t ${SERVER_NAME}:latest -f ${CHECKOUT_FOLDER}/Dockerfile ${CHECKOUT_FOLDER}
                     """
                 }
             }
