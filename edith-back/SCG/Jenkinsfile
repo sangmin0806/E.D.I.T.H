@@ -39,16 +39,22 @@ pipeline {
                 changeset "edith-back/${SERVER_NAME}/**"
             }
             steps {
-                script {
-                    skipRemainingStages = false
-                    sh """
-                    cd edith-back/${SERVER_NAME}
-                    chmod +x ./gradlew
-                    ./gradlew build
-                    ls build/libs
-                    docker build -f Dockerfile --build-arg SPRING_JWT_SECRET=$SPRING_JWT_SECRET -t scg:latest .
-                    """
-                }
+                            script {
+                                withCredentials([
+                                    string(credentialsId: 'SPRING_JWT_SECRET', variable: 'SPRING_JWT_SECRET'),
+                                ]){
+                                    skipRemainingStages = false
+                                    sh """
+                                    cd backend/SCG
+                                    chmod +x ./gradlew
+                                    ./gradlew build
+                                    ls build/libs
+                                    docker build \
+                                    --build-arg SPRING_JWT_SECRET=${SPRING_JWT_SECRET} \
+                                    -t scg:latest .
+                                    """
+                                }
+                            }
             }
         }
 
@@ -84,19 +90,26 @@ pipeline {
                 changeset "edith-back/${SERVER_NAME}/**"
             }
             steps {
-                script {
-                    sh """
-                    ssh -o StrictHostKeyChecking=no -i $SSH_INFO $SSH_INFO_USR@$EC2_IP <<-EOF
-                    docker stop scg || true
-                    docker rm scg || true
-                    docker rmi scg:latest || true
-                    docker system prune -f --volumes
-                    docker pull scg:latest
-                    docker run -it -d --name scg -p $SERVER_PORT:$SERVER_PORT -e SPRING_JWT_SECRET=$SPRING_JWT_SECRET scg:latest
-                    EOF
-                    """.stripIndent()
-                }
-            }
+                            script {
+                                withCredentials([
+                                     string(credentialsId: 'SPRING_JWT_SECRET', variable: 'SPRING_JWT_SECRET'),
+                                ])
+                                {
+                                    sh """
+                                    ssh -o StrictHostKeyChecking=no -i $SSH_INFO $SSH_INFO_USR@$EC2_IP <<-EOF
+                                    export SPRING_JWT_SECRET=${SPRING_JWT_SECRET}
+                                    docker stop scg || true
+            	                    docker rm scg || true
+                                    docker rmi scg:latest || true
+                                    docker system prune -f --volumes
+                                    docker pull scg:latest
+                                    docker run -it -d --name scg -p $SERVER_PORT:$SERVER_PORT -e SPRING_JWT_SECRET=$SPRING_JWT_SECRET scg:latest
+
+                                    EOF
+                                    """.stripIndent()
+                                }
+                            }
+                        }
         }
 
         // stage('Logout from Docker Registry') {
