@@ -1,3 +1,6 @@
+# jenkins 환경변수 추가
+ARG SPRING_JWT_SECRET
+ENV SPRING_JWT_SECRET=$SPRING_JWT_SECRET
 # 빌드 단계
 FROM gradle:7.6.1-jdk17 AS builder
 
