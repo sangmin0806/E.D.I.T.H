@@ -46,7 +46,7 @@ pipeline {
                     chmod +x ./gradlew
                     ./gradlew build
                     ls build/libs
-                    docker build --build-arg SPRING_JWT_SECRET=$SPRING_JWT_SECRET -t scg:latest .
+                    docker build -f Dockerfile --build-arg SPRING_JWT_SECRET=$SPRING_JWT_SECRET -t scg:latest .
                     """
                 }
             }
