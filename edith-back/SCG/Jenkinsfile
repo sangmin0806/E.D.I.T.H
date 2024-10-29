@@ -45,7 +45,7 @@ pipeline {
                                 ]){
                                     skipRemainingStages = false
                                     sh """
-                                    cd backend/SCG
+                                    cd edith-back/${SERVER_NAME}
                                     chmod +x ./gradlew
                                     ./gradlew build
                                     ls build/libs
@@ -104,7 +104,6 @@ pipeline {
                                     docker system prune -f --volumes
                                     docker pull scg:latest
                                     docker run -it -d --name scg -p $SERVER_PORT:$SERVER_PORT -e SPRING_JWT_SECRET=$SPRING_JWT_SECRET scg:latest
-
                                     EOF
                                     """.stripIndent()
                                 }
