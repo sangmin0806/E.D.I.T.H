@@ -46,7 +46,7 @@ pipeline {
                     chmod +x ./gradlew
                     ./gradlew build
                     ls build/libs
-                    docker build -t scg:latest .
+                    docker build --build-arg SPRING_JWT_SECRET=$SPRING_JWT_SECRET -t scg:latest .
                     """
                 }
             }
@@ -92,7 +92,7 @@ pipeline {
                     docker rmi scg:latest || true
                     docker system prune -f --volumes
                     docker pull scg:latest
-                    docker run -it -d --name scg -p $SERVER_PORT:$SERVER_PORT scg:latest
+                    docker run -it -d --name scg -p $SERVER_PORT:$SERVER_PORT -e SPRING_JWT_SECRET=$SPRING_JWT_SECRET scg:latest
                     EOF
                     """.stripIndent()
                 }
