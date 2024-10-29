@@ -77,16 +77,18 @@ function JoinPage() {
                 <div className="w-40 text-black text-xl font-semibold">
                   비밀번호
                 </div>
-                <input
-                  name="pw"
-                  type="password"
-                  className="w-96 p-3 bg-white rounded-2xl border border-zinc-400"
-                  value={joinInfo.pw}
-                  onChange={handleInputChange}
-                />
-                {passwordError && (
-                  <p className="text-red-500">{passwordError}</p>
-                )}
+                <div className="flex flex-col">
+                  <input
+                    name="pw"
+                    type="password"
+                    className="w-96 p-3 bg-white rounded-2xl border border-zinc-400"
+                    value={joinInfo.pw}
+                    onChange={handleInputChange}
+                  />
+                  {passwordError && (
+                    <p className="text-red-500">{passwordError}</p>
+                  )}
+                </div>
               </div>
               <div className="justify-start items-center gap-4 inline-flex">
                 <div className="w-40 text-black text-xl font-semibold">
