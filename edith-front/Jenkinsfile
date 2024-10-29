@@ -27,7 +27,7 @@ pipeline {
                 checkout([$class: 'GitSCM',
                     branches: [[name: '*/develop']],
                     userRemoteConfigs: [[
-                        url: ${REPO_URL},
+                        url: "${REPO_URL}",
                         credentialsId: 'GitLab_Personal_Access_Token'
                     ]],
                     extensions: [[$class: 'SparseCheckoutPaths', sparseCheckoutPaths: [[path: "${CHECKOUT_FOLDER}/"]]]]
@@ -84,13 +84,13 @@ pipeline {
             steps {
                 script {
                     sh """
-                    ssh -o StrictHostKeyChecking=no -i $SSH_INFO $SSH_INFO_USR@$EC2_IP <<-EOF
+                    ssh -o StrictHostKeyChecking=no -i ${SSH_INFO} ${SSH_INFO_USR}@${EC2_IP} <<-EOF
                     docker stop ${SERVER_NAME} || true
                     docker rm ${SERVER_NAME} || true
                     docker rmi ${SERVER_NAME}:latest || true
                     docker system prune -f --volumes
                     docker pull ${SERVER_NAME}:latest
-                    docker run -it -d --name ${SERVER_NAME} -p $SERVER_PORT:80 ${SERVER_NAME}:latest
+                    docker run -it -d --name ${SERVER_NAME} -p ${SERVER_PORT}:80 ${SERVER_NAME}:latest
                     EOF
                     """.stripIndent()
                 }
