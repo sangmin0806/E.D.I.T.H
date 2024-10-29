@@ -6,6 +6,8 @@ frontend:
 spring:
   application:
     name: SCG
+  jwt:
+    secret: ${SPRING_JWT_SECRET}
   cloud:
     gateway:
       routes:
@@ -13,9 +15,6 @@ spring:
           uri: http://k11c206.p.ssafy.io:8081
           predicates:
             - Path=/api/v1/users/**
-
-  jwt:
-    secret: ${SPRING_JWT_SECRET}
 
 server:
   port: 8080
