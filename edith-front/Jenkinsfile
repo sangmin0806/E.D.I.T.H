@@ -59,7 +59,7 @@ pipeline {
             steps {
                 script {
                     sh """
-                    docker login -u $DOCKER_USERINFO_USR -p $DOCKER_USERINFO_PSW
+                    docker login -u ${DOCKER_USERINFO_USR} -p ${DOCKER_USERINFO_PSW}
                     """
                 }
             }
@@ -72,8 +72,9 @@ pipeline {
             steps {
                 script {
                     sh """
-                    docker tag ${SERVER_NAME}:latest $DOCKER_REPO_USR/$DOCKER_REPO_PSW:${SERVER_NAME}-latest
-                    docker push $DOCKER_REPO_USR/$DOCKER_REPO_PSW:${SERVER_NAME}-latest
+                    docker tag ${SERVER_NAME}:latest ${DOCKER_REPO_USR}/${DOCKER_REPO_PSW}:${SERVER_NAME}-latest
+                    docker push ${DOCKER_REPO_USR}/${DOCKER_REPO_PSW}:${SERVER_NAME}-latest
+                    docker rmi ${SERVER_NAME}:latest || true
                     """
                 }
             }
@@ -89,8 +90,9 @@ pipeline {
                     ssh -o StrictHostKeyChecking=no -i ${SSH_INFO} ${SSH_INFO_USR}@${EC2_IP} <<-EOF
                     docker stop ${SERVER_NAME} || true
                     docker rm ${SERVER_NAME} || true
-                    docker rmi ${SERVER_NAME}:latest || true
+                    docker rmi ${DOCKER_REPO_USR}/${DOCKER_REPO_PSW}:${SERVER_NAME}-latest || true
                     docker system prune -f --volumes
+                    docker pull ${DOCKER_REPO_USR}/${DOCKER_REPO_PSW}:${SERVER_NAME}-latest
                     docker run -it -d --name ${SERVER_NAME} -p ${SERVER_PORT}:80 ${DOCKER_REPO_USR}/${DOCKER_REPO_PSW}:${SERVER_NAME}-latest
                     EOF
                     """.stripIndent()
