@@ -91,7 +91,6 @@ pipeline {
                     docker rm ${SERVER_NAME} || true
                     docker rmi ${SERVER_NAME}:latest || true
                     docker system prune -f --volumes
-                    docker pull ${DOCKER_REPO_USR}/${DOCKER_REPO_PSW}:${SERVER_NAME}-latest
                     docker run -it -d --name ${SERVER_NAME} -p ${SERVER_PORT}:80 ${DOCKER_REPO_USR}/${DOCKER_REPO_PSW}:${SERVER_NAME}-latest
                     EOF
                     """.stripIndent()
