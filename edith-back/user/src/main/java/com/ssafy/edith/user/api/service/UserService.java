@@ -18,17 +18,13 @@ public class UserService {
 
     public User signUp(UserRequest userRequest) {
 
-        if (userRepository.existsByEmail(userRequest.email())) {
-            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
-        }
-
         String encryptedPassword = passwordEncoder.encode(userRequest.password());
         String encryptedAccessToken = encryptionUtil.encrypt(userRequest.gitlabPersonalAccessToken());
 
         User user = User.builder()
                 .email(userRequest.email())
                 .password(encryptedPassword)
-                .gitlabBaseUrl(userRequest.gitlabBaseUrl())
+                .vcsBaseUrl(userRequest.vcsBaseUrl())
                 .gitlabPersonalAccessToken(encryptedAccessToken)
                 .build();
 

@@ -14,16 +14,18 @@ public class User extends BaseEntity{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true, nullable = false)
     private String email;
+
     private String password;
-    private String gitlabBaseUrl;
+    private String vcsBaseUrl;
     private String gitlabPersonalAccessToken;
 
     @Builder
-    public User(String email, String password, String gitlabBaseUrl, String gitlabPersonalAccessToken) {
+    public User(String email, String password, String vcsBaseUrl, String gitlabPersonalAccessToken) {
         this.email = email;
         this.password = password;
-        this.gitlabBaseUrl = gitlabBaseUrl;
+        this.vcsBaseUrl = vcsBaseUrl;
         this.gitlabPersonalAccessToken = gitlabPersonalAccessToken;
     }
 }
