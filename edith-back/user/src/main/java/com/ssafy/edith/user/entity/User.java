@@ -19,13 +19,13 @@ public class User extends BaseEntity{
 
     private String password;
     private String vcsBaseUrl;
-    private String gitlabPersonalAccessToken;
+    private String vcsAccessToken;
 
     @Builder
-    public User(String email, String password, String vcsBaseUrl, String gitlabPersonalAccessToken) {
+    public User(String email, String password, String vcsBaseUrl, String vcsAccessToken) {
         this.email = email;
         this.password = password;
         this.vcsBaseUrl = vcsBaseUrl;
-        this.gitlabPersonalAccessToken = gitlabPersonalAccessToken;
+        this.vcsAccessToken = vcsAccessToken;
     }
 }

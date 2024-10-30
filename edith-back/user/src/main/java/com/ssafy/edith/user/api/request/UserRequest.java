@@ -4,5 +4,5 @@ public record UserRequest(
         String email,
         String password,
         String vcsBaseUrl,
-        String gitlabPersonalAccessToken) {
+        String vcsAccessToken) {
 }
