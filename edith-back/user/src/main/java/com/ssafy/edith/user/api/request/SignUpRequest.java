@@ -2,7 +2,7 @@ package com.ssafy.edith.user.api.request;
 
 import com.ssafy.edith.user.entity.User;
 
-public record UserRequest(
+public record SignUpRequest(
         String email,
         String password,
         String vcsBaseUrl,

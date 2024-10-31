@@ -1,6 +1,7 @@
 package com.ssafy.edith.user.jwt;
 
 
+import com.ssafy.edith.user.api.request.SignInRequest;
 import com.ssafy.edith.user.jwt.valueobject.JwtPayload;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -59,10 +60,13 @@ public class JwtUtil {
         }
         return null;
     }
+    public String createJwtToken(Long userId,String email) {
+        JwtPayload jwtPayload = JwtPayload.of(userId,email);
+        return generateToken(jwtPayload);
+    }
 
     public String generateToken(JwtPayload jwtPayload) {
         return Jwts.builder()
-                .setSubject(jwtPayload.providerId())
                 .claim("userId", jwtPayload.userId())
                 .claim("email", jwtPayload.email())
                 .setIssuedAt(new Date())
