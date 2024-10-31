@@ -53,7 +53,7 @@ function RepoList() {
   return (
     <div className="w-full rounded-3xl flex-col justify-center items-center gap-4 inline-flex">
       {data.map((d) => (
-        <div key={d.id} onClick={() => handleClick(d.id)}>
+        <div key={d.id} onClick={() => handleClick(d.id)} className="w-full">
           <RepoListBox
             subject={d.subject}
             content={d.content}
