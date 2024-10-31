@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: user
+  jwt:
+    secret: ${SPRING_JWT_SECRET}
+  datasource:
+    url: jdbc:mysql://localhost:3306/user_database # url 수정예정
+    username: ssafy
+    password: ssafy
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+server:
+  port: 8081
