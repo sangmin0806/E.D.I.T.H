@@ -6,6 +6,7 @@
   ],
    //변수가 선언되었지만 값이 읽히지 않은 경우 생기는 build 에러 무시하기
    "compilerOptions": {
+    "strict": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "allowJs": true, // JavaScript 파일을 허용
