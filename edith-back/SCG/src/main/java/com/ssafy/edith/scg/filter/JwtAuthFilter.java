@@ -34,10 +34,12 @@ public class JwtAuthFilter extends AbstractGatewayFilterFactory<JwtAuthFilter.Co
                     exchange.getResponse().getHeaders().add("Token-Status", "expired");
                     return exchange.getResponse().setComplete();
                 }
+                else{
+                    return jwtUtil.onError(exchange, "Invalid JWT Token", HttpStatus.UNAUTHORIZED);
+                }
             }
 
-
-            return jwtUtil.onError(exchange,"JWT Token expired", HttpStatus.UNAUTHORIZED);
+            return jwtUtil.onError(exchange,"JWT Token is missing", HttpStatus.UNAUTHORIZED);
         };
     }
 

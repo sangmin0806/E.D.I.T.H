@@ -34,21 +34,24 @@ public class JwtUtil {
     }
 
     public Claims extractClaims(String token) throws JwtException {
-        return Jwts.parser()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
+        try {
+            return Jwts.parser()
+                    .setSigningKey(secretKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (JwtException e) {
+            return null;
+        }
     }
 
-    public boolean isJwtExpired(String token) throws JwtException {
+    public boolean isJwtExpired(String token) {
         Claims claims = extractClaims(token);
-        return claims.getExpiration().before(new Date());
+        return claims == null || claims.getExpiration().before(new Date());
     }
 
-    public boolean isJwtValid(String token) throws JwtException {
-        extractClaims(token);
-        return true;
+    public boolean isJwtValid(String token) {
+        return extractClaims(token) != null;
     }
 
     public Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus status) {
