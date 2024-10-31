@@ -7,11 +7,15 @@ const JoinPage = React.lazy(() => import("./pages/common/JoinPage"));
 const FinishJoinPage = React.lazy(
   () => import("./pages/common/FinishJoinPage")
 );
+const RepoPage = React.lazy(() => import("./pages/repos/RepoPage"));
+const RepoDetailPage = React.lazy(() => import("./pages/repos/RepoDetailPage"));
 
-const Portfolio = React.lazy(() => import("./pages/repos/Portfolio"));
-const RepoDashboard = React.lazy(() => import("./pages/repos/RepoDashboard"));
-const RepoEnroll = React.lazy(() => import("./pages/repos/RepoEnroll"));
-const RepoList = React.lazy(() => import("./pages/repos/RepoList"));
+// const Portfolio = React.lazy(() => import("./pages/repos/Portfolio"));
+// const RepoDashboard = React.lazy(
+//   () => import("./componets/repos/RepoDashboard")
+// );
+// const RepoEnroll = React.lazy(() => import("./componets/repos/RepoEnroll"));
+// const RepoList = React.lazy(() => import("./componets/repos/RepoList"));
 
 function App() {
   return (
@@ -25,10 +29,14 @@ function App() {
             <Route path="/join" element={<JoinPage />} />
             <Route path="/join/finish" element={<FinishJoinPage />} />
             {/* Repo Domain */}
-            <Route path="/repository/list" element={<RepoList />} />
-            <Route path="/repository/enroll" element={<RepoEnroll />} />
-            <Route path="/repository/:repoID" element={<RepoDashboard />} />
-            <Route path="/portfolio/:repoID" element={<Portfolio />} />
+
+            <Route path="/repo" element={<RepoPage />} />
+            <Route path="/repo/detail" element={<RepoDetailPage />} />
+            {/* <Route path="/repo" element={<RepoEnroll />} /> */}
+            {/* <Route path="/repo/list" element={<RepoList />} />
+            <Route path="/repo/enroll" element={<RepoEnroll />} />
+            <Route path="/repo/dashboard/:repoID" element={<RepoDashboard />} />
+            <Route path="/repo/portfolio/:repoID" element={<Portfolio />} /> */}
           </Routes>
         </Suspense>
       </BrowserRouter>
