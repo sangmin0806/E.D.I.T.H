@@ -17,12 +17,12 @@ public class GitLabClient {
     private final RestTemplate restTemplate;
 
     public void registerWebhook(String branch, Integer projectId, String personalAccessToken) {
-        String url = "https://lab.ssafy.com/api/v4/projects/824085/hooks";
+        String url = "https://lab.ssafy.com/api/v4/projects/" + projectId + "/hooks";
 
         // 헤더 설정
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("PRIVATE-TOKEN", personalAccessToken);
+         headers.set("PRIVATE-TOKEN", personalAccessToken);
 
         // 요청 본문 생성
         RegisterWebhookRequest requestBody = createRequestBody(branch);
