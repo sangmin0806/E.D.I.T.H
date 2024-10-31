@@ -23,4 +23,11 @@ public class UserController {
         userService.signUp(userRequest);
         return success(null);
     }
+
+    @PostMapping("/sign-in")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResult<Void> signIn(@RequestBody UserRequest userRequest) {
+        userService.signUp(userRequest);
+        return success(null);
+    }
 }

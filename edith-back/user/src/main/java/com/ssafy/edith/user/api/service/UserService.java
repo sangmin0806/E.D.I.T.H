@@ -29,12 +29,7 @@ public class UserService {
         String encryptedPassword = passwordEncoder.encode(userRequest.password());
         String encryptedAccessToken = encryptionUtil.encrypt(userRequest.vcsAccessToken());
 
-        User user = User.builder()
-                .email(userRequest.email())
-                .password(encryptedPassword)
-                .vcsBaseUrl(userRequest.vcsBaseUrl())
-                .vcsAccessToken(encryptedAccessToken)
-                .build();
+        User user = userRequest.toEntity(encryptedPassword, encryptedAccessToken);
 
         return userRepository.save(user);
     }
