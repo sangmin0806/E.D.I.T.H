@@ -34,4 +34,9 @@ public class UserController {
         SignInResponse signInResponse = userService.signIn(signInRequest, response);
         return success(signInResponse);
     }
+    @GetMapping("/test")
+    public ApiResult<String> test() {
+        System.out.println("test success");
+        return success("test success");
+    }
 }

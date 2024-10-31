@@ -9,6 +9,13 @@ spring:
   cloud:
     gateway:
       routes:
+        - id: user-test
+          uri: http://localhost:8081 # User 서버 주소
+          predicates:
+            - Path=/api/v1/users/test
+          filters:
+            - name: JwtAuthFilter
+
         - id: user
           uri: http://localhost:8081
           predicates:

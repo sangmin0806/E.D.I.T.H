@@ -41,9 +41,14 @@ public class JwtUtil {
                 .getBody();
     }
 
-    public boolean isJwtValid(String token) throws JwtException {
+    public boolean isJwtExpired(String token) throws JwtException {
         Claims claims = extractClaims(token);
-        return !claims.getExpiration().before(new Date());
+        return claims.getExpiration().before(new Date());
+    }
+
+    public boolean isJwtValid(String token) throws JwtException {
+        extractClaims(token);
+        return true;
     }
 
     public Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus status) {
