@@ -13,7 +13,7 @@ function Header({ repoPage }: HeaderProps) {
 
   return (
     <>
-      <div className="w-24 h-[100vh] bg-black flex flex-col items-center">
+      <div className="fixed left-0 top-0 w-24 h-full bg-black flex flex-col items-center">
         <img className="border-b-white w-[64px] h-[64px]" src={logoImg} />
         <img className="w-[64px] h-[64px]" src={repoImg} />
         <img className="w-[64px] h-[64px]" src={settingImg} />

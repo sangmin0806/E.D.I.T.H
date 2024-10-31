@@ -16,7 +16,7 @@ function RepoPage() {
     <>
       <div className="flex w-[100vw] bg-[#F5F6F6] gap-[1rem]">
         <Header repoPage={true} />
-        <main className="w-full flex flex-col mt-4 mb-4 ml-12 mr-12 gap-[3rem]">
+        <main className=" w-full flex flex-col mt-4 mb-4 ml-[148px] mr-12 gap-[3rem] justify-center">
           <UserHeader
             userGitAccount={data.account}
             userImgSrc={data.accountImg}
