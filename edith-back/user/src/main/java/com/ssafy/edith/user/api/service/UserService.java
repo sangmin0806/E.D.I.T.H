@@ -4,6 +4,7 @@ import com.ssafy.edith.user.api.request.SignInRequest;
 import com.ssafy.edith.user.api.request.SignUpRequest;
 import com.ssafy.edith.user.api.response.SignInResponse;
 import com.ssafy.edith.user.client.VersionControlClient;
+import com.ssafy.edith.user.client.valueobject.GitLabProfile;
 import com.ssafy.edith.user.entity.User;
 import com.ssafy.edith.user.jwt.valueobject.JwtPayload;
 import com.ssafy.edith.user.util.JwtUtil;
@@ -23,9 +24,7 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final EncryptionUtil encryptionUtil;
     private final JwtUtil jwtUtil;
-
     private final RedisUtil redisUtil;
-
     private final VersionControlClient versionControlClient;
 
     public User signUp(SignUpRequest signUpRequest) {
@@ -51,7 +50,11 @@ public class UserService {
 
         redisUtil.storeRefreshToken(user.getId(), refreshToken);
 
-        return SignInResponse.of(user.getId(), user.getEmail(), accessToken);
+        String decryptedAccessToken = EncryptionUtil.decrypt(user.getVcsAccessToken());
+
+        GitLabProfile profile = versionControlClient.fetchProfile(user.getVcsBaseUrl(), decryptedAccessToken);
+
+        return SignInResponse.of(user.getId(), user.getEmail(), accessToken, profile.username(), profile.name(), profile.avatar_url());
     }
 
     public String refreshAccessToken(String refreshToken) {
