@@ -1,9 +1,9 @@
-import exampleProfileImg from "../../assets/profile.jpg";
+import { useState } from "react";
+import defaultImg from "../../assets/defaultImg.jpg";
 interface UserProps {
   userGitAccount: string;
-  userImgSrc: string;
 }
-function UserHeader({ userGitAccount, userImgSrc }: UserProps) {
+function UserHeader({ userGitAccount }: UserProps) {
   return (
     <>
       <div className="flex justify-center ml-4 mr-4">
@@ -11,7 +11,6 @@ function UserHeader({ userGitAccount, userImgSrc }: UserProps) {
           <p className="text-black text-[28px] font-semibold">
             @{userGitAccount} Projects 💻
           </p>
-          <img src={exampleProfileImg} className="w-12 h-12 rounded-full" />
         </div>
       </div>
     </>
