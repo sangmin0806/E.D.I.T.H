@@ -51,7 +51,12 @@ public class JwtUtil {
     }
 
     public boolean isJwtValid(String token) {
-        return extractClaims(token) != null;
+        try {
+            Jwts.parser().setSigningKey(secretKey).build().parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     public Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus status) {

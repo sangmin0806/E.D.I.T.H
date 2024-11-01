@@ -1,7 +1,5 @@
 package com.ssafy.edith.user.common.error;
 
-
-import com.ssafy.edith.user.api.controller.ApiUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.ConstraintViolationException;

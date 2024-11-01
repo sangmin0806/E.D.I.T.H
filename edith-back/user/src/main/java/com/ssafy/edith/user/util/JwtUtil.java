@@ -1,38 +1,35 @@
-package com.ssafy.edith.user.jwt;
+package com.ssafy.edith.user.util;
 
 
-import com.ssafy.edith.user.api.request.SignInRequest;
 import com.ssafy.edith.user.jwt.valueobject.JwtPayload;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
 public class JwtUtil {
 
     private final SecretKey secretKey;
-    private final long expirationTime = 3600000;
+    private final long accessTokenExpiration;
+    private final long refreshTokenExpiration;
 
-    public JwtUtil(@Value("${spring.jwt.secret}") String secret) {
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes());
+    public JwtUtil(@Value("${spring.jwt.secret}") String secret,
+                   @Value("${spring.jwt.access-token-expiration}") long accessTokenExpiration,
+                   @Value("${spring.jwt.refresh-token-expiration}") long refreshTokenExpiration) {
+        this.secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
+        this.accessTokenExpiration = accessTokenExpiration;
+        this.refreshTokenExpiration = refreshTokenExpiration;
     }
 
-    public boolean isJwtValid(String token) {
-        try {
-            Jwts.parser().setSigningKey(secretKey).build().parseClaimsJws(token);
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
-    }
     public String extractUserEmail(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(secretKey)
@@ -60,8 +57,17 @@ public class JwtUtil {
         }
         return null;
     }
-    public String createJwtToken(Long userId,String email) {
-        JwtPayload jwtPayload = JwtPayload.of(userId,email);
+
+    public String generateRefreshToken(JwtPayload jwtPayload) {
+        return Jwts.builder()
+                .claim("userId", jwtPayload.userId())
+                .claim("email", jwtPayload.email())
+                .setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpiration))
+                .signWith(secretKey)
+                .compact();
+    }
+
+    public String createJwtToken(JwtPayload jwtPayload) {
         return generateToken(jwtPayload);
     }
 
@@ -70,7 +76,7 @@ public class JwtUtil {
                 .claim("userId", jwtPayload.userId())
                 .claim("email", jwtPayload.email())
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+                .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
     }
