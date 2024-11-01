@@ -17,38 +17,43 @@ function RepoEnrollContainer() {
   return (
     <>
       <div className="flex items-center justify-center">
-        <div className="w-full max-w-[840px] px-12 py-10 bg-white/30 rounded-3xl flex-col justify-center gap-6 inline-flex">
+        <div className="w-full max-w-[840px] px-12 py-6 bg-white/30 rounded-3xl flex-col justify-center gap-4 inline-flex">
           <h2 className="text-black text-2xl font-bold">New Repository</h2>
           <div className="w-full px-8 py-8 bg-white/30 rounded-3xl flex-col justify-center shadow-custom items-center gap-6 inline-flex">
             <div className="flex w-full items-center justify-center">
-              <p className="w-80 text-black text-xl font-medium">
+              <p className="w-64 text-black text-lg font-medium">
                 레포지토리 URL
               </p>
-              <input className="flex h-10 w-full max-w-[540px] bg-white rounded-2xl border border-zinc-400" />
+              <input className="flex h-8 w-full max-w-[400px] bg-white rounded-2xl border border-zinc-400" />
             </div>
 
             <div className="flex w-full items-center justify-center">
-              <p className="w-80 text-black text-xl font-medium">
+              <p className="w-64 text-black text-lg font-medium">
                 레포지토리 이름
               </p>
-              <input className="flex h-10 w-full max-w-[540px] bg-white rounded-2xl border border-zinc-400" />
+              <input className="flex h-8 w-full max-w-[400px] bg-white rounded-2xl border border-zinc-400" />
             </div>
 
             <div className="flex w-full items-center justify-center">
-              <p className="w-80 text-black text-xl font-medium">
+              <p className="w-64 text-black text-lg font-medium">
                 Personal token
               </p>
-              <input className="flex h-10 w-full max-w-[540px] bg-white rounded-2xl border border-zinc-400" />
+              <input className="flex h-8 w-full max-w-[400px] bg-white rounded-2xl border border-zinc-400" />
+            </div>
+
+            <div className="flex w-full items-center justify-center">
+              <p className="w-64 text-black text-lg font-medium">branch 이름</p>
+              <input className="flex h-8 w-full max-w-[400px] bg-white rounded-2xl border border-zinc-400" />
             </div>
 
             <div className="flex w-full justify-center">
-              <p className="w-80 text-black text-xl font-medium">설명 (선택)</p>
-              <textarea className="flex h-20 w-full max-w-[540px] bg-white rounded-2xl border border-zinc-400" />
+              <p className="w-64 text-black text-lg font-medium">설명 (선택)</p>
+              <textarea className="flex h-16 w-full max-w-[400px] bg-white rounded-2xl border border-zinc-400" />
             </div>
 
             <div className="flex w-full justify-center">
-              <p className="w-80 text-black text-xl font-medium">코드 리뷰</p>
-              <label className="w-full max-w-[540px] inline-flex items-center cursor-pointer">
+              <p className="w-64 text-black text-lg font-medium">코드 리뷰</p>
+              <label className="w-full max-w-[400px] inline-flex items-center cursor-pointer">
                 <input
                   type="checkbox"
                   className="sr-only peer"
@@ -60,18 +65,18 @@ function RepoEnrollContainer() {
             </div>
             <div className="flex gap-2 mt-4">
               <div
-                className="p-1.5 bg-white rounded-2xl border border-black justify-center items-center inline-flex"
+                className="p-1 bg-white rounded-2xl border border-black justify-center items-center inline-flex"
                 onClick={toggleComponent}
               >
-                <p className="w-24 text-center text-black text-xl font-medium">
+                <p className="w-24 text-center text-black text-lg font-medium">
                   취소하기
                 </p>
               </div>
               <div
-                className="p-1.5 bg-black rounded-2xl justify-center items-center inline-flex"
+                className="p-1 bg-black rounded-2xl justify-center items-center inline-flex"
                 onClick={handleSave}
               >
-                <p className="w-24 text-center text-white text-xl font-medium">
+                <p className="w-24 text-center text-white text-lg font-medium">
                   등록하기
                 </p>
               </div>

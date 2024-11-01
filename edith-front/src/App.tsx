@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import HeaderLayout from "../src/componets/header/HeaderLayout";
 
 const MainPage = React.lazy(() => import("./pages/common/MainPage"));
 const JoinPage = React.lazy(() => import("./pages/common/JoinPage"));
@@ -8,35 +9,56 @@ const FinishJoinPage = React.lazy(
   () => import("./pages/common/FinishJoinPage")
 );
 const RepoPage = React.lazy(() => import("./pages/repos/RepoPage"));
-const RepoDetailPage = React.lazy(() => import("./pages/repos/RepoDetailPage"));
-
-// const Portfolio = React.lazy(() => import("./pages/repos/Portfolio"));
-// const RepoDashboard = React.lazy(
-//   () => import("./componets/repos/RepoDashboard")
-// );
-// const RepoEnroll = React.lazy(() => import("./componets/repos/RepoEnroll"));
-// const RepoList = React.lazy(() => import("./componets/repos/RepoList"));
+const DashboardPage = React.lazy(() => import("./pages/repos/DashBoard"));
+const PortfolioPage = React.lazy(() => import("./pages/repos/PortfolioPage"));
+const MyPorfolioListPage = React.lazy(
+  () => import("./pages/repos/MyPortfolioPage")
+);
 
 function App() {
   return (
     <HelmetProvider>
       <BrowserRouter>
-        {/* 로딩중 */}
-        <Suspense fallback={<div>loading</div>}>
+        <Suspense fallback={<div>loading...</div>}>
           <Routes>
-            {/* Common Domain */}
+            {/* 헤더가 없는 라우트 */}
             <Route path="/" element={<MainPage />} />
             <Route path="/join" element={<JoinPage />} />
             <Route path="/join/finish" element={<FinishJoinPage />} />
-            {/* Repo Domain */}
 
-            <Route path="/repo" element={<RepoPage />} />
-            <Route path="/repo/detail" element={<RepoDetailPage />} />
-            {/* <Route path="/repo" element={<RepoEnroll />} /> */}
-            {/* <Route path="/repo/list" element={<RepoList />} />
-            <Route path="/repo/enroll" element={<RepoEnroll />} />
-            <Route path="/repo/dashboard/:repoID" element={<RepoDashboard />} />
-            <Route path="/repo/portfolio/:repoID" element={<Portfolio />} /> */}
+            {/* 헤더가 포함된 라우트 */}
+            <Route
+              path="/repo"
+              element={
+                <HeaderLayout>
+                  <RepoPage />
+                </HeaderLayout>
+              }
+            />
+            <Route
+              path="/dashboard" //나중에 dashboardID 파라미터로 추가하기
+              element={
+                <HeaderLayout>
+                  <DashboardPage />
+                </HeaderLayout>
+              }
+            />
+            <Route
+              path="/portfolio" //나중에 portfolioID 파라미터로 추가하기
+              element={
+                <HeaderLayout>
+                  <PortfolioPage />
+                </HeaderLayout>
+              }
+            />
+            <Route
+              path="/portfolio/my" //나중에 portfolioID 파라미터로 추가하기
+              element={
+                <HeaderLayout>
+                  <MyPorfolioListPage />
+                </HeaderLayout>
+              }
+            />
           </Routes>
         </Suspense>
       </BrowserRouter>

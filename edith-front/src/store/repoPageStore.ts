@@ -5,6 +5,8 @@ interface ComponentState {
   showDashboard: boolean;
   toggleComponent: () => void;
   togglePortfolio: () => void;
+  setShowComponentTrue: () => void;
+  setShowDashboardTrue: () => void;
 }
 
 export const useComponentStore = create<ComponentState>((set) => ({
@@ -14,4 +16,6 @@ export const useComponentStore = create<ComponentState>((set) => ({
     set((state) => ({ showComponentList: !state.showComponentList })),
   togglePortfolio: () =>
     set((state) => ({ showDashboard: !state.showDashboard })),
+  setShowComponentTrue: () => set({ showComponentList: true }),
+  setShowDashboardTrue: () => set({ showDashboard: true }),
 }));
