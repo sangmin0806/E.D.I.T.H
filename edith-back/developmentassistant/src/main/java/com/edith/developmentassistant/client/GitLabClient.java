@@ -16,7 +16,7 @@ public class GitLabClient {
 
     private final RestTemplate restTemplate;
 
-    public void registerWebhook(String branch, Integer projectId, String personalAccessToken) {
+    public void registerWebhook(String branch, Long projectId, String personalAccessToken) {
         String url = "https://lab.ssafy.com/api/v4/projects/" + projectId + "/hooks";
 
         // 헤더 설정
