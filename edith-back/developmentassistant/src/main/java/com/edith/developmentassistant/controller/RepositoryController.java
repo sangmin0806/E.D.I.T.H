@@ -21,7 +21,8 @@ public class RepositoryController {
 
     @PostMapping
     public ApiResult<RegisterRepositoryResponse> registerRepository(
-            @RequestBody RegisterRepositoryRequest registerRepositoryRequest) {
+            @RequestBody RegisterRepositoryRequest registerRepositoryRequest)
+    {
         RegisterRepositoryResponse registerRepositoryResponse = repositoryService.registerRepository(
                 registerRepositoryRequest.toRegisterRepositoryServiceRequest());
         return success(registerRepositoryResponse);

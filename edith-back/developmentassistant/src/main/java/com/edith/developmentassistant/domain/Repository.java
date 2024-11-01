@@ -24,6 +24,7 @@ public class Repository extends BaseEntity {
     Long projectId;
     String pushEventsBranchFilter;
     boolean codeReview;
+    Long userId;
 
     @Builder
     private Repository(String url,
@@ -32,7 +33,8 @@ public class Repository extends BaseEntity {
                        String description,
                        Long projectId,
                        String pushEventsBranchFilter,
-                       boolean codeReview) {
+                       boolean codeReview,
+                          Long userId) {
         this.url = url;
         this.name = name;
         this.personalAccessToken = personalAccessToken;
@@ -40,6 +42,7 @@ public class Repository extends BaseEntity {
         this.projectId = projectId;
         this.pushEventsBranchFilter = pushEventsBranchFilter;
         this.codeReview = codeReview;
+        this.userId = userId;
     }
 
     public RegisterRepositoryResponse toRegisterRepositoryResponse() {

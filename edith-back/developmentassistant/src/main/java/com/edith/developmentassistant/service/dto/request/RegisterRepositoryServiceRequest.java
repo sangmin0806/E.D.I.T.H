@@ -9,7 +9,8 @@ public record RegisterRepositoryServiceRequest(
         String description,
         Long projectId,
         String pushEventsBranchFilter,
-        boolean codeReview
+        boolean codeReview,
+        Long userId
 ) {
     public Repository toRepository() {
         return Repository.builder()
@@ -20,6 +21,7 @@ public record RegisterRepositoryServiceRequest(
                 .projectId(this.projectId)
                 .pushEventsBranchFilter(this.pushEventsBranchFilter)
                 .codeReview(this.codeReview)
+                .userId(this.userId)
                 .build();
     }
 }
