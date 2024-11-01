@@ -5,11 +5,11 @@ import com.ssafy.edith.user.api.request.SignUpRequest;
 import com.ssafy.edith.user.api.response.SignInResponse;
 import com.ssafy.edith.user.client.VersionControlClient;
 import com.ssafy.edith.user.entity.User;
-import com.ssafy.edith.user.jwt.JwtUtil;
+import com.ssafy.edith.user.jwt.valueobject.JwtPayload;
+import com.ssafy.edith.user.util.JwtUtil;
 import com.ssafy.edith.user.repository.UserRepository;
-import com.ssafy.edith.user.util.CookieUtil;
 import com.ssafy.edith.user.util.EncryptionUtil;
-import jakarta.servlet.http.HttpServletResponse;
+import com.ssafy.edith.user.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,8 @@ public class UserService {
     private final BCryptPasswordEncoder passwordEncoder;
     private final EncryptionUtil encryptionUtil;
     private final JwtUtil jwtUtil;
-    private final CookieUtil cookieUtil;
+
+    private final RedisUtil redisUtil;
 
     private final VersionControlClient versionControlClient;
 
@@ -40,14 +41,35 @@ public class UserService {
 
         return userRepository.save(user);
     }
-    public SignInResponse signIn(SignInRequest signInRequest, HttpServletResponse response) {
+    public SignInResponse signIn(SignInRequest signInRequest) {
         User user = validateUserCredentials(signInRequest);
 
-        String accessToken = jwtUtil.createJwtToken(user.getId(), user.getEmail());
+        JwtPayload jwtPayload = JwtPayload.of(user.getId(), user.getEmail());
 
-        cookieUtil.addTokenToCookie(response,accessToken);
+        String accessToken = jwtUtil.createJwtToken(jwtPayload);
+        String refreshToken = jwtUtil.generateRefreshToken(jwtPayload);
 
-        return new SignInResponse(user.getId(), user.getEmail(), accessToken);
+        redisUtil.storeRefreshToken(user.getId(), refreshToken);
+
+        return SignInResponse.of(user.getId(), user.getEmail(), accessToken);
+    }
+
+    public String refreshAccessToken(String refreshToken) {
+        User user = validateRefreshToken(refreshToken);
+
+        JwtPayload jwtPayload = JwtPayload.of(user.getId(), user.getEmail());
+
+        return jwtUtil.createJwtToken(jwtPayload);
+    }
+
+    private User  validateRefreshToken(String refreshToken) {
+        Long userId = jwtUtil.extractUserId(refreshToken);
+
+        if (userId == null || !redisUtil.isValidRefreshToken(userId, refreshToken)) {
+            throw new IllegalArgumentException("Invalid or expired refresh token");
+        }
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 
     private User validateUserCredentials(SignInRequest signInRequest) {

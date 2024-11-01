@@ -3,11 +3,17 @@ package com.ssafy.edith.user.util;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CookieUtil {
-    private static final int COOKIE_EXPIRATION_TIME = 3600;
+
+    private final int cookieExpiration;
+
+    public CookieUtil(@Value("${app.cookie.expiration}") int cookieExpiration) {
+        this.cookieExpiration = cookieExpiration;
+    }
 
     public String getJwtFromCookies(HttpServletRequest request) {
         if (request.getCookies() != null) {
@@ -19,9 +25,16 @@ public class CookieUtil {
         }
         return null;
     }
-    public static void addTokenToCookie(HttpServletResponse response, String value) {
+    public void addAccessToken(HttpServletResponse response, String value) {
         Cookie cookie = new Cookie("accessToken", value);
-        cookie.setMaxAge(COOKIE_EXPIRATION_TIME);
+        cookie.setMaxAge(cookieExpiration);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        response.addCookie(cookie);
+    }
+    public void addRefreshToken(HttpServletResponse response, String value) {
+        Cookie cookie = new Cookie("refreshToken", value);
+        cookie.setMaxAge(cookieExpiration);
         cookie.setPath("/");
         cookie.setHttpOnly(true);
         response.addCookie(cookie);

@@ -20,6 +20,7 @@ import static com.ssafy.edith.user.api.controller.ApiUtils.ApiResult;
 @Slf4j
 public class UserController {
     private final UserService userService;
+    private final CookieUtil cookieUtil;
 
     @PostMapping("/sign-up")
     @ResponseStatus(HttpStatus.CREATED)
@@ -31,11 +32,21 @@ public class UserController {
     @PostMapping("/sign-in")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<SignInResponse> signIn(@RequestBody SignInRequest signInRequest, HttpServletResponse response) {
-        SignInResponse signInResponse = userService.signIn(signInRequest, response);
+        SignInResponse signInResponse = userService.signIn(signInRequest);
+
+        cookieUtil.addAccessToken(response, signInResponse.accessToken());
+        cookieUtil.addRefreshToken(response, signInResponse.accessToken());
+
         return success(signInResponse);
     }
+    @PostMapping("/token/refresh")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResult<String> refreshToken(@CookieValue("refreshToken") String refreshToken) {
+        String newAccessToken = userService.refreshAccessToken(refreshToken);
+        return success(newAccessToken);
+    }
     @GetMapping("/test")
-    public ApiResult<String> test() {
+    public ApiResult<String> test() { //routing test
         System.out.println("test success");
         return success("test success");
     }
