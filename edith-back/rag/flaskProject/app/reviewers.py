@@ -169,9 +169,20 @@ def get_code_review(review_queries, llm):
             - 컨벤션:
                 - [참고할 코드가 있으면 컨벤션이 잘 지켜졌는지]""")
 
+    portfolio_prompt = ChatPromptTemplate.from_template("""
+            해당 MR 에 수정된 내용으로 포트폴리오를 작성하기 위한 정보를 정리해줘
+            
+            리뷰 내용: {history}
+            
+            - 사용 기술 스텍 : 
+            - 구현 기능 : 
+            - 트러블 슈팅 내역 : (diff 에서 수정한 부분이 있다면 해결한 방법, 없으면 공백)
+        """)
+
     # 체인 구성
     review_chain = review_prompt | llm | StrOutputParser()
     summary_chain = summary_prompt | llm | StrOutputParser()
+    portfolio_chain = portfolio_prompt | llm | StrOutputParser()
 
     try:
         for file_path, code_chunk, similar_codes in review_queries:
@@ -195,7 +206,15 @@ def get_code_review(review_queries, llm):
             "input": "Generate final review",
             "history": memory.load_memory_variables({})["history"]
         })
-        return response
+
+        portfolio_result = portfolio_chain.invoke({
+            "input": "Generate final review",
+            "history": memory.load_memory_variables({})["history"]
+        })
+
+        print(portfolio_result)
+
+        return response, portfolio_result
 
     except Exception as e:
         print(f"리뷰 중 오류 발생: {e}")
