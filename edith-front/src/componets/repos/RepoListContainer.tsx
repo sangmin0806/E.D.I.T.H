@@ -2,11 +2,20 @@ import ProjectCurrentState from "./ProjectCurrentState";
 import RepoList from "./RepoList";
 import PlusSquareImg from "../../assets/plus_sqare.png";
 import { useComponentStore } from "../../store/repoPageStore";
+import { useEffect, useState } from "react";
 
 function RepoListContainer() {
   //API 통신 후 받게 될 data
   const data = { projcetCnt: 24, totalCommits: 1923, codeReviewCnt: 3 };
+  const [loading, setLoading] = useState(true);
   const toggleComponent = useComponentStore((state) => state.toggleComponent);
+  useEffect(() => {
+    setLoading(false);
+  }, []);
+  if (loading) {
+    return <p>로딩 중...</p>;
+  }
+
   return (
     <>
       <div className="flex flex-col gap-[2.5rem]">

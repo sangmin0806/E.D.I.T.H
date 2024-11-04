@@ -4,16 +4,37 @@ import edithLogo from "../../assets/edithLogo.png";
 import editLogo from "../../assets/edit.png";
 import copyLogo from "../../assets/copy.png";
 import gfm from "remark-gfm";
+import { useEffect, useState } from "react";
+import LoadingSpinner from "../common/loadingSpinner";
 
 interface portfolioProp {
   userGitAccount: string;
 }
 function RepoPortfolio({ userGitAccount }: portfolioProp) {
+  const [loading, setLoading] = useState(true);
   const data = travelCommunityProject;
   const handleSave = () => {};
   const handleCopy = () => {
     navigator.clipboard.writeText(data.contents);
   };
+  useEffect(() => {
+    // setLoading(false);
+
+    // 이건 나중에 지우기 !!
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+
+    // 컴포넌트가 언마운트될 때 타이머를 정리합니다.
+    return () => clearTimeout(timer);
+  }, []);
+  if (loading) {
+    return (
+      <div className="flex w-full h-full items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
   return (
     <>
       <div className="flex flex-col items-center gap-12">
