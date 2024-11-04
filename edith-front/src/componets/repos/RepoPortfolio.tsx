@@ -5,7 +5,7 @@ import editLogo from "../../assets/edit.png";
 import copyLogo from "../../assets/copy.png";
 import gfm from "remark-gfm";
 import { useEffect, useState } from "react";
-import LoadingSpinner from "../common/loadingSpinner";
+import LoadingSpinner from "../common/LoadingSpinner";
 
 interface portfolioProp {
   userGitAccount: string;

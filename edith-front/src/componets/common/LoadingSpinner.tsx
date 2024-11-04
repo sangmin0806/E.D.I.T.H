@@ -1,4 +1,4 @@
-function loadingSpinner() {
+function LoadingSpinner() {
   return (
     <>
       <div role="status">
@@ -23,4 +23,4 @@ function loadingSpinner() {
     </>
   );
 }
-export default loadingSpinner;
+export default LoadingSpinner;
