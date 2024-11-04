@@ -22,7 +22,7 @@ routes_bp = Blueprint('routes', __name__)
 #     # 기타 예상치 못한 오류
 #     return jsonify({'status': 'Internal server error', 'message': f'서버 오류가 발생했습니다'}), 500
 
-@routes_bp.route('/flask/code-review', methods=['POST'])
+@routes_bp.route('/rag/code-review', methods=['POST'])
 def code_review():
     data = request.get_json()
     url = data.get('url')
@@ -31,8 +31,8 @@ def code_review():
     branch = data.get('branch')
     commits = data.get('commits')
 
-    review = reviewers.getCodeReview(url, token, projectId, branch, commits)
-    if review:
-        return jsonify({'status': 'success', 'review': review})
+    review, portfolio = reviewers.getCodeReview(url, token, projectId, branch, commits)
+    if review and portfolio:
+        return jsonify({'status': 'success', 'review': review, 'portfolio': portfolio})
     else:
         return jsonify({'status': 'fail', 'message': '코드 리뷰 생성 중 오류가 발생했습니다.'}), 500
