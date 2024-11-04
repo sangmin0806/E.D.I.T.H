@@ -1,7 +1,18 @@
+import { useEffect, useState } from "react";
 import ProjectCurrentState from "./ProjectCurrentState";
 
 function RepoDashboard() {
   const data = { projcetCnt: 24, totalCommits: 1923, codeReviewCnt: 3 };
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    // 이건 나중에 지우기 !!
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+
+    // 컴포넌트가 언마운트될 때 타이머를 정리합니다.
+    return () => clearTimeout(timer);
+  }, []);
   return (
     <>
       <div className="flex flex-col gap-[2.5rem]">

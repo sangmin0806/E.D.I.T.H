@@ -1,5 +1,5 @@
 import { useComponentStore } from "../../store/repoPageStore";
-import { useState } from "react";
+import React, { useState } from "react";
 import defaultImg from "../../assets/defaultImg.jpg";
 
 interface UserProps {
@@ -7,12 +7,13 @@ interface UserProps {
   showDashboard: boolean;
 }
 
-function RepoHeader({ userGitAccount, showDashboard }: UserProps) {
-  const togglePortfolio = useComponentStore((state) => state.togglePortfolio);
-  return (
-    <>
+const RepoHeader = React.memo(
+  ({ userGitAccount, showDashboard }: UserProps) => {
+    const togglePortfolio = useComponentStore((state) => state.togglePortfolio);
+
+    return (
       <div className="flex justify-center ml-4 mr-4">
-        <div className="w-full flex justify-between items-center ">
+        <div className="w-full flex justify-between items-center">
           <div className="flex flex-col">
             <div className="flex gap-2 items-center">
               <p className="text-black text-[24px] font-semibold">
@@ -45,7 +46,8 @@ function RepoHeader({ userGitAccount, showDashboard }: UserProps) {
           </div>
         </div>
       </div>
-    </>
-  );
-}
+    );
+  }
+);
+
 export default RepoHeader;

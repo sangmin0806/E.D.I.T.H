@@ -29,7 +29,7 @@ function RepoListBox({
   const handleClick = () => {
     //string일수도 있으니까 한번 더 확인하깅
     // navigate(`/repo/detail/${id}`);
-    navigate(`/repo/detail`);
+    navigate(`/dashboard`);
   };
   return (
     <>

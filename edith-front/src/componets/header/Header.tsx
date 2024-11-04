@@ -9,6 +9,9 @@ function Header({ userImgSrc }: any) {
   const handleMoveToRepo = () => {
     navigate("/repo");
   };
+  const handleToMoveToMyPortfolio = () => {
+    navigate("/portfolio/my");
+  };
   //나중에 sessiong storage에서 가져오기
   const [imgSrc, setImgSrc] = useState(userImgSrc);
   const handleError = () => {
@@ -25,6 +28,7 @@ function Header({ userImgSrc }: any) {
         <img
           src={imgSrc}
           className="mt-2 w-12 h-12 rounded-full cursor-pointer"
+          onClick={handleToMoveToMyPortfolio}
           onError={handleError}
         />
         <img
