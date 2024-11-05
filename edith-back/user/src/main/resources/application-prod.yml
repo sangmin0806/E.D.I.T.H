@@ -2,7 +2,7 @@ spring:
   application:
     name: user
   datasource:
-    url: jdbc:mysql://k11c205.p.ssafy.io:3306/user_database # url 수정예정
+    url: jdbc:mysql://user-mysql-clusterip.eks-work2.svc.cluster.local:3306/user_database
     username: edith
     password: ssafy
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -12,14 +12,27 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
+
   jwt:
     secret: ${SPRING_JWT_SECRET}
     access-token-expiration: 3600000
     refresh-token-expiration: 86400000
   data:
     redis:
-      host: k11c205.p.ssafy.io
+      host: redis-clusterip.eks-work2.svc.cluster.local
       port: 6379
 
 server:
   port: 8081
+app:
+  cookie:
+    expiration: 3600
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: health, info
