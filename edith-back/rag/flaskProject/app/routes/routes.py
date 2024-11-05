@@ -9,12 +9,17 @@ routes_bp = Blueprint('routes', __name__)
 def health_check():
     return "I'm Alive!!!"
 
-@routes_bp.route('/rag/portfolio', methods=['GET'])
-def portfolio():
+@routes_bp.route('/rag/portfolio', methods=['POST'])
+def portfolio_make():
     data = request.get_json()
-    user_id = data['useId']
+    user_id = data['userId']
     summaries = data.get('summaries')
     merge_request = data.get('mergeRequest')
+
+    result = portfolio.make_portfolio(user_id, summaries, merge_request)
+    if result:
+        return jsonify({'status': 'success', 'portfolio': result}), 200
+    return jsonify({'status': 'fail'}), 400
 
 
 @routes_bp.route('/rag/code-review', methods=['POST'])

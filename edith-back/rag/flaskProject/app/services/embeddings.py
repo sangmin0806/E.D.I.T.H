@@ -32,7 +32,6 @@ class CodeEmbeddingProcessor:
 
     # 유사 코드 검색
     def query_similar_code(self, code_snippet, n_results=5):
-        print(code_snippet)
         try:
             results = self.db.similarity_search_with_score(
                 query=code_snippet,

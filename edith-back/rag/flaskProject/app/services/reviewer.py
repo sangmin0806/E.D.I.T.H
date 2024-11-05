@@ -4,10 +4,10 @@ from pathlib import Path
 from app.chunking.get_code import GitLabCodeChunker
 from app.services.embeddings import CodeEmbeddingProcessor
 from langchain_core.output_parsers import StrOutputParser
-from langchain_openai import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.text_splitter import TokenTextSplitter
+from app.services.llm_model import LLMModel
 import uuid
 
 
@@ -77,13 +77,9 @@ def getCodeReview(url, token, projectId, branch, commits):
             review_queries.append([commit['new_path'], commit['diff'], similar_codes])
 
         # 5. 메서드 별 관련 코드 가져와 리트리버 생성, 질의
-        openai_api_key = os.getenv('OPENAI_API_KEY')
 
-        llm = ChatOpenAI(
-            model="gpt-4o-mini",
-            temperature=0,
-            openai_api_key=openai_api_key
-        )
+        llm_model = LLMModel()
+        llm = llm_model.llm
 
         # 6. LLM 에 질의해 결과 반환
         result = get_code_review(projectId, review_queries, llm)
