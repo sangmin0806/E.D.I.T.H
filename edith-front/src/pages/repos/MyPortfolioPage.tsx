@@ -1,5 +1,5 @@
 import UserHeader from "../../componets/header/UserHeader";
-import PortfolioList from "../../componets/repos/PortfolioList";
+import PortfolioList from "../../componets/porfolio/PortfolioList";
 interface userProps {
   account: "";
 }
@@ -9,7 +9,7 @@ function MyPorfolioPage() {
   return (
     <>
       <div className="flex w-[100vw] min-h-screen bg-[#F5F6F6]">
-        <main className=" w-full flex flex-col mt-4 mb-4 ml-[148px] mr-12 gap-[1.5rem] justify-center">
+        <main className=" w-full flex flex-col mt-4 mb-4 ml-[148px] mr-12 gap-[1.5rem]">
           <UserHeader userGitAccount={account} />
 
           <div className="py-6 pl-8 pr-8 bg-white/30 rounded-3xl flex-col justify-center items-center gap-6 inline-flex">

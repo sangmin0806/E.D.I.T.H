@@ -1,6 +1,7 @@
 import { useComponentStore } from "../../store/repoPageStore";
 import React, { useState } from "react";
 import defaultImg from "../../assets/defaultImg.jpg";
+import { useNavigate } from "react-router-dom";
 
 interface UserProps {
   userGitAccount: string;
@@ -9,7 +10,13 @@ interface UserProps {
 
 const RepoHeader = React.memo(
   ({ userGitAccount, showDashboard }: UserProps) => {
-    const togglePortfolio = useComponentStore((state) => state.togglePortfolio);
+    const navigate = useNavigate();
+    const handleMoveToPortfolio = () => {
+      navigate("/portfolio"); //이후에 아이디 추가
+    };
+    const handleMoveToDashboard = () => {
+      navigate("/dashboard"); //이후에 아이디 추가
+    };
 
     return (
       <div className="flex justify-center ml-4 mr-4">
@@ -22,7 +29,7 @@ const RepoHeader = React.memo(
               {showDashboard ? (
                 <div
                   className="h-7 px-3 py-1 bg-black rounded-2xl justify-center items-center inline-flex"
-                  onClick={togglePortfolio}
+                  onClick={handleMoveToPortfolio}
                 >
                   <div className="text-white text-base font-medium">
                     나의 포트폴리오 생성
@@ -31,7 +38,7 @@ const RepoHeader = React.memo(
               ) : (
                 <div
                   className="h-7 px-3 py-1 bg-white border border-black rounded-2xl justify-center items-center inline-flex"
-                  onClick={togglePortfolio}
+                  onClick={handleMoveToDashboard}
                 >
                   <div className="text-black text-base font-medium">
                     대시보드로 돌아가기

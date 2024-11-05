@@ -9,6 +9,10 @@ function RepoListContainer() {
   const data = { projcetCnt: 24, totalCommits: 1923, codeReviewCnt: 3 };
   const [loading, setLoading] = useState(true);
   const toggleComponent = useComponentStore((state) => state.toggleComponent);
+
+  const handleMoveToAdd = () => {
+    toggleComponent(2);
+  };
   useEffect(() => {
     setLoading(false);
   }, []);
@@ -36,7 +40,7 @@ function RepoListContainer() {
               <img
                 className="w-9 h-9"
                 src={PlusSquareImg}
-                onClick={toggleComponent}
+                onClick={handleMoveToAdd}
               />
             </div>
             <RepoList />

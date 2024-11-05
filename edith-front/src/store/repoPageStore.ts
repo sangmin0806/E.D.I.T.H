@@ -1,21 +1,24 @@
 import create from "zustand";
 
 interface ComponentState {
-  showComponentList: boolean;
+  showProject: number;
   showDashboard: boolean;
-  toggleComponent: () => void;
+  selectedProjectID: string | undefined;
+  toggleComponent: (num: number) => void;
   togglePortfolio: () => void;
-  setShowComponentTrue: () => void;
+  setShowComponentOne: () => void;
   setShowDashboardTrue: () => void;
+  setSelectedProjectID: (id: string | null) => void;
 }
 
 export const useComponentStore = create<ComponentState>((set) => ({
-  showComponentList: true,
+  showProject: 1,
+  selectedProjectID: undefined,
   showDashboard: true,
-  toggleComponent: () =>
-    set((state) => ({ showComponentList: !state.showComponentList })),
+  toggleComponent: (num: number) => set(() => ({ showProject: num })),
   togglePortfolio: () =>
     set((state) => ({ showDashboard: !state.showDashboard })),
-  setShowComponentTrue: () => set({ showComponentList: true }),
-  setShowDashboardTrue: () => set({ showDashboard: true }),
+  setShowComponentOne: () => set(() => ({ showProject: 1 })),
+  setShowDashboardTrue: () => set(() => ({ showDashboard: true })),
+  setSelectedProjectID: (id) => set({ selectedProjectID: id ?? undefined }),
 }));

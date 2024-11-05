@@ -66,7 +66,7 @@ export const travelCommunityProject: Project = {
 
 // Define an interface for the project list
 interface ProjectListItem {
-  id: number;
+  id: string;
   subject: string;
   content: string;
   recentDate: Date; // Use Date for dates
@@ -77,7 +77,7 @@ interface ProjectListItem {
 // Create the project list data following the specified format
 export const projectList: ProjectListItem[] = [
   {
-    id: 1,
+    id: "1",
     subject: "Project Alpha",
     content: "Building a responsive web application.",
     recentDate: new Date("2024-10-15"), // Use Date for dates
@@ -89,7 +89,7 @@ export const projectList: ProjectListItem[] = [
     ],
   },
   {
-    id: 2,
+    id: "2",
     subject: "Project Beta",
     content: "Implementing authentication and authorization.",
     recentDate: new Date("2024-10-20"), // Use Date for dates
@@ -100,7 +100,7 @@ export const projectList: ProjectListItem[] = [
     ],
   },
   {
-    id: 3,
+    id: "3",
     subject: "Project Gamma",
     content: "Developing real-time data processing pipeline.",
     recentDate: new Date("2024-10-28"), // Use Date for dates
