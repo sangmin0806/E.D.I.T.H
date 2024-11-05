@@ -11,15 +11,29 @@ import uuid
 # def get_mr(url, project_id, token, branch):
 #     return None
 
-# 해당 MR 요약 반환 함수
-def get_summary(merge_request, summaries_dict):
+# 해당 MR 요약 반환 함수, -> Memory 에 저장만
+def get_summary(llm, memory, merge_requests, summaries_dict) -> None:
+    for merge_request in merge_requests:
+        mr_id = merge_request['mrId']
+        user_id = merge_request['userId']
+        diff = merge_request['diff']
+        if mr_id in summaries_dict:
+            memory.save_context(
+                {"input": f"{mr_id}_{user_id}"},
+                {"output": f"{summaries_dict.get(mr_id)}"},
+            )
+        else:
+            # LLM 에다가 내놔 시전
+            pass
+            
     return None
 
 # 최종 Portfolio 반환 함수
-def get_portfolio(memory):
-    return None
+def get_portfolio(llm, memory) -> str:
 
-def make_portfolio(user_id, summaries, merge_requests):
+    return ''
+
+def make_portfolio(user_id, summaries, merge_requests) -> str:
     # 1. summaries 를 dictionary 타입 으로 변환
     summaries_dict = {
         summary['mrId']: summary['content']
@@ -30,20 +44,22 @@ def make_portfolio(user_id, summaries, merge_requests):
         memory_key="portfolio",
         max_token_limit=4000,
         return_messages=True,
-        prompt="""해당 코드리뷰를 참고해 포트폴리오를 만들 해당 MR 의 기술스택, 트러블 슈팅 등을 기록할 수 있게 요약해"""
+        prompt="""해당 코드 리뷰 참고해 portfolio 만들 해당 MR 의 기술 스택, 트러블 슈팅 등을 기록할 수 있게 요약해"""
     )
     try:
-        pass
+        # 3. mr 반복 하며 portfolio 생성
+        get_summary('', portfolio_memory, merge_requests, summaries_dict)
+        # 4. 해당 기록 기반 최종 portfolio 생성
+        result = get_portfolio('', portfolio_memory)
 
-    # 3. mr 반복하며 portfolio 생성
+        return result
 
-    # 4. 해당 기록을 바탕으로 최종 포트폴리오를 생성
     except Exception as e:
-        print(f"포트폴리오 생성시 에러 발생:{e}")
+        print(f"portfolio 생성시 에러 발생:{e}")
 
     finally:
         portfolio_memory.clear()
-    return None
+        return ''
 
 def generate_uuid():
     return str(uuid.uuid4()).replace('-', '')
