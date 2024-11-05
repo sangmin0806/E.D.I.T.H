@@ -1,5 +1,5 @@
 import RepoHeader from "../../componets/header/RepoHeader";
-import RepoDashboard from "../../componets/repos/RepoDashboard";
+import RepoDashboard from "../../componets/project/RepoDashboard";
 
 function RepoDetailPages() {
   //나중에 로그인 후 저장된 storage에서 가져올 데이터
