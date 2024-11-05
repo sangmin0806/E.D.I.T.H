@@ -8,10 +8,10 @@ import json
 import shutil
 from typing import Dict, List, Optional
 
-from .Python_Chunking import extract_functions as python_extract
-from .Java_Chunking import extract_functions as java_extract
-from .JavaScript_Chunking import extract_functions as javascript_extract
-from .C_Chunking import extract_code_elements as c_extract
+from .python_chunking import extract_functions as python_extract
+from .java_chunking import extract_functions as java_extract
+from .javaScript_chunking import extract_functions as javascript_extract
+from .c_chunking import extract_code_elements as c_extract
 
 
 class GitLabCodeChunker:

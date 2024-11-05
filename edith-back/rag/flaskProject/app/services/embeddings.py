@@ -1,6 +1,6 @@
 # embeddings.py
 from langchain_chroma import Chroma
-from .models.codebert_model import get_code_embedding
+from app.services.codebert_model import get_code_embedding
 from langchain.embeddings.base import Embeddings
 
 # 래퍼 클래스 생성

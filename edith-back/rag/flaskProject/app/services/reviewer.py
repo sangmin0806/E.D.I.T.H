@@ -1,8 +1,8 @@
-# reviewers.py
+# reviewer.py
 import os
 from pathlib import Path
-from app.chunking.GetCode import GitLabCodeChunker
-from app.embeddings import CodeEmbeddingProcessor
+from app.chunking.get_code import GitLabCodeChunker
+from app.services.embeddings import CodeEmbeddingProcessor
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
