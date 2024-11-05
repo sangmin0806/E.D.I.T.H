@@ -12,11 +12,8 @@ def health_check():
 @routes_bp.route('/rag/portfolio', methods=['GET'])
 def portfolio():
     data = request.get_json()
-    url = data.get('url')
-    token = data.get('token')
-    projectId = data.get('projectId')
-    branch = data.get('branch')
-    portfolios = data.get('portfolios')
+    summaries = data.get('summaries')
+    merge_request = data.get('mergeRequest')
 
 
 @routes_bp.route('/rag/code-review', methods=['POST'])

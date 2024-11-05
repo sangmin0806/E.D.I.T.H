@@ -11,22 +11,26 @@ from langchain.text_splitter import TokenTextSplitter
 
 
 def getCodeReview(url, token, projectId, branch, commits):
-    # 0. DB 초기화
-    vectorDB = CodeEmbeddingProcessor()
+    chunker = None
+    vectorDB = None
 
-    # 1. git Clone
-    chunker = GitLabCodeChunker(
-        gitlab_url=url,
-        gitlab_token=token,
-        project_id=projectId,
-        local_path='./cloneRepo/' + projectId,
-        branch=branch
-    )
     try:
+        # 0. DB 초기화
+        vectorDB = CodeEmbeddingProcessor()
+
+        # 1. git Clone
+        chunker = GitLabCodeChunker(
+            gitlab_url=url,
+            gitlab_token=token,
+            project_id=projectId,
+            local_path='./cloneRepo/' + projectId,
+            branch=branch
+        )
+
         # 2. 파일별 임베딩
         project_path = chunker.clone_project()
         if not project_path:
-            return ''
+            return '', ''
 
         # 3. 리뷰 할 코드들 메서드 Chunking
         file_chunks = []
@@ -81,14 +85,25 @@ def getCodeReview(url, token, projectId, branch, commits):
 
         # 6. LLM 에 질의해 결과 반환
         result = get_code_review(projectId, review_queries, llm)
-
-        # 7. 삭제
-        chunker.cleanup_project_directory()
         return result
 
     except Exception as e:
         print(f"오류 발생: {e}")
-        return ''
+        return '', ''
+
+    finally:
+        # 리소스 정리
+        if vectorDB:
+            try:
+                vectorDB.cleanup()
+            except Exception as e:
+                print(f"Error cleaning up vectorDB: {e}")
+
+        if chunker:
+            try:
+                chunker.cleanup_project_directory()
+            except Exception as e:
+                print(f"Error cleaning up project directory: {e}")
 
 def get_language_from_extension(file_name: str) -> str:
     extension = file_name.split('.')[-1].lower()  # 확장자 추출
