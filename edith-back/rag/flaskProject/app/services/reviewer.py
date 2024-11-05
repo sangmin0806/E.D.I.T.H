@@ -8,15 +8,17 @@ from langchain_openai import ChatOpenAI
 from langchain.memory import ConversationBufferMemory
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.text_splitter import TokenTextSplitter
+import uuid
 
 
 def getCodeReview(url, token, projectId, branch, commits):
     chunker = None
     vectorDB = None
+    uuid = generate_uuid()
 
     try:
         # 0. DB 초기화
-        vectorDB = CodeEmbeddingProcessor()
+        vectorDB = CodeEmbeddingProcessor(uuid)
 
         # 1. git Clone
         chunker = GitLabCodeChunker(
@@ -125,9 +127,9 @@ def get_language_from_extension(file_name: str) -> str:
 
 def get_code_review(projectId, review_queries, llm):
 
-
+    uuid = generate_uuid()
     portfolio_memory = ConversationBufferMemory(
-        memory_key= projectId + "_portfolio",
+        memory_key=  f"{projectId}_portfolio_{uuid}",
         max_token_limit=4000,
         return_messages=True,
         prompt="""해당 코드리뷰를 참고해 포트폴리오를 만들 해당 MR 의 기술스택, 트러블 슈팅 등을 기록할 수 있게 요약해"""
@@ -203,16 +205,17 @@ def get_code_review(projectId, review_queries, llm):
 
         portfolio_result = portfolio_chain.invoke({
             "input": "Generate final review",
-            "history": portfolio_memory.load_memory_variables({})[projectId + "_portfolio"]
+            "history": portfolio_memory.load_memory_variables({})[f"{projectId}_portfolio_{uuid}"]
         })
-
-        print(portfolio_result)
 
         return code_review_result, portfolio_result
 
     except Exception as e:
         print(f"리뷰 중 오류 발생: {e}")
         return str(e)
+
+    finally:
+        portfolio_memory.clear()
 
 def parse_git_diff(diff_string):
     # diff 헤더(@@ -0,0 +1,30 @@) 이후부터 파싱
@@ -246,69 +249,83 @@ def parse_git_diff(diff_string):
 
 def chunked_review(project_id, llm, file_path: str, code_chunk: str, similar_codes: [], review_chain,
                    max_token_limit: int = 4000) -> str:
-    # 토큰 스플리터 설정
-    splitter = TokenTextSplitter(
-        chunk_size=max_token_limit // 2,
-        chunk_overlap=100  # 문맥 유지를 위한 중복
-    )
-
-    # 코드 청크 분할
-    code_chunks = splitter.split_text(code_chunk)
-    similar_codes_str = []
-    for code in similar_codes:
-        if isinstance(code, (list, tuple)):
-            similar_codes_str.extend(str(c) for c in code)
-        else:
-            similar_codes_str.append(str(code))
-
-    similar_codes_combined = "\n\n===\n\n".join(similar_codes_str) if similar_codes_str else ""
-
+    uuid = generate_uuid()
     file_codeReview_memory = ConversationBufferMemory(
-        memory_key=project_id + "_codereview_history",
+        memory_key=f"{project_id}_codereview_history_{uuid}",
         max_token_limit=4000,
         return_messages=True,
         prompt="""해당 내용들로 코드리뷰가 가능하게 기능, 개선 사항, 수정 항목을 상세히 요약해"""
     )
 
-    # 각 코드 청크에 대해 리뷰 수행
-    for i, chunk in enumerate(code_chunks):
-        try:
-            result = review_chain.invoke({
-                "file_path": f"{file_path} (Part {i + 1}/{len(code_chunks)})",
-                "code_chunk": chunk,
-                "similar_codes": similar_codes_combined
+    try:
+        # 토큰 스플리터 설정
+        splitter = TokenTextSplitter(
+            chunk_size=max_token_limit // 2,
+            chunk_overlap=100  # 문맥 유지를 위한 중복
+        )
+
+        # 코드 청크 분할
+        code_chunks = splitter.split_text(code_chunk)
+        similar_codes_str = []
+        for code in similar_codes:
+            if isinstance(code, (list, tuple)):
+                similar_codes_str.extend(str(c) for c in code)
+            else:
+                similar_codes_str.append(str(code))
+
+        similar_codes_combined = "\n\n===\n\n".join(similar_codes_str) if similar_codes_str else ""
+
+
+
+        # 각 코드 청크에 대해 리뷰 수행
+        for i, chunk in enumerate(code_chunks):
+            try:
+                result = review_chain.invoke({
+                    "file_path": f"{file_path} (Part {i + 1}/{len(code_chunks)})",
+                    "code_chunk": chunk,
+                    "similar_codes": similar_codes_combined
+                })
+
+                file_codeReview_memory.save_context(
+                    {"input": f"{file_path} (Part {i + 1}/{len(code_chunks)})"},
+                    {"output": result}
+                )
+
+            except Exception as e:
+                print(f"청크 {i + 1} 처리 중 오류: {e}")
+                continue
+
+        # 리뷰 결과 통합
+        if file_codeReview_memory:
+            # 여러 리뷰 결과를 하나로 통합하는 프롬프트
+            merge_prompt = ChatPromptTemplate.from_template("""
+               다음은 하나의 파일에 대한 여러 부분의 리뷰 결과입니다.
+               이들을 하나의 일관된 리뷰로 통합해주세요.
+    
+               파일: {file_path}
+               리뷰 결과들:
+               {reviews}
+    
+               통합된 리뷰를 작성해주세요.
+           """)
+
+            merge_chain = merge_prompt | llm | StrOutputParser()
+
+            final_review = merge_chain.invoke({
+                "file_path": file_path,
+                "reviews": file_codeReview_memory.load_memory_variables({})[f"{project_id}_codereview_history_{uuid}"]
             })
 
-            file_codeReview_memory.save_context(
-                {"input": f"{file_path} (Part {i + 1}/{len(code_chunks)})"},
-                {"output": result}
-            )
+            return final_review
+    except Exception as e:
+        print(f"오류발생: {e}")
+        return ''
 
-        except Exception as e:
-            print(f"청크 {i + 1} 처리 중 오류: {e}")
-            continue
-
-    # 리뷰 결과 통합
-    if file_codeReview_memory:
-        # 여러 리뷰 결과를 하나로 통합하는 프롬프트
-        merge_prompt = ChatPromptTemplate.from_template("""
-           다음은 하나의 파일에 대한 여러 부분의 리뷰 결과입니다.
-           이들을 하나의 일관된 리뷰로 통합해주세요.
-
-           파일: {file_path}
-           리뷰 결과들:
-           {reviews}
-
-           통합된 리뷰를 작성해주세요.
-       """)
-
-        merge_chain = merge_prompt | llm | StrOutputParser()
-
-        final_review = merge_chain.invoke({
-            "file_path": file_path,
-            "reviews": file_codeReview_memory.load_memory_variables({})[project_id + "_codereview_history"]
-        })
-
-        return final_review
+    finally:
+        file_codeReview_memory.clear()
 
     return "리뷰 결과가 없습니다."
+
+
+def generate_uuid():
+    return str(uuid.uuid4()).replace('-', '')

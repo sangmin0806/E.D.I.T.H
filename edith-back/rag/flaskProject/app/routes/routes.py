@@ -12,6 +12,7 @@ def health_check():
 @routes_bp.route('/rag/portfolio', methods=['GET'])
 def portfolio():
     data = request.get_json()
+    user_id = data['useId']
     summaries = data.get('summaries')
     merge_request = data.get('mergeRequest')
 

@@ -12,10 +12,10 @@ class GraphCodeBERTEmbeddings(Embeddings):
         return get_code_embedding(code_snippet)
 
 class CodeEmbeddingProcessor:
-    def __init__(self):
+    def __init__(self, uuid):
         self.db = Chroma(
             embedding_function=GraphCodeBERTEmbeddings(),
-            collection_name=f'code_embeddings',
+            collection_name=f'code_embeddings_{uuid}',
             persist_directory=None
         )
 
