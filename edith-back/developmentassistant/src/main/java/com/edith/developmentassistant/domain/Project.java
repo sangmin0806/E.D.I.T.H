@@ -29,6 +29,10 @@ public class Project extends BaseEntity {
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Branch> branches;
 
+
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MRSummary> mrSummaries;
+
     @Builder
     private Project(Long projectId, String url, String name) {
         this.id = projectId;

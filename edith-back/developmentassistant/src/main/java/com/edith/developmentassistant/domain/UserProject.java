@@ -1,15 +1,12 @@
 package com.edith.developmentassistant.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 @Getter
 @Entity
@@ -26,6 +23,9 @@ public class UserProject extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Project project;
+
+    @OneToOne(mappedBy = "userProject")
+    private Portfolio portfolio;
 
     @Builder
     private UserProject(Long userId, String description, String title, Project project) {
