@@ -40,6 +40,16 @@ public class UserController {
 
         return success(signInResponse);
     }
+    @PostMapping("/face-login")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResult<SignInResponse> faceLogin(@RequestBody Long userId, HttpServletResponse response) {
+        SignInResponse signInResponse = userService.faceLogin(userId);
+
+        cookieUtil.addAccessToken(response, signInResponse.accessToken());
+        cookieUtil.addRefreshToken(response, signInResponse.accessToken());
+
+        return success(signInResponse);
+    }
     @PostMapping("/token/refresh")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<String> refreshToken(@CookieValue("refreshToken") String refreshToken) {
@@ -53,6 +63,7 @@ public class UserController {
         userService.registerFaceEmbedding(embeddingVector,accessToken);
         return success(null);
     }
+
     @GetMapping("/test")
     public ApiResult<String> test() { //routing test
         System.out.println("test success");
