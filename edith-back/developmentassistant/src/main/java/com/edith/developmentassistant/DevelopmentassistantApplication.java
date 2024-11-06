@@ -12,5 +12,4 @@ public class DevelopmentassistantApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(DevelopmentassistantApplication.class, args);
 	}
-
 }
