@@ -7,22 +7,26 @@ spring:
   application:
     name: SCG
   jwt:
-    secret: ${SPRING_JWT_SECRET}
+    secret: ${SPRING_JWT_SECRET:SSSSSAAANGGGGGGGMMMMMMIIIIIINNNN}
   cloud:
     gateway:
       routes:
         - id: user-test
-          uri: http://localhost:8081 # User 서버 주소
+          uri: http://user-spring-boot-service:8081 # User 서버 주소
           predicates:
             - Path=/api/v1/users/test
           filters:
             - name: JwtAuthFilter
 
         - id: user
-          uri: http://localhost:8081
+          uri: http://user-spring-boot-service:8081
           predicates:
             - Path=/api/v1/users/**
 
+        - id: kubetest
+          uri: http://kubetest:9190
+          predicates:
+            - Path=/test
 server:
   port: 8080
 
@@ -34,7 +38,9 @@ management:
   endpoint:
     gateway:
       enabled: true
+    health:
+      show-details: always
   endpoints:
     web:
       exposure:
-        include: gateway
+        include: health, info, gateway
