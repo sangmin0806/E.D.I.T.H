@@ -53,19 +53,6 @@ public class UserController {
         userService.registerFaceEmbedding(embeddingVector,accessToken);
         return success(null);
     }
-
-    // FastAPI로 전달할 데이터 모델 정의
-    public static class FaceEmbeddingRequest {
-        private String userId;
-        private float[] embeddingVector;
-
-        public FaceEmbeddingRequest(String userId, float[] embeddingVector) {
-            this.userId = userId;
-            this.embeddingVector = embeddingVector;
-        }
-
-        // getter, setter 추가
-    }
     @GetMapping("/test")
     public ApiResult<String> test() { //routing test
         System.out.println("test success");
