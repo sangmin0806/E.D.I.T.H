@@ -29,9 +29,9 @@ def code_review():
     token = data.get('token')
     projectId = data.get('projectId')
     branch = data.get('branch')
-    commits = data.get('commits')
+    changes = data.get('changes')
 
-    review, portfolio = reviewer.getCodeReview(url, token, projectId, branch, commits)
+    review, portfolio = reviewer.getCodeReview(url, token, projectId, branch, changes)
     if review and portfolio:
         return jsonify({'status': 'success', 'review': review, 'summary': portfolio})
     else:
