@@ -145,9 +145,8 @@ def get_code_review(projectId, review_queries, llm):
 
         다음 항목에 대해 리뷰 대상 코드만 검토해 주세요:
         1. 기능 설명: 코드의 목적과 수행 기능, 구현 방법, 적용 기술등 상세히
-        2. 개선 해야할 사항: 해당 언어/프레임워크의 관점에서 개선할 부분
-        3. 수정 필요 항목: 버그나 오류 가능성이 있는 부분
-        (4. 트러블 슈팅: 개선한 사항이 있으면 생성)""")
+        2. 개선 해야할 사항: 해당 언어/프레임워크의 관점에서 개선할 부분, 버그나 오류 가능성 있는 부분
+        (3. 트러블 슈팅: 개선한 사항이 있으면 생성)""")
 
     portfolio_prompt = ChatPromptTemplate.from_template("""
     당신은 포트폴리오 작성을 돕는 전문가입니다. MR(Merge Request)의 내용을 분석하여 포트폴리오에 필요한 핵심 정보만을 간단명료하게 추출해주세요.
@@ -193,7 +192,7 @@ def get_code_review(projectId, review_queries, llm):
                     {"output": review_result}
                 )
 
-                code_review_result += review_result + "\n ========================================= \n"
+                code_review_result += review_result
 
             except Exception as e:
                 print(f"개별 리뷰 중 오류 발생: {e}")
@@ -250,7 +249,7 @@ def chunked_review(project_id, llm, file_path: str, code_chunk: str, similar_cod
         memory_key=f"{project_id}_codereview_history_{uuid}",
         max_token_limit=4000,
         return_messages=True,
-        prompt="""해당 내용들로 코드리뷰가 가능하게 기능, 개선 사항, 수정 항목을 상세히 요약해"""
+        prompt="""해당 내용들로 코드리뷰가 가능하게 기능, 개선 사항, 수정된 항목, 트러블 슈팅을 상세히 요약해"""
     )
 
     try:
@@ -296,13 +295,13 @@ def chunked_review(project_id, llm, file_path: str, code_chunk: str, similar_cod
             # 여러 리뷰 결과를 하나로 통합하는 프롬프트
             merge_prompt = ChatPromptTemplate.from_template("""
                다음은 하나의 파일에 대한 여러 부분의 리뷰 결과입니다.
-               이들을 하나의 일관된 리뷰로 통합해주세요.
+               이들을 하나의 리뷰로 통합해주세요.
     
                파일: {file_path}
                리뷰 결과들:
                {reviews}
     
-               통합된 리뷰를 작성해주세요.
+               통합된 리뷰를 문자열이 아닌 HTML 형식으로 작성해주세요.
            """)
 
             merge_chain = merge_prompt | llm | StrOutputParser()
