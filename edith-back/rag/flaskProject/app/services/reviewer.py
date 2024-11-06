@@ -11,7 +11,7 @@ from app.services.llm_model import LLMModel
 import uuid
 
 
-def getCodeReview(url, token, projectId, branch, commits):
+def getCodeReview(url, token, projectId, branch, changes):
     chunker = None
     vectorDB = None
     uuid = generate_uuid()
@@ -58,12 +58,12 @@ def getCodeReview(url, token, projectId, branch, commits):
         vectorDB.store_embeddings(file_chunks)
 
         review_queries = [] # path, diff (전문), 참고할 코드 (메서드)
-        for commit in commits:
-            language = get_language_from_extension(commit['new_path'])
+        for change in changes:
+            language = get_language_from_extension(change['path'])
 
             if (language == ''):
                 continue
-            removed_lines, added_lines = parse_git_diff(commit['diff'])
+            removed_lines, added_lines = parse_git_diff(change['diff'])
             similar_codes = []
             code_chunks = []
 
@@ -74,7 +74,7 @@ def getCodeReview(url, token, projectId, branch, commits):
             # 유사도 분석
             for code_chunk in code_chunks:
                 similar_codes.append(vectorDB.query_similar_code(code_chunk, 5)) # 여기여기==================
-            review_queries.append([commit['new_path'], commit['diff'], similar_codes])
+            review_queries.append([change['path'], change['diff'], similar_codes])
 
         # 5. 메서드 별 관련 코드 가져와 리트리버 생성, 질의
 
