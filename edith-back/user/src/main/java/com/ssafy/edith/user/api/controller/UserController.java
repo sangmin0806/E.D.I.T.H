@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static com.ssafy.edith.user.api.controller.ApiUtils.success;
@@ -44,6 +45,26 @@ public class UserController {
     public ApiResult<String> refreshToken(@CookieValue("refreshToken") String refreshToken) {
         String newAccessToken = userService.refreshAccessToken(refreshToken);
         return success(newAccessToken);
+    }
+    @PostMapping("/face/register")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResult<Void> registerFaceEmbedding(@RequestBody float[] embeddingVector,
+                                                   @CookieValue("accessToken") String accessToken) {
+        userService.registerFaceEmbedding(embeddingVector,accessToken);
+        return success(null);
+    }
+
+    // FastAPI로 전달할 데이터 모델 정의
+    public static class FaceEmbeddingRequest {
+        private String userId;
+        private float[] embeddingVector;
+
+        public FaceEmbeddingRequest(String userId, float[] embeddingVector) {
+            this.userId = userId;
+            this.embeddingVector = embeddingVector;
+        }
+
+        // getter, setter 추가
     }
     @GetMapping("/test")
     public ApiResult<String> test() { //routing test
