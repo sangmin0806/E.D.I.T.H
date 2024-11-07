@@ -8,9 +8,9 @@ function JoinPage() {
   // 상태 정의
   const [joinInfo, setJoinInfo] = useState<JoinInfo>({
     email: "",
-    pw: "",
-    accessToken: "",
-    gitLab: true, // default를 gitLab으로 설정
+    password: "",
+    vcsAccessToken: "",
+    vcs: true, // default를 gitLab으로 설정
   });
 
   // 비밀번호 유효성 검사 상태
@@ -82,7 +82,7 @@ function JoinPage() {
                     name="pw"
                     type="password"
                     className="w-96 p-3 bg-white rounded-2xl border border-zinc-400"
-                    value={joinInfo.pw}
+                    value={joinInfo.password}
                     onChange={handleInputChange}
                   />
                   {passwordError && (
@@ -97,7 +97,7 @@ function JoinPage() {
                 <input
                   name="accessToken"
                   className="w-96 p-3 bg-white rounded-2xl border border-zinc-400"
-                  value={joinInfo.accessToken}
+                  value={joinInfo.vcsAccessToken}
                   onChange={handleInputChange}
                 />
               </div>
@@ -108,7 +108,7 @@ function JoinPage() {
                     type="radio"
                     value="gitlab"
                     name="inline-radio-group"
-                    checked={joinInfo.gitLab}
+                    checked={joinInfo.vcs}
                     onChange={handleRadioChange}
                     className="w-6 h-6 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                   />

@@ -11,7 +11,7 @@ function ProjectFormContainer({
   mode,
   initialData = {
     projectId: "",
-    projectName: "",
+    title: "",
     description: "",
     branches: [],
   },
