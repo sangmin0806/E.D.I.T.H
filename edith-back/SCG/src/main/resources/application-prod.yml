@@ -23,6 +23,11 @@ spring:
           predicates:
             - Path=/api/v1/users/**
 
+        - id: developmentassistant-api
+          uri: http://developmentassistant-spring-boot-service:8082
+          predicates:
+            - Path=/api/v1/project/**
+
         - id: kubetest
           uri: http://kubetest:9190
           predicates:

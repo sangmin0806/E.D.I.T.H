@@ -27,7 +27,7 @@ public class PortfolioService {
     public void createPortfolio(String accessToken, String projectId, String branch) {
         // 1. User 찾기
         UserDto user = userServiceClient.getUserByToken(accessToken);
-        // 2. project summery 찾기 -> projectId 로 찾기
+        // 2. project summery 찾기 -> projectId로 찾기
         List<Summary> summaries = mrSummaryRepository.findByProjectId(Long.parseLong(projectId)).stream()
                 .map(Summary::from)
                 .toList();

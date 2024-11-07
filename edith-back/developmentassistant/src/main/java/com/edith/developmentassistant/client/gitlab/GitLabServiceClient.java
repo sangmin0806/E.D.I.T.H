@@ -3,15 +3,17 @@ package com.edith.developmentassistant.client.gitlab;
 import com.edith.developmentassistant.client.dto.CommentRequest;
 import com.edith.developmentassistant.client.dto.RegisterWebhookRequest;
 import com.edith.developmentassistant.client.dto.mergerequest.MergeRequestDiffResponse;
-import com.edith.developmentassistant.client.dto.rag.CodeReviewRequest;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.edith.developmentassistant.client.dto.gitlab.GitCommit;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Arrays;
+import java.util.List;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -19,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -184,6 +187,24 @@ public class GitLabServiceClient {
         }
 
         return null; // 실패 시 null 반환
+    }
+
+    public List<GitCommit> fetchGitLabCommits(Long projectId, String personalAccessToken) {
+        String url = GITLAB_API_URL + "/projects/" + projectId + "/repository/commits?per_page=10";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("PRIVATE-TOKEN", personalAccessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<List<GitCommit>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<GitCommit>>() {});
+
+            return response.getBody();
+        } catch (RestClientException e) {
+            log.error("Error fetching GitLab commits for project {}: {}", projectId, e.getMessage());
+            throw e;
+        }
     }
 
     private RegisterWebhookRequest createRequestBody() {
