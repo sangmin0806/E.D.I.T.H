@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -35,28 +36,38 @@ public class PortfolioService {
     private final MRSummaryRepository mrSummaryRepository;
     private final UserServiceClient userServiceClient;
     private final WebClient gitLabWebClient;
+    private final RestTemplate portfolioRestTemplate;
 
     // Portfolio 생성 로직
     public String createPortfolio(String accessToken, String projectId, String branch) {
-        // 1. User 찾기
+
+        try {
+
+
+            // 1. User 찾기
 //        UserDto user = userServiceClient.getUserByToken(accessToken);
 
-        // 2. project summery 찾기 -> projectId 로 찾기
-        List<Summary> summaries = mrSummaryRepository.findByProjectId(Long.parseLong(projectId)).stream()
-                .map(Summary::from)
-                .toList();
+            // 2. project summery 찾기 -> projectId 로 찾기
+            List<Summary> summaries = mrSummaryRepository.findByProjectId(Long.parseLong(projectId)).stream()
+                    .map(Summary::from)
+                    .toList();
 
-        // 3. GitLab 에서 해당 Branch 의 MR 리스트 받아 파싱하기 (WebClient)
-        List<MergeRequest> mergeRequests = getMergedMRs(projectId, branch, "NHMeAABxUvZVyLq6u5Qx");
+            // 3. GitLab 에서 해당 Branch 의 MR 리스트 받아 파싱하기 (WebClient)
+            List<MergeRequest> mergeRequests = getMergedMRs(projectId, branch, "NHMeAABxUvZVyLq6u5Qx");
 
-        // 4. Flask 에 포폴 생성 요청하기
-        CreatePortfolioServiceRequest request = new CreatePortfolioServiceRequest(
-                "doublehyun98@gmail.com",
-                summaries,
-                mergeRequests
-        );
-        log.info("Create portfolio request: {}", request);
-        // 5. 포트폴리오 받아 저장, 반환하기
+            // 4. Flask 에 포폴 생성 요청하기
+            CreatePortfolioServiceRequest request = new CreatePortfolioServiceRequest(
+                    "doublehyun98@gmail.com",
+                    summaries,
+                    mergeRequests
+            );
+//        log.info("Create portfolio request: {}", request);
+            // 5. 포트폴리오 받아 저장, 반환하기
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+            throw new RuntimeException(e);
+        }
 
         return "성공 ㅇㅇ";
     }
