@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static com.ssafy.edith.user.api.controller.ApiUtils.success;
@@ -39,12 +40,30 @@ public class UserController {
 
         return success(signInResponse);
     }
+    @PostMapping("/face-login")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResult<SignInResponse> faceLogin(@RequestBody Long userId, HttpServletResponse response) {
+        SignInResponse signInResponse = userService.faceLogin(userId);
+
+        cookieUtil.addAccessToken(response, signInResponse.accessToken());
+        cookieUtil.addRefreshToken(response, signInResponse.accessToken());
+
+        return success(signInResponse);
+    }
     @PostMapping("/token/refresh")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<String> refreshToken(@CookieValue("refreshToken") String refreshToken) {
         String newAccessToken = userService.refreshAccessToken(refreshToken);
         return success(newAccessToken);
     }
+    @PostMapping("/face/register")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResult<Void> registerFaceEmbedding(@RequestBody float[] embeddingVector,
+                                                   @CookieValue("accessToken") String accessToken) {
+        userService.registerFaceEmbedding(embeddingVector,accessToken);
+        return success(null);
+    }
+
     @GetMapping("/test")
     public ApiResult<String> test() { //routing test
         System.out.println("test success");

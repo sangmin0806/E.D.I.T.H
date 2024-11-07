@@ -1,8 +1,10 @@
 package com.ssafy.edith.user.api.service;
 
+import com.ssafy.edith.user.client.valueobject.FaceEmbeddingRegisterRequest;
 import com.ssafy.edith.user.api.request.SignInRequest;
 import com.ssafy.edith.user.api.request.SignUpRequest;
 import com.ssafy.edith.user.api.response.SignInResponse;
+import com.ssafy.edith.user.client.FastAPIClient;
 import com.ssafy.edith.user.client.VersionControlClient;
 import com.ssafy.edith.user.client.valueobject.GitLabProfile;
 import com.ssafy.edith.user.entity.User;
@@ -14,6 +16,7 @@ import com.ssafy.edith.user.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.CookieValue;
 
 
 @Service
@@ -26,6 +29,7 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final RedisUtil redisUtil;
     private final VersionControlClient versionControlClient;
+    private final FastAPIClient fastAPIClient;
 
     public User signUp(SignUpRequest signUpRequest) {
 
@@ -56,6 +60,23 @@ public class UserService {
 
         return SignInResponse.of(user.getId(), user.getEmail(), accessToken, profile.username(), profile.name(), profile.avatar_url());
     }
+    public SignInResponse faceLogin(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        JwtPayload jwtPayload = JwtPayload.of(user.getId(), user.getEmail());
+
+        String accessToken = jwtUtil.createJwtToken(jwtPayload);
+        String refreshToken = jwtUtil.generateRefreshToken(jwtPayload);
+
+        redisUtil.storeRefreshToken(user.getId(), refreshToken);
+
+        String decryptedAccessToken = EncryptionUtil.decrypt(user.getVcsAccessToken());
+
+        GitLabProfile profile = versionControlClient.fetchProfile(user.getVcsBaseUrl(), decryptedAccessToken);
+
+        return SignInResponse.of(user.getId(), user.getEmail(), accessToken, profile.username(), profile.name(), profile.avatar_url());
+    }
 
     public String refreshAccessToken(String refreshToken) {
         User user = validateRefreshToken(refreshToken);
@@ -63,6 +84,11 @@ public class UserService {
         JwtPayload jwtPayload = JwtPayload.of(user.getId(), user.getEmail());
 
         return jwtUtil.createJwtToken(jwtPayload);
+    }
+    public void registerFaceEmbedding(float[] embeddingVector, String accessToken) {
+        Long userId = jwtUtil.extractUserId(accessToken);
+        FaceEmbeddingRegisterRequest faceEmbeddingRegisterRequest = new FaceEmbeddingRegisterRequest(userId, embeddingVector);
+        fastAPIClient.registerFaceEmbedding(faceEmbeddingRegisterRequest);
     }
 
     private User  validateRefreshToken(String refreshToken) {
