@@ -14,6 +14,9 @@ public class MRSummary {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "mr_id")
+    private String mrId;
+
     @Column(name = "gitlab_email")
     private String gitlabEmail;
 
