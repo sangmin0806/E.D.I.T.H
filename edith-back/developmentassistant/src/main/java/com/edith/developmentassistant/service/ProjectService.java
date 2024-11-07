@@ -1,7 +1,7 @@
 package com.edith.developmentassistant.service;
 
 import com.edith.developmentassistant.client.dto.UserDto;
-import com.edith.developmentassistant.client.user.UserApiClient;
+import com.edith.developmentassistant.client.user.UserServiceClient;
 import com.edith.developmentassistant.domain.Project;
 import com.edith.developmentassistant.domain.UserProject;
 import com.edith.developmentassistant.factory.ProjectFactory;
@@ -10,7 +10,6 @@ import com.edith.developmentassistant.repository.UserProjectRepository;
 import com.edith.developmentassistant.service.dto.request.RegisterProjectServiceRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.springframework.stereotype.Service;
 
 @Transactional
@@ -21,7 +20,7 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final UserProjectRepository userProjectRepository;
     private final WebhookService webhookService;
-    private final UserApiClient userApiClient;
+    private final UserServiceClient userServiceClient;
 
     public void registerProject(RegisterProjectServiceRequest request, String token) {
         // TODO : 실제 배포 환경에서는 UserApiClient를 통해 유저 정보를 가져와야 함
@@ -42,7 +41,7 @@ public class ProjectService {
 
     private Project createNewProject(RegisterProjectServiceRequest request, String personalAccessToken) {
         webhookService.registerWebhook(request, personalAccessToken);
-        return projectRepository.save(ProjectFactory.createProject(request));
+        return projectRepository.save(ProjectFactory.createProject(request , personalAccessToken));
     }
 
     private void updateBranchesIfNeeded(Project project, RegisterProjectServiceRequest request) {

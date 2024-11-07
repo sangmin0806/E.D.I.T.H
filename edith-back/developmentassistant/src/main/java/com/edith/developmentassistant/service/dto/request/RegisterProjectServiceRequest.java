@@ -7,6 +7,5 @@ public record RegisterProjectServiceRequest(
         String title,
         String description,
         List<String> branchesName
-) {
-}
+){}
 

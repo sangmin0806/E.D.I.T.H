@@ -25,16 +25,22 @@ public class Project extends BaseEntity {
 
     private String url;
     private String name;
+    private String token;
 
     @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Branch> branches;
 
+
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MRSummary> mrSummaries;
+
     @Builder
-    private Project(Long projectId, String url, String name) {
+    private Project(Long projectId, String url, String name , String token) {
         this.id = projectId;
         this.url = url;
         this.name = name;
         this.branches = new ArrayList<>();
+        this.token = token;
     }
 
     public void updateBranches(List<Branch> newBranches) {
