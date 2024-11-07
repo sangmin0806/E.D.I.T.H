@@ -1,6 +1,7 @@
 # reviewer.py
 import os
 from pathlib import Path
+import re
 from app.chunking.get_code import GitLabCodeChunker
 from app.services.embeddings import CodeEmbeddingProcessor
 from langchain_core.output_parsers import StrOutputParser
@@ -9,7 +10,6 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain.text_splitter import TokenTextSplitter
 from app.services.llm_model import LLMModel
 import uuid
-
 
 def getCodeReview(url, token, projectId, branch, changes):
     chunker = None
@@ -77,7 +77,6 @@ def getCodeReview(url, token, projectId, branch, changes):
             review_queries.append([change['path'], change['diff'], similar_codes])
 
         # 5. 메서드 별 관련 코드 가져와 리트리버 생성, 질의
-
         llm_model = LLMModel()
         llm = llm_model.llm
 
@@ -96,7 +95,6 @@ def getCodeReview(url, token, projectId, branch, changes):
                 vectorDB.cleanup()
             except Exception as e:
                 print(f"Error cleaning up vectorDB: {e}")
-
         if chunker:
             try:
                 chunker.cleanup_project_directory()
@@ -118,7 +116,6 @@ def get_language_from_extension(file_name: str) -> str:
         'h': 'c',
         'hpp': 'cpp'
     }
-
     return language_map.get(extension, '')
 
 def get_code_review(projectId, review_queries, llm):
@@ -131,23 +128,52 @@ def get_code_review(projectId, review_queries, llm):
         prompt="""해당 코드리뷰를 참고해 포트폴리오를 만들 해당 MR 의 기술스택, 트러블 슈팅 등을 기록할 수 있게 요약해"""
     )
 
+    code_review_memory = ConversationBufferMemory(
+        memory_key= f"{projectId}_code_review_{uuid}",
+        max_token_limit=4000,
+        return_messages=True,
+        prompt="""해당 요약본 으로 전체 코드리뷰를 작성하기 위해 중요한 기능, 에러 발생 원인, 트러블 슈팅을 요약해줘"""
+    )
+
     review_prompt = ChatPromptTemplate.from_template("""
-        아래 git diff에 대해서만 코드 리뷰를 진행해주세요.
-        중요한 부분, 핵심 로직은 강조해서 설명해주세요
+        아래 git diff의 핵심 내용만 간단히 요약해주세요.
 
-        리뷰 대상 파일 경로: {file_path}
+        파일: {file_path}
 
-        ===리뷰 대상 git diff===
+        ===git diff===
         {code_chunk}
 
-        ===참고용 코드===
+        ===참고 코드===
         {similar_codes}
 
-        다음 항목에 대해 리뷰 대상 코드만 검토해 주세요:
-        1. 기능 설명: 코드의 목적과 수행 기능, 구현 방법, 적용 기술등 상세히
-        2. 개선 해야할 사항: 해당 언어/프레임워크의 관점에서 개선할 부분
-        3. 수정 필요 항목: 버그나 오류 가능성이 있는 부분
-        (4. 트러블 슈팅: 개선한 사항이 있으면 생성)""")
+        다음 항목별로 핵심만 간단히 작성해주세요:
+        1. 핵심 기능: [해당 코드의 핵심 기능]
+        2. 변경사항: [주요 기능/로직 변경 1-2줄 요약]
+        3. 주의 필요: [잠재적 이슈나 개선필요 사항]
+        4. 수정해야할 사항: [반드시 수정해야 하는 부분을 중요도, 코드를 포함해 간략히]
+        5. 개선 사항: [해결된 문제점 있는 경우만]
+
+        * 중요: 꼭 필요한 내용만 간단히 작성해주세요.
+    """)
+
+    final_review_prompt = ChatPromptTemplate.from_template("""
+        해당 MR의 전체 코드리뷰를 GitLab MR Comment 형식으로 작성해주세요.
+        * 중요: 응답은 HTML 형식으로 작성하되, 실제 복사-붙여넣기가 가능하도록 작성해줘
+
+        ===파일별 주요 변경사항===
+        {history}
+
+        # MR 전체 요약
+        - [전체 변경사항 핵심 요약]
+        - [전반적인 코드 품질/주의사항]
+
+        # 주요 변경사항 상세 (중요하거나 핵심적인 파일만 작성)
+        ## [클래스명/파일명]
+        - 기능: [해당 파일 수정사항의 기능]
+        - 변경: [핵심 로직 변경사항]
+        - 잘한점, 고려해야할 점: [구현시 잘한점과 고려해야할 점을 간략히]
+        - 수정해야할 사항: [수정이 반드시 필요한 사항만 실제 코드를 포함해 작성]
+    """)
 
     portfolio_prompt = ChatPromptTemplate.from_template("""
     당신은 포트폴리오 작성을 돕는 전문가입니다. MR(Merge Request)의 내용을 분석하여 포트폴리오에 필요한 핵심 정보만을 간단명료하게 추출해주세요.
@@ -180,31 +206,33 @@ def get_code_review(projectId, review_queries, llm):
     # 체인 구성
     review_chain = review_prompt | llm | StrOutputParser()
     portfolio_chain = portfolio_prompt | llm | StrOutputParser()
-
-    code_review_result = ''
+    final_review_chain = final_review_prompt | llm | StrOutputParser()
 
     try:
         for file_path, code_chunk, similar_codes in review_queries:
             try:
-                review_result = chunked_review(projectId, llm, file_path, code_chunk, similar_codes, review_chain)
+                review_result = chunked_review(projectId, llm, file_path, code_chunk, similar_codes, review_chain, code_review_memory)
 
                 portfolio_memory.save_context(
                     {"input": f"Review for {file_path}"},
                     {"output": review_result}
                 )
 
-                code_review_result += review_result + "\n ========================================= \n"
-
             except Exception as e:
                 print(f"개별 리뷰 중 오류 발생: {e}")
                 continue
 
         portfolio_result = portfolio_chain.invoke({
-            "input": "Generate final review",
+            "input": "Generate final portfolio",
             "history": portfolio_memory.load_memory_variables({})[f"{projectId}_portfolio_{uuid}"]
         })
 
-        return code_review_result, portfolio_result
+        code_review_result = final_review_chain.invoke({
+            "input": "Generate final review",
+            "history": code_review_memory.load_memory_variables({})[f"{projectId}_code_review_{uuid}"]
+        }).replace('\n', '').replace('```html', '').replace('```', '')
+
+        return re.sub(r'<title>.*?</title>', '', code_review_result), portfolio_result
 
     except Exception as e:
         print(f"리뷰 중 오류 발생: {e}")
@@ -212,6 +240,7 @@ def get_code_review(projectId, review_queries, llm):
 
     finally:
         portfolio_memory.clear()
+        code_review_memory.clear()
 
 def parse_git_diff(diff_string):
     # diff 헤더(@@ -0,0 +1,30 @@) 이후부터 파싱
@@ -242,15 +271,14 @@ def parse_git_diff(diff_string):
 
     return removed_lines, added_lines
 
-
-def chunked_review(project_id, llm, file_path: str, code_chunk: str, similar_codes: [], review_chain,
+def chunked_review(project_id, llm, file_path: str, code_chunk: str, similar_codes: [], review_chain, code_review_memory,
                    max_token_limit: int = 4000) -> str:
     uuid = generate_uuid()
     file_codeReview_memory = ConversationBufferMemory(
         memory_key=f"{project_id}_codereview_history_{uuid}",
         max_token_limit=4000,
         return_messages=True,
-        prompt="""해당 내용들로 코드리뷰가 가능하게 기능, 개선 사항, 수정 항목을 상세히 요약해"""
+        prompt="""해당 내용들로 코드리뷰가 가능하게 기능, 수정된 항목, 반드시 변경해야할 사항, 트러블 슈팅을 상세히 요약해"""
     )
 
     try:
@@ -262,16 +290,16 @@ def chunked_review(project_id, llm, file_path: str, code_chunk: str, similar_cod
 
         # 코드 청크 분할
         code_chunks = splitter.split_text(code_chunk)
-        similar_codes_str = []
-        for code in similar_codes:
-            if isinstance(code, (list, tuple)):
-                similar_codes_str.extend(str(c) for c in code)
-            else:
-                similar_codes_str.append(str(code))
 
-        similar_codes_combined = "\n\n===\n\n".join(similar_codes_str) if similar_codes_str else ""
-
-
+        # similar_codes를 문자열로 변환
+        similar_codes_str = ""
+        if similar_codes:
+            for code in similar_codes:
+                if isinstance(code, (list, tuple)):
+                    similar_codes_str += "\n".join(str(c) for c in code)
+                else:
+                    similar_codes_str += str(code)
+                similar_codes_str += "\n---\n"  # 각 코드 블록 구분
 
         # 각 코드 청크에 대해 리뷰 수행
         for i, chunk in enumerate(code_chunks):
@@ -279,7 +307,7 @@ def chunked_review(project_id, llm, file_path: str, code_chunk: str, similar_cod
                 result = review_chain.invoke({
                     "file_path": f"{file_path} (Part {i + 1}/{len(code_chunks)})",
                     "code_chunk": chunk,
-                    "similar_codes": similar_codes_combined
+                    "similar_codes": similar_codes_str
                 })
 
                 file_codeReview_memory.save_context(
@@ -296,13 +324,11 @@ def chunked_review(project_id, llm, file_path: str, code_chunk: str, similar_cod
             # 여러 리뷰 결과를 하나로 통합하는 프롬프트
             merge_prompt = ChatPromptTemplate.from_template("""
                다음은 하나의 파일에 대한 여러 부분의 리뷰 결과입니다.
-               이들을 하나의 일관된 리뷰로 통합해주세요.
+               이들을 하나의 리뷰로 통합해 MR 전체의 코드리뷰 작성시 참고할 수 있게 해
     
                파일: {file_path}
                리뷰 결과들:
                {reviews}
-    
-               통합된 리뷰를 작성해주세요.
            """)
 
             merge_chain = merge_prompt | llm | StrOutputParser()
@@ -312,16 +338,19 @@ def chunked_review(project_id, llm, file_path: str, code_chunk: str, similar_cod
                 "reviews": file_codeReview_memory.load_memory_variables({})[f"{project_id}_codereview_history_{uuid}"]
             })
 
+            code_review_memory.save_context(
+                {"input": f"{file_path}"},
+                {"output": final_review}
+            )
+
             return final_review
     except Exception as e:
         print(f"오류발생: {e}")
         return ''
-
     finally:
         file_codeReview_memory.clear()
 
     return "리뷰 결과가 없습니다."
-
 
 def generate_uuid():
     return str(uuid.uuid4()).replace('-', '')
