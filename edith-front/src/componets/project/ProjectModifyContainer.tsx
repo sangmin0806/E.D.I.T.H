@@ -14,7 +14,7 @@ function ProjectModifyContainer({ selectedProjectID }: ModifyProps) {
     //api 통신하기 !!!!!
     const data = {
       projectId: "12345",
-      projectName: "기존 프로젝트 이름",
+      title: "기존 프로젝트 이름",
       description: "기존 설명",
       branches: ["main", "dev"],
     };
