@@ -23,11 +23,6 @@ spring:
           predicates:
             - Path=/api/v1/users/**
 
-        - id: fastapi-ws
-          uri: ws://fastapi-service:8000  # FastAPI 서버의 WebSocket 주소
-          predicates:
-            - Path=/ws/users/**
- 
         - id: kubetest
           uri: http://kubetest:9190
           predicates:
