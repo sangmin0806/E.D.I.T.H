@@ -7,7 +7,7 @@ import logo from "../../assets/logo.png";
 import { LoginInfo } from "../../types/userTypes";
 
 function MainPage() {
-  const [login, setLogin] = useState<LoginInfo>({ email: "", pw: "" });
+  const [login, setLogin] = useState<LoginInfo>({ email: "", password: "" });
   const navigate = useNavigate();
 
   // 회원가입 하러 가기
@@ -57,7 +57,9 @@ function MainPage() {
                   <input
                     className="w-[320px] text-xl h-12 p-2.5 bg-white border border-zinc-400"
                     placeholder="비밀번호"
-                    onChange={(e) => setLogin({ ...login, pw: e.target.value })}
+                    onChange={(e) =>
+                      setLogin({ ...login, password: e.target.value })
+                    }
                   />
                 </div>
                 <p

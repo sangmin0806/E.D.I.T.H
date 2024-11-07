@@ -1,12 +1,14 @@
 package com.edith.developmentassistant.client.gitlab;
 
 import com.edith.developmentassistant.client.dto.CommentRequest;
+import com.edith.developmentassistant.client.dto.ProjectAccessTokenRequest;
 import com.edith.developmentassistant.client.dto.RegisterWebhookRequest;
 import com.edith.developmentassistant.client.dto.mergerequest.MergeRequestDiffResponse;
 import com.edith.developmentassistant.client.dto.gitlab.GitCommit;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -153,18 +155,31 @@ public class GitLabServiceClient {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // 요청 본문 생성 (이름 및 모든 권한 설정 포함)
-        ObjectNode requestBody = objectMapper.createObjectNode();
-        requestBody.put("name", TOKEN_NAME);
-        requestBody.putArray("scopes").addAll(Arrays.asList(
-                objectMapper.convertValue("api", JsonNode.class),
-                objectMapper.convertValue("read_api", JsonNode.class),
-                objectMapper.convertValue("read_repository", JsonNode.class),
-                objectMapper.convertValue("write_repository", JsonNode.class),
-                objectMapper.convertValue("read_registry", JsonNode.class),
-                objectMapper.convertValue("write_registry", JsonNode.class)
-        ));
 
-        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody.toString(), headers);
+        log.info("Generating access token for project ID: {}", projectId);
+        log.info("Request URL: {}", url);
+        log.info("Request Headers: {}", headers);
+
+        ProjectAccessTokenRequest projectAccessTokenRequest = ProjectAccessTokenRequest.builder()
+                .name("E.D.I.T.H")
+                .scopes(Arrays.asList(
+                        "api",
+                        "read_api",
+                        "write_repository",
+                        "read_repository"
+                ))
+                .expiresAt(LocalDate.now().plusYears(1)) // 현재 날짜로부터 1년 후
+                .accessLevel(40)
+                .build();
+
+        log.info("Request Body: {}", projectAccessTokenRequest);
+        try {
+            log.info("Request Body: {}", objectMapper.writeValueAsString(projectAccessTokenRequest));
+        } catch (JsonProcessingException e) {
+            log.error("Error generating access token: {}", e.getMessage(), e);
+        }
+
+        HttpEntity<ProjectAccessTokenRequest> requestEntity = new HttpEntity<>(projectAccessTokenRequest, headers);
 
         try {
             log.info("Generating access token for project ID: {}", projectId);

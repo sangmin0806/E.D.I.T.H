@@ -7,7 +7,7 @@ import { useState } from "react";
 function Header({ userImgSrc }: any) {
   const navigate = useNavigate();
   const handleMoveToRepo = () => {
-    navigate("/repo");
+    navigate("/project");
   };
   const handleToMoveToMyPortfolio = () => {
     navigate("/portfolio/my");
