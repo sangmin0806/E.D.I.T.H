@@ -28,7 +28,7 @@ function App() {
 
             {/* 헤더가 포함된 라우트 */}
             <Route
-              path="/repo"
+              path="/project"
               element={
                 <HeaderLayout>
                   <RepoPage />

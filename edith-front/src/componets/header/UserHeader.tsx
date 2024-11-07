@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import defaultImg from "../../assets/defaultImg.jpg";
 interface UserProps {
   userGitAccount: string;
 }
