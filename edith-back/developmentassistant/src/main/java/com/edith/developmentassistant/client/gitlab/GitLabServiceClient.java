@@ -5,13 +5,17 @@ import com.edith.developmentassistant.client.dto.RegisterWebhookRequest;
 import com.edith.developmentassistant.client.dto.mergerequest.MergeRequestDiffResponse;
 import com.edith.developmentassistant.client.dto.rag.CodeReviewRequest;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import java.util.Arrays;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -24,6 +28,8 @@ public class GitLabServiceClient {
     private static final String GITLAB_API_URL = "https://lab.ssafy.com/api/v4";
     private static final String REGISTER_HOOK_ENDPOINT = "/projects/";
     private static final String MR_DIFF_ENDPOINT = "/projects/%d/merge_requests/%d/changes"; // DIFF 엔드포인트
+    private static final String TOKEN_NAME = "E.D.I.T.H";
+
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
@@ -133,6 +139,51 @@ public class GitLabServiceClient {
         } catch (Exception ex) {
             log.error("Error adding comment to MR: {}", ex.getMessage(), ex);
         }
+    }
+
+    public String generateProjectAccessToken(Long projectId, String personalAccessToken) {
+        String url = GITLAB_API_URL + "/projects/" + projectId + "/access_tokens";
+
+        // 헤더 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("PRIVATE-TOKEN", personalAccessToken);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        // 요청 본문 생성 (이름 및 모든 권한 설정 포함)
+        ObjectNode requestBody = objectMapper.createObjectNode();
+        requestBody.put("name", TOKEN_NAME);
+        requestBody.putArray("scopes").addAll(Arrays.asList(
+                objectMapper.convertValue("api", JsonNode.class),
+                objectMapper.convertValue("read_api", JsonNode.class),
+                objectMapper.convertValue("read_repository", JsonNode.class),
+                objectMapper.convertValue("write_repository", JsonNode.class),
+                objectMapper.convertValue("read_registry", JsonNode.class),
+                objectMapper.convertValue("write_registry", JsonNode.class)
+        ));
+
+        HttpEntity<String> requestEntity = new HttpEntity<>(requestBody.toString(), headers);
+
+        try {
+            log.info("Generating access token for project ID: {}", projectId);
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+
+            if (response.getStatusCode() == HttpStatus.CREATED) {
+                log.info("Access token generated successfully.");
+
+                // JSON 파싱하여 access_token 추출
+                JsonNode responseBody = objectMapper.readTree(response.getBody());
+                String accessToken = responseBody.path("token").asText();
+
+                log.info("Access token: {}", accessToken);
+                return accessToken;
+            } else {
+                log.error("Failed to generate access token. Status code: {}", response.getStatusCode());
+            }
+        } catch (Exception ex) {
+            log.error("Error generating access token: {}", ex.getMessage(), ex);
+        }
+
+        return null; // 실패 시 null 반환
     }
 
     private RegisterWebhookRequest createRequestBody() {

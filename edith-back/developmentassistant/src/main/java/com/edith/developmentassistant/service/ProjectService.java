@@ -1,6 +1,7 @@
 package com.edith.developmentassistant.service;
 
 import com.edith.developmentassistant.client.dto.UserDto;
+import com.edith.developmentassistant.client.gitlab.GitLabServiceClient;
 import com.edith.developmentassistant.client.user.UserServiceClient;
 import com.edith.developmentassistant.domain.Project;
 import com.edith.developmentassistant.domain.UserProject;
@@ -21,17 +22,22 @@ public class ProjectService {
     private final UserProjectRepository userProjectRepository;
     private final WebhookService webhookService;
     private final UserServiceClient userServiceClient;
+    private final GitLabServiceClient gitLabServiceClient;
 
     public void registerProject(RegisterProjectServiceRequest request, String token) {
         // TODO : 실제 배포 환경에서는 UserApiClient를 통해 유저 정보를 가져와야 함
 //        UserDto user = userApiClient.getUserByToken(token);
         UserDto user = createUserDto();
 
+        // TODO : Project Access Token 생성
         String personalAccessToken = user.getVcsAccessToken();
         Long userId = user.getId();
 
+        String projectAccessToken = gitLabServiceClient.generateProjectAccessToken(request.projectId(),
+                personalAccessToken);
+
         Project project = projectRepository.findById(request.projectId())
-                .orElseGet(() -> createNewProject(request, personalAccessToken));
+                .orElseGet(() -> createNewProject(request, projectAccessToken));
 
         updateBranchesIfNeeded(project, request);
 
@@ -41,7 +47,7 @@ public class ProjectService {
 
     private Project createNewProject(RegisterProjectServiceRequest request, String personalAccessToken) {
         webhookService.registerWebhook(request, personalAccessToken);
-        return projectRepository.save(ProjectFactory.createProject(request , personalAccessToken));
+        return projectRepository.save(ProjectFactory.createProject(request, personalAccessToken));
     }
 
     private void updateBranchesIfNeeded(Project project, RegisterProjectServiceRequest request) {

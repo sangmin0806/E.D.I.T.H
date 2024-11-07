@@ -65,6 +65,9 @@ public class WebhookService {
 
         CodeReviewResponse codeReviewResponse = ragServiceClient.commentCodeReview(request);
 
+        // TODO : DB에 저장하기
+        codeReviewResponse.getSummary();
+
         gitLabServiceClient.addMergeRequestComment(projectId, mergeRequestIid, token, codeReviewResponse.getReview());
     }
 }
