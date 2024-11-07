@@ -1,6 +1,6 @@
 export type FormValues = {
   projectId: string;
-  projectName: string;
+  title: string;
   description: string;
   branches: string[];
 };
