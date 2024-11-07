@@ -31,7 +31,7 @@ public class PortfolioService {
         List<Summary> summaries = mrSummaryRepository.findByProjectId(Long.parseLong(projectId)).stream()
                 .map(Summary::from)
                 .toList();
-        // 3. GitLab 에서 해당 Branch 의 MR 리스트 받아 파싱하기
+        // 3. GitLab 에서 해당 Branch 의 MR 리스트 받아 파싱하기 (WebClient)
 
         // 4. Flask 에 포폴 생성 요청하기
 
