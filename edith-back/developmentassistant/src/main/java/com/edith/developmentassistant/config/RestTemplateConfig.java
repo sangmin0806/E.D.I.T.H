@@ -17,11 +17,8 @@ public class RestTemplateConfig {
     public RestTemplate gitLabRestTemplate() {
         RestTemplate restTemplate = new RestTemplate();
 
-        // 예: 로깅 인터셉터 추가
         List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
         restTemplate.setInterceptors(interceptors);
-
-        // 추가 설정이 필요한 경우 여기에 추가
 
         return restTemplate;
     }
@@ -31,11 +28,18 @@ public class RestTemplateConfig {
     public RestTemplate userServiceRestTemplate() {
         RestTemplate restTemplate = new RestTemplate();
 
-        // 예: 로깅 인터셉터 추가
         List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
         restTemplate.setInterceptors(interceptors);
 
-        // 추가 설정이 필요한 경우 여기에 추가
+        return restTemplate;
+    }
+
+    @Bean
+    @Qualifier("ragRestTemplate")
+    public RestTemplate ragRestTemplate() {
+        RestTemplate restTemplate = new RestTemplate();
+        List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
+        restTemplate.setInterceptors(interceptors);
 
         return restTemplate;
     }

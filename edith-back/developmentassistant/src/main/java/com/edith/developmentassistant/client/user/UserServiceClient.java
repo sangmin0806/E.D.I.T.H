@@ -5,6 +5,7 @@ import com.edith.developmentassistant.controller.ApiUtils.ApiResult;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -15,14 +16,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
-public class UserApiClient {
+public class UserServiceClient {
 
     private static final String USER_API_URL = "http://k11c206.p.ssafy.io:8081";
     private static final String USER_INFO_ENDPOINT = "/api/v1/users/info";
 
     private final RestTemplate userServiceRestTemplate;
+
+    public UserServiceClient(
+            @Qualifier("userServiceRestTemplate")
+            RestTemplate userServiceRestTemplate) {
+        this.userServiceRestTemplate = userServiceRestTemplate;
+    }
 
     public UserDto getUserByToken(String accessToken) {
         String url = USER_API_URL + USER_INFO_ENDPOINT;
@@ -42,7 +48,8 @@ public class UserApiClient {
                     url,
                     HttpMethod.GET,
                     requestEntity,
-                    new ParameterizedTypeReference<ApiResult<UserDto>>() {}
+                    new ParameterizedTypeReference<ApiResult<UserDto>>() {
+                    }
             );
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {

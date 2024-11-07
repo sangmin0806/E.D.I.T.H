@@ -12,10 +12,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ProjectFactory {
 
-    public static Project createProject(RegisterProjectServiceRequest request) {
+    public static Project createProject(RegisterProjectServiceRequest request , String personalAccessToken) {
         Project project = Project.builder()
                 .projectId(request.projectId())
                 .name(request.title())
+                .token(personalAccessToken)
                 .build();
 
         List<Branch> branches = request.branchesName().stream()
