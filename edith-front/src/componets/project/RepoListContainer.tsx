@@ -3,6 +3,7 @@ import RepoList from "./RepoList";
 import PlusSquareImg from "../../assets/plus_sqare.png";
 import { useComponentStore } from "../../store/repoPageStore";
 import { useEffect, useState } from "react";
+import LoadingSpinner from "../common/LoadingSpinner";
 
 function RepoListContainer() {
   //API 통신 후 받게 될 data
@@ -17,7 +18,7 @@ function RepoListContainer() {
     setLoading(false);
   }, []);
   if (loading) {
-    return <p>로딩 중...</p>;
+    return <LoadingSpinner />;
   }
 
   return (

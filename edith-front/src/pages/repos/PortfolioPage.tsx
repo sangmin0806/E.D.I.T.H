@@ -1,7 +1,9 @@
 import RepoHeader from "../../componets/header/RepoHeader";
 import RepoPortfolio from "../../componets/porfolio/PortfolioContainer";
+import { useRedirectIfNotLoggedIn } from "../../hooks/useAuth.";
 
 function PortfolioPage() {
+  useRedirectIfNotLoggedIn();
   const data = {
     account: "ssafy",
     accountImg: "https://imgur.com/t93p7DF",

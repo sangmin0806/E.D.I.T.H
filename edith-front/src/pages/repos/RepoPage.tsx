@@ -5,7 +5,9 @@ import ProjectEnrollContainer from "../../componets/project/ProjectEnrollContain
 import ProjectModifyContainer from "../../componets/project/ProjectModifyContainer";
 import { useEffect, useState } from "react";
 import NotFoundErrorPage from "../common/NotFoundErrorPage";
+import { useRedirectIfNotLoggedIn } from "../../hooks/useAuth.";
 function RepoPage() {
+  useRedirectIfNotLoggedIn();
   const showProject = useComponentStore((state) => state.showProject);
   const setShowListNum = useComponentStore(
     (state) => state.setShowComponentOne

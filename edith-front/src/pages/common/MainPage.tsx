@@ -1,14 +1,31 @@
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 
 import mainLeft from "../../assets/main_left.png";
 import mainRight from "../../assets/main_right.png";
 import logo from "../../assets/logo.png";
 import { LoginInfo } from "../../types/userTypes";
+import { loginRequest } from "../../api/userApi";
+import { useRedirectIfLoggedIn } from "../../hooks/useAuth.";
 
 function MainPage() {
   const [login, setLogin] = useState<LoginInfo>({ email: "", password: "" });
   const navigate = useNavigate();
+  useRedirectIfLoggedIn();
+
+  //로딩될 때마다 로그인 유무 확인하고 로그인 되어있을시, dashboard로 이동하기
+  // useEffect(() => {
+  //   const checkLogin = async () => {
+  //     const result: boolean | undefined = await isLogin();
+  //     if (result) {
+  //       alert("잘못된 접근입니다.");
+  //       navigate("/dashboard");
+  //     }
+  //   };
+
+  //   checkLogin();
+  // }, []);
 
   // 회원가입 하러 가기
   const handleJoinClick = () => {
@@ -19,7 +36,17 @@ function MainPage() {
   const handleFaceLoginClick = () => {};
 
   // 매개변수로 email과 pw를 받아 상태를 업데이트한 후 로그인 진행
-  const handleEmailLoginClick = () => {};
+  const handleEmailLoginClick = async () => {
+    // try {
+    //   const response = await loginRequest(login);
+    //   if (!response.success) {
+    //     throw new Error(response.error);
+    //   }
+    //   console.log("/dashboard");
+    // } catch (error) {
+    //   alert(error);
+    // }
+  };
 
   return (
     <>
@@ -35,14 +62,24 @@ function MainPage() {
       <div className="flex justify-center items-center w-full h-screen">
         {/* 중앙 정렬을 위한 flex 설정 */}
         <div className="flex max-w-[1024px] w-full items-center justify-center gap-20">
-          <div className="flex flex-col justify-center items-center gap-2 z-20">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ease: "easeOut", duration: 2 }}
+            className="flex flex-col justify-center items-center gap-2 z-20"
+          >
             <p className="text-black text-3xl font-semibold text-center">
               Empowering Developers <br />
               with Intelligent Tools & Highlights
             </p>
             <img src={logo} className="w-[360px]"></img>
-          </div>
-          <div className="px-12 py-16 bg-white/60 rounded-3xl shadow border border-black flex-col justify-center items-start gap-6 inline-flex z-20">
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: -50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ ease: "easeOut", duration: 1 }}
+            className="px-12 py-16 bg-white/60 rounded-3xl shadow border border-black flex-col justify-center items-start gap-6 inline-flex z-20"
+          >
             <p className="text-black text-3xl font-medium">로그인</p>
             <div className="flex-col justify-center items-center gap-4 inline-flex">
               <div className="flex-col justify-start items-end gap-3 inline-flex">
@@ -84,7 +121,7 @@ function MainPage() {
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
     </>
