@@ -12,9 +12,16 @@ spring:
     gateway:
       routes:
         - id: user-test
-          uri: http://user-spring-boot-service:8081 # User 서버 주소
+          uri: http://user-spring-boot-service:8081
           predicates:
             - Path=/api/v1/users/test
+          filters:
+            - name: JwtAuthFilter
+
+        - id: user-validate
+          uri: http://user-spring-boot-service:8081
+          predicates:
+            - Path=/api/v1/users/validate
           filters:
             - name: JwtAuthFilter
 
@@ -22,6 +29,11 @@ spring:
           uri: http://user-spring-boot-service:8081
           predicates:
             - Path=/api/v1/users/**
+
+        - id: developmentassistant-api
+          uri: http://developmentassistant-spring-boot-service:8082
+          predicates:
+            - Path=/api/v1/project/**
 
         - id: kubetest
           uri: http://kubetest:9190

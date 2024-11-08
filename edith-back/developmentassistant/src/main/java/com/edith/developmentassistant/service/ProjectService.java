@@ -3,6 +3,7 @@ package com.edith.developmentassistant.service;
 import com.edith.developmentassistant.client.dto.UserDto;
 import com.edith.developmentassistant.client.gitlab.GitLabServiceClient;
 import com.edith.developmentassistant.client.user.UserServiceClient;
+import com.edith.developmentassistant.client.dto.gitlab.GitCommit;
 import com.edith.developmentassistant.domain.Project;
 import com.edith.developmentassistant.domain.UserProject;
 import com.edith.developmentassistant.factory.ProjectFactory;
@@ -12,6 +13,8 @@ import com.edith.developmentassistant.service.dto.request.RegisterProjectService
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Transactional
 @Service
@@ -44,6 +47,12 @@ public class ProjectService {
         // TODO : 이미 유저가 등록했던 프로젝트인지 확인하는 로직이 필요함
         userProjectRepository.save(createUserProject(request, project, userId));
     }
+
+    public List<GitCommit> fetchGitLabCommits(Long projectId, String accessToken){
+        UserDto userDto = userServiceClient.getUserByToken(accessToken);
+        String projectAccessToken = gitLabServiceClient.generateProjectAccessToken(projectId, userDto.getVcsAccessToken());
+        List<GitCommit> commits = gitLabServiceClient.fetchGitLabCommits(projectId,projectAccessToken);
+        return commits;
 
     public UserProject findUserProjectByUserIdAndProjectId(Long userId, Long projectId) {
         return userProjectRepository.findByUserIdAndProjectId(userId, projectId)

@@ -20,6 +20,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 
 @Slf4j
@@ -92,6 +93,12 @@ public class GeneralExceptionHandler {
     public ResponseEntity<?> handleException(Exception e) {
         log.error("Unexpected exception occurred: {}", e.getMessage(), e);
         return newResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(RestClientException.class)
+    public ResponseEntity<?> handleRestClientException(RestClientException e) {
+        log.error("GitLab API 요청 중 오류 발생: {}", e.getMessage(), e);
+        return newResponse("GitLab API 호출 중 오류가 발생했습니다.", HttpStatus.SERVICE_UNAVAILABLE);
     }
 }
 

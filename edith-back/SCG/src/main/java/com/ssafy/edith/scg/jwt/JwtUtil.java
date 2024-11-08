@@ -3,9 +3,13 @@ package com.ssafy.edith.scg.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.core.io.buffer.DataBufferFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
@@ -62,8 +66,16 @@ public class JwtUtil {
     public Mono<Void> onError(ServerWebExchange exchange, String err, HttpStatus status) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(status);
+        response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
         log.error(err);
-        return response.setComplete();
+
+        // JSON 형식의 응답 본문 작성
+        String jsonResponse = "{ \"success\": false, \"response\": null, \"error\": \"" + err + "\" }";
+        DataBufferFactory dataBufferFactory = response.bufferFactory();
+        DataBuffer dataBuffer = dataBufferFactory.wrap(jsonResponse.getBytes());
+
+        return response.writeWith(Mono.just(dataBuffer));
     }
 
 }

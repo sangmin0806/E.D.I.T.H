@@ -5,13 +5,15 @@ import com.ssafy.edith.user.entity.User;
 public record SignUpRequest(
         String email,
         String password,
+        boolean vcs,
         String vcsBaseUrl,
         String vcsAccessToken) {
-    public User toEntity(String encryptedPassword, String encryptedAccessToken) {
+    public User toEntity(String encryptedPassword,boolean vcs, String encryptedAccessToken,String vcsBaseUrl) {
         return User.builder()
                 .email(this.email)
                 .password(encryptedPassword)
-                .vcsBaseUrl(this.vcsBaseUrl)
+                .vcs(vcs)
+                .vcsBaseUrl(vcsBaseUrl)
                 .vcsAccessToken(encryptedAccessToken)
                 .build();
     }

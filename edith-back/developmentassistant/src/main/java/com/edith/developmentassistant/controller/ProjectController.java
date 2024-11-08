@@ -3,18 +3,16 @@ package com.edith.developmentassistant.controller;
 import static com.edith.developmentassistant.controller.ApiUtils.success;
 
 import com.edith.developmentassistant.client.gitlab.GitLabServiceClient;
-import com.edith.developmentassistant.client.user.UserServiceClient;
 import com.edith.developmentassistant.controller.ApiUtils.ApiResult;
 import com.edith.developmentassistant.controller.dto.request.RegisterProjectRequest;
 import com.edith.developmentassistant.controller.dto.response.RegisterProjectResponse;
+import com.edith.developmentassistant.client.dto.gitlab.GitCommit;
+import com.edith.developmentassistant.controller.dto.response.gitlab.GitLabCommitsResponse;
 import com.edith.developmentassistant.service.ProjectService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/projects")
@@ -30,6 +28,16 @@ public class ProjectController {
             @RequestBody RegisterProjectRequest registerProjectRequest) {
         projectService.registerProject(registerProjectRequest.toServiceRequest(), token);
         return success(null);
+    }
+
+    @GetMapping("/commits/{projectId}")
+    public ApiResult<GitLabCommitsResponse> getGitLabCommits(
+            @PathVariable Long projectId,
+            @CookieValue(value = "accessToken", required = false) String token) {
+
+        List<GitCommit> commits = projectService.fetchGitLabCommits(projectId, token);
+
+        return success(GitLabCommitsResponse.of(commits));
     }
 
     @GetMapping
