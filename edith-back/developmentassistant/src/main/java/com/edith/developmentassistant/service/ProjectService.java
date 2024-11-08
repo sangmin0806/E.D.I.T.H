@@ -53,6 +53,10 @@ public class ProjectService {
         String projectAccessToken = gitLabServiceClient.generateProjectAccessToken(projectId, userDto.getVcsAccessToken());
         List<GitCommit> commits = gitLabServiceClient.fetchGitLabCommits(projectId,projectAccessToken);
         return commits;
+
+    public UserProject findUserProjectByUserIdAndProjectId(Long userId, Long projectId) {
+        return userProjectRepository.findByUserIdAndProjectId(userId, projectId)
+                .orElse(null);
     }
 
     private Project createNewProject(RegisterProjectServiceRequest request, String personalAccessToken) {

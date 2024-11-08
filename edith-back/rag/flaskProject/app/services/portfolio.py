@@ -29,13 +29,13 @@ def get_summary(llm, memory, merge_requests, summaries_dict) -> None:
             (3. 트러블 슈팅: 개선한 사항이 있으면 생성)""")
 
     summary_chain = summary_prompt | llm | StrOutputParser()
-
     for merge_request in merge_requests:
         mr_id = merge_request['mrId']
         user_id = merge_request['userId']
         diff = merge_request['diff']
-        file_path = merge_request['file_path']
-        if mr_id in summaries_dict:
+        file_path = merge_request['filePath']
+
+        if summaries_dict and str(mr_id) in summaries_dict:
             memory.save_context(
                 {"input": f"{mr_id}_{user_id}"},
                 {"output": f"{summaries_dict.get(mr_id)}"},
@@ -51,7 +51,6 @@ def get_summary(llm, memory, merge_requests, summaries_dict) -> None:
                 {"input": f"{mr_id}_{user_id}"},
                 {"output": result},
             )
-            
     return None
 
 # 최종 Portfolio 반환 함수
@@ -84,10 +83,12 @@ def get_portfolio(llm, memory, user_id, memory_key) -> str:
 def make_portfolio(user_id, summaries, merge_requests) -> str:
     uuid = generate_uuid()
     # 1. summaries 를 dictionary 타입 으로 변환
-    summaries_dict = {
-        summary['mrId']: summary['content']
-        for summary in summaries
-    }
+    summaries_dict = {}
+    if summaries and isinstance(summaries, list):
+        summaries_dict = {
+            summary['mrId']: summary['content']
+            for summary in summaries
+        }
     # 2. memory, llm 생성
     portfolio_memory = ConversationBufferMemory(
         memory_key=f"portfolio_{uuid}",
