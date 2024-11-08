@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static com.ssafy.edith.user.api.controller.ApiUtils.success;
@@ -22,6 +23,12 @@ import static com.ssafy.edith.user.api.controller.ApiUtils.ApiResult;
 public class UserController {
     private final UserService userService;
     private final CookieUtil cookieUtil;
+
+    @GetMapping("/validate")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResult<Void> validateToken() {
+        return success(null);
+    }
 
     @PostMapping("/sign-up")
     @ResponseStatus(HttpStatus.CREATED)
