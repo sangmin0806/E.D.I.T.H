@@ -150,4 +150,20 @@ public class ProjectService {
 
         return ProjectResponse.from(projectToUpdate, null, content);
     }
+
+    public ProjectResponse getProject(String token, Long projectId) {
+        // TODO : 배포 환경에서 주석 해제 후 사용
+//        UserDto userByToken = userServiceClient.getUserByToken(token);
+//        Long userId = userByToken.getId();
+        Long userId = 1L;
+
+        UserProject userProject = userProjectRepository.findByUserIdAndProjectId(userId, projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found for the user"));
+
+        Project project = userProject.getProject();
+
+        List<ContributorDto> contributors = gitLabServiceClient.fetchContributors(project.getId(), project.getToken());
+
+        return ProjectResponse.from(project, contributors, userProject.getDescription());
+    }
 }

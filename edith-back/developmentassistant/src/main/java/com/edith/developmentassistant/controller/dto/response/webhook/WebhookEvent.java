@@ -17,5 +17,4 @@ public class WebhookEvent extends BaseWebhook {
     private List<Object> labels;
     private Changes changes;
     private WebhookRepository repository;
-
 }
