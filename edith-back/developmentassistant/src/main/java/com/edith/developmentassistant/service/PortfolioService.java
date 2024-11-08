@@ -13,6 +13,7 @@ import com.edith.developmentassistant.service.dto.Summary;
 import com.edith.developmentassistant.service.dto.request.CreatePortfolioServiceRequest;
 import com.edith.developmentassistant.service.dto.response.GitLabMergeRequestResponse;
 import com.edith.developmentassistant.service.dto.response.PortfolioResponse;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +26,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -63,15 +65,15 @@ public class PortfolioService {
                     .toList();
 
             // 3. GitLab 에서 해당 Branch 의 MR 리스트 받아 파싱하기 (WebClient)
-            List<MergeRequest> mergeRequests = getMergedMRs(projectId, branch, "NHMeAABxUvZVyLq6u5Qx");
+            MergeRequestDateRange mergeRequestdateRange = getMergedMRs(projectId, branch, "NHMeAABxUvZVyLq6u5Qx");
 
             // 4. Flask 에 포폴 생성 요청하기
             CreatePortfolioServiceRequest request = new CreatePortfolioServiceRequest(
                     "doublehyun98@gmail.com",
                     summaries,
-                    mergeRequests
+                    mergeRequestdateRange.getMergeRequests()
             );
-            log.info("Create portfolio request: {}", request);
+//            log.info("Create portfolio request: {}", request);
             // 5. 포트폴리오 받아 저장, 반환하기
             ResponseEntity<PortfolioResponse> response = portfolioRestTemplate.postForEntity(
                     FLASK_PORTFOLIO_URL,
@@ -79,26 +81,26 @@ public class PortfolioService {
                     PortfolioResponse.class // 응답 타입
             );
 
-            log.info(Objects.requireNonNull(response.getBody()).getPortfolio());
+//            log.info(Objects.requireNonNull(response.getBody()).getPortfolio());
+            Portfolio portfolio = Portfolio.builder()
+                    .userProject(userProject)
+                    .content(response.getBody().getPortfolio())
+                    .endDate(mergeRequestdateRange.getStartDate())
+                    .startDate(mergeRequestdateRange.getEndDate())
+                    .build();
 
-//            Portfolio portfolio = Portfolio.builder()
-//                    .userProject(userProject)
-//                    .content(response.getBody().getPortfolio())
-//                    .endDate()
-//                    .startDate()
-//                    .build();
+            portfolioRepository.save(portfolio);
+            log.info("saved portfolio = {}", portfolio);
 
-
+            return response.getBody().getPortfolio();
 
         } catch (Exception e) {
             log.error(e.getMessage());
             throw new RuntimeException(e);
         }
-
-        return null;
     }
 
-    public List<MergeRequest> getMergedMRs(String projectId, String branch, String accessToken) {
+    public MergeRequestDateRange getMergedMRs(String projectId, String branch, String accessToken) {
         return gitLabWebClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
@@ -106,27 +108,44 @@ public class PortfolioService {
                         .queryParam("target_branch", branch)
                         .queryParam("state", "merged")
                         .build(projectId))
-                .header("PRIVATE-TOKEN", accessToken)  // Bearer 토큰 대신 PRIVATE-TOKEN 사용
+                .header("PRIVATE-TOKEN", accessToken)
                 .retrieve()
                 .bodyToFlux(GitLabMergeRequestResponse.class)
-                .parallel()
-                .runOn(Schedulers.boundedElastic())
-                .flatMap(mr -> getMRDiff(projectId, mr.getIid(), accessToken)
-                        .map(diff -> new MergeRequest(
-                                String.valueOf(mr.getIid()),
-                                mr.getAuthor() != null ? mr.getAuthor().getUsername() : "",
-                                Optional.ofNullable(mr.getChanges())
-                                        .orElse(Collections.emptyList())
-                                        .stream()
-                                        .map(GitLabMergeRequestResponse.Change::getNewPath)
-                                        .collect(Collectors.joining(",")),
-                                diff
-                        )))
-                .sequential()
                 .collectList()
+                .flatMap(mergeRequests -> {
+                    LocalDateTime firstPreparedAt = mergeRequests.stream()
+                            .map(GitLabMergeRequestResponse::getPreparedAt)
+                            .filter(Objects::nonNull)
+                            .min(LocalDateTime::compareTo)
+                            .orElse(null);
+
+                    LocalDateTime lastMergedAt = mergeRequests.stream()
+                            .map(GitLabMergeRequestResponse::getMergedAt)
+                            .filter(Objects::nonNull)
+                            .max(LocalDateTime::compareTo)
+                            .orElse(null);
+
+                    return Flux.fromIterable(mergeRequests)
+                            .parallel()
+                            .runOn(Schedulers.boundedElastic())
+                            .flatMap(mr -> getMRDiff(projectId, mr.getIid(), accessToken)
+                                    .map(diff -> new MergeRequest(
+                                            String.valueOf(mr.getIid()),
+                                            mr.getAuthor() != null ? mr.getAuthor().getUsername() : "",
+                                            Optional.ofNullable(mr.getChanges())
+                                                    .orElse(Collections.emptyList())
+                                                    .stream()
+                                                    .map(GitLabMergeRequestResponse.Change::getNewPath)
+                                                    .collect(Collectors.joining(",")),
+                                            diff
+                                    )))
+                            .sequential()
+                            .collectList()
+                            .map(mrs -> new MergeRequestDateRange(firstPreparedAt, lastMergedAt, mrs));
+                })
                 .onErrorResume(e -> {
                     log.error("Error fetching merge requests: ", e);
-                    return Mono.just(Collections.emptyList());
+                    return Mono.just(new MergeRequestDateRange(null, null, Collections.emptyList()));
                 })
                 .block(Duration.ofSeconds(30));
     }
@@ -153,11 +172,21 @@ public class PortfolioService {
     private UserDto createUserDto() {
         return UserDto.builder()
                 .id(1L)
-                .email("doublehyun98@gmail.com")
+                .email("doublehyun98")
                 .password("1234")
                 .vcsBaseUrl("https://lab.ssafy.com/")
                 .vcsAccessToken("ZH3_Ft1HJmHqwXYmgYHs")
                 .build();
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    class MergeRequestDateRange {
+        private final LocalDateTime startDate;
+        private final LocalDateTime endDate;
+        private final List<MergeRequest> mergeRequests;
+
+        // 생성자 및 getter 생략...
     }
 }
 

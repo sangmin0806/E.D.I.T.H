@@ -18,5 +18,6 @@ server:
 
 api:
   flask:
-    portfolio: http://k11c206.p.ssafy.io:8083/rag/portfolio
+#    portfolio: http://k11c206.p.ssafy.io:8083/rag/portfolio
+    portfolio: http://localhost:8083/rag/portfolio # 로컬
     code-review: asdf

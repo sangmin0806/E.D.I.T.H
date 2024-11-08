@@ -22,6 +22,7 @@ public class Portfolio {
     @JoinColumn(name = "user_project_id")
     private UserProject userProject;
 
+    @Lob
     private String content;
 
     @Column(name = "start_date")
