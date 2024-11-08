@@ -8,9 +8,15 @@ import com.edith.developmentassistant.client.dto.rag.CodeReviewResponse;
 import com.edith.developmentassistant.client.gitlab.GitLabServiceClient;
 import com.edith.developmentassistant.client.rag.RagServiceClient;
 import com.edith.developmentassistant.controller.dto.response.webhook.WebhookEvent;
+import com.edith.developmentassistant.domain.MRSummary;
 import com.edith.developmentassistant.domain.Project;
+import com.edith.developmentassistant.repository.MRSummaryRepository;
 import com.edith.developmentassistant.repository.ProjectRepository;
 import com.edith.developmentassistant.service.dto.request.RegisterProjectServiceRequest;
+import jakarta.persistence.Column;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import java.net.URL;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +31,7 @@ public class WebhookService {
     private final GitLabServiceClient gitLabServiceClient;
     private final ProjectRepository projectRepository;
     private final RagServiceClient ragServiceClient;
+    private final MRSummaryRepository mrSummaryRepository;
 
     public void registerWebhook(RegisterProjectServiceRequest request, String token) {
         Long projectId = request.projectId();
@@ -65,8 +72,12 @@ public class WebhookService {
 
         CodeReviewResponse codeReviewResponse = ragServiceClient.commentCodeReview(request);
 
-        // TODO : DB에 저장하기
-        codeReviewResponse.getSummary();
+        mrSummaryRepository.save(MRSummary.builder()
+                .mrId(mergeRequestIid.toString())
+                .gitlabEmail(webhookEvent.getUser().getEmail())
+                .content(codeReviewResponse.getReview())
+                .project(project)
+                .build());
 
         gitLabServiceClient.addMergeRequestComment(projectId, mergeRequestIid, token, codeReviewResponse.getReview());
     }
