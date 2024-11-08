@@ -18,8 +18,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import java.util.List;
-
 
 
 @Slf4j
@@ -56,6 +54,7 @@ public class ProjectService {
 
 
     public List<ProjectResponse> getProjects(String token) {
+        // TODO : 배포 환경에서 주석 해제 후 사용
 //        UserDto userByToken = userServiceClient.getUserByToken(token);
 //        Long userId = userByToken.getId();
         Long userId = 1L;
@@ -69,7 +68,8 @@ public class ProjectService {
                             project.getToken());
 
                     // 프로젝트와 기여자 리스트를 사용하여 ProjectResponse 생성
-                    return ProjectResponse.from(project, contributors, userProject.getDescription());
+                    return ProjectResponse.from(project, userProject.getTitle(), contributors,
+                            userProject.getDescription());
                 })
                 .toList();
     }
@@ -128,12 +128,13 @@ public class ProjectService {
         if (userProjects == null || userProjects.isEmpty()) {
             throw new IllegalArgumentException("Illegal user");
         }
-
+        String projectName = "";
         Project projectToUpdate = null;
         for (UserProject userProject : userProjects) {
             if (userProject.getProject().getId().equals(projectDto.id())) {
                 projectToUpdate = userProject.getProject();
                 content = userProject.getDescription();
+                projectName = userProject.getTitle();
                 break;
             }
         }
@@ -148,7 +149,7 @@ public class ProjectService {
         // 변경 사항 저장
         projectRepository.save(projectToUpdate);
 
-        return ProjectResponse.from(projectToUpdate, null, content);
+        return ProjectResponse.from(projectToUpdate, projectName, null, content);
     }
 
     public ProjectResponse getProject(String token, Long projectId) {
