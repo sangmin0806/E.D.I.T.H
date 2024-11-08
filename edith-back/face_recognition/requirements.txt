@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+opencv-python-headless
+deepface
+pyjwt
+tf-keras
+qdrant-client
+websockets
+httpx
+scipy
+numpy
