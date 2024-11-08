@@ -3,7 +3,7 @@ package com.edith.developmentassistant.controller.dto.response.webhook;
 import lombok.Getter;
 
 @Getter
-public class webhookProject extends BaseWebhook {
+public class WebhookProject extends BaseWebhook {
 
     private int id;
     private String name;

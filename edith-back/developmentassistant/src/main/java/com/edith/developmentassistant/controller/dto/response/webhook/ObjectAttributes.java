@@ -1,10 +1,13 @@
 package com.edith.developmentassistant.controller.dto.response.webhook;
 
 import com.edith.developmentassistant.domain.Project;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.util.List;
 import lombok.Getter;
 
 @Getter
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ObjectAttributes extends BaseWebhook {
 
     private Integer assigneeId;
