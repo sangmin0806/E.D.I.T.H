@@ -12,11 +12,10 @@ function RepoList() {
       {data.map((d) => (
         <RepoListBox
           id={d.id}
-          subject={d.subject}
-          content={d.content}
-          recentDate={d.recentDate}
-          codeReview={d.codeReview}
-          teamMemberImg={d.teamMemberImg}
+          name={d.name}
+          contents={d.contents}
+          updatedAt={d.updatedAt}
+          contributors={d.contributors}
         />
       ))}
     </div>

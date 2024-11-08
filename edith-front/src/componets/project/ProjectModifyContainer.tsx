@@ -3,7 +3,7 @@ import { useComponentStore } from "../../store/repoPageStore";
 import { FormValues } from "../../types/projectType";
 import ProjectFormContainer from "./ProjectFormContainer";
 interface ModifyProps {
-  selectedProjectID: string;
+  selectedProjectID: number;
 }
 function ProjectModifyContainer({ selectedProjectID }: ModifyProps) {
   const toggleComponent = useComponentStore((state) => state.toggleComponent);
@@ -13,7 +13,7 @@ function ProjectModifyContainer({ selectedProjectID }: ModifyProps) {
   useEffect(() => {
     //api 통신하기 !!!!!
     const data = {
-      projectId: "12345",
+      projectId: 12345,
       title: "기존 프로젝트 이름",
       description: "기존 설명",
       branches: ["main", "dev"],
