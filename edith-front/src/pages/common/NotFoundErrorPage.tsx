@@ -38,11 +38,10 @@ function NotFoundErrorPage() {
           transition={{ ease: "easeOut", duration: 1 }}
           className="h-[90%]"
         >
-          <div className="w-[100vw] h-full flex justify-center items-center gap-16">
-            <img src={notfound} className="w-[280px] z-20" />
+          <div className="w-[100vw] h-full flex justify-center items-center gap-12">
+            <img src={notfound} className="w-[320px] z-20" />
             <div className="z-20 flex flex-col gap-6 items-start">
               <div className="flex flex-col gap-4">
-                <p className="text-left text-4xl font-bold">404 NOT FOUND</p>
                 <p className="text-left text-black text-3xl font-normal">
                   페이지를 찾을 수 없습니다.
                 </p>
