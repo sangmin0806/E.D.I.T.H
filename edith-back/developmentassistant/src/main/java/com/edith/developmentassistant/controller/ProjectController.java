@@ -2,23 +2,17 @@ package com.edith.developmentassistant.controller;
 
 import static com.edith.developmentassistant.controller.ApiUtils.success;
 
+import com.edith.developmentassistant.client.dto.gitlab.GitCommit;
 import com.edith.developmentassistant.client.gitlab.GitLabServiceClient;
 import com.edith.developmentassistant.controller.ApiUtils.ApiResult;
 import com.edith.developmentassistant.controller.dto.request.RegisterProjectRequest;
+import com.edith.developmentassistant.controller.dto.response.gitlab.GitLabCommitsResponse;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectDto;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectResponse;
 import com.edith.developmentassistant.controller.dto.response.project.RegisterProjectResponse;
-import com.edith.developmentassistant.domain.Branch;
-import com.edith.developmentassistant.domain.Project;
-import com.edith.developmentassistant.controller.dto.response.RegisterProjectResponse;
-import com.edith.developmentassistant.client.dto.gitlab.GitCommit;
-import com.edith.developmentassistant.controller.dto.response.gitlab.GitLabCommitsResponse;
 import com.edith.developmentassistant.service.ProjectService;
-import com.edith.developmentassistant.service.dto.BranchDto;
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,9 +21,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/projects")

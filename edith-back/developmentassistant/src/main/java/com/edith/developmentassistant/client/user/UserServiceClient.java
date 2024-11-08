@@ -3,7 +3,6 @@ package com.edith.developmentassistant.client.user;
 import com.edith.developmentassistant.client.dto.UserDto;
 import com.edith.developmentassistant.controller.ApiUtils.ApiResult;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.ParameterizedTypeReference;
