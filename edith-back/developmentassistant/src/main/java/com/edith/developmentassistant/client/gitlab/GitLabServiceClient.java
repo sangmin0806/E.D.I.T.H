@@ -3,6 +3,7 @@ package com.edith.developmentassistant.client.gitlab;
 import com.edith.developmentassistant.client.dto.CommentRequest;
 import com.edith.developmentassistant.client.dto.ProjectAccessTokenRequest;
 import com.edith.developmentassistant.client.dto.RegisterWebhookRequest;
+import com.edith.developmentassistant.client.dto.gitlab.ContributorDto;
 import com.edith.developmentassistant.client.dto.mergerequest.MergeRequestDiffResponse;
 import com.edith.developmentassistant.client.dto.gitlab.GitCommit;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -213,11 +214,44 @@ public class GitLabServiceClient {
 
         try {
             ResponseEntity<List<GitCommit>> response = restTemplate.exchange(
-                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<GitCommit>>() {});
+                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<GitCommit>>() {
+                    });
 
             return response.getBody();
         } catch (RestClientException e) {
             log.error("Error fetching GitLab commits for project {}: {}", projectId, e.getMessage());
+            throw e;
+        }
+    }
+
+    public List<ContributorDto> fetchContributors(Long projectId, String personalAccessToken) {
+        String url = GITLAB_API_URL + "/projects/" + projectId + "/members";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("PRIVATE-TOKEN", personalAccessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<List<ContributorDto>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<ContributorDto>>() {
+                    });
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                log.info("Contributors fetched successfully for project ID: {}", projectId);
+                try {
+                    // response.getBody()를 JSON 문자열로 변환
+                    String responseBodyJson = objectMapper.writeValueAsString(response.getBody());
+                    log.info("Response Body: {}", responseBodyJson);
+                } catch (JsonProcessingException e) {
+                    log.error("Failed to convert response body to JSON", e);
+                }
+                return response.getBody();
+            } else {
+                log.error("Failed to fetch contributors. Status Code: {}", response.getStatusCode());
+                throw new RuntimeException("Failed to fetch contributors");
+            }
+        } catch (RestClientException e) {
+            log.error("Error fetching contributors for project {}: {}", projectId, e.getMessage());
             throw e;
         }
     }

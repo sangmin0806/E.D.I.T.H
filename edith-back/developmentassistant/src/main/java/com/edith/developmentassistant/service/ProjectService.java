@@ -1,6 +1,7 @@
 package com.edith.developmentassistant.service;
 
 import com.edith.developmentassistant.client.dto.UserDto;
+import com.edith.developmentassistant.client.dto.gitlab.ContributorDto;
 import com.edith.developmentassistant.client.dto.gitlab.GitCommit;
 import com.edith.developmentassistant.client.gitlab.GitLabServiceClient;
 import com.edith.developmentassistant.client.user.UserServiceClient;
@@ -58,11 +59,18 @@ public class ProjectService {
 //        UserDto userByToken = userServiceClient.getUserByToken(token);
 //        Long userId = userByToken.getId();
         Long userId = 1L;
-        List<UserProject> byUserId = userProjectRepository.findByUserId(userId);
+        List<UserProject> userProjects = userProjectRepository.findByUserId(userId);
+        return userProjects.stream()
+                .map(userProject -> {
+                    Project project = userProject.getProject();
 
-        return byUserId.stream()
-                .map(UserProject::getProject)
-                .map(ProjectResponse::from)
+                    // GitLab에서 프로젝트의 기여자 목록 가져오기
+                    List<ContributorDto> contributors = gitLabServiceClient.fetchContributors(project.getId(),
+                            project.getToken());
+
+                    // 프로젝트와 기여자 리스트를 사용하여 ProjectResponse 생성
+                    return ProjectResponse.from(project, contributors, userProject.getDescription());
+                })
                 .toList();
     }
 
@@ -116,7 +124,7 @@ public class ProjectService {
 //    Long userId = userByToken.getId();
         Long userId = 1L;
         List<UserProject> userProjects = userProjectRepository.findByUserId(userId);
-
+        String content = "";
         if (userProjects == null || userProjects.isEmpty()) {
             throw new IllegalArgumentException("Illegal user");
         }
@@ -125,6 +133,7 @@ public class ProjectService {
         for (UserProject userProject : userProjects) {
             if (userProject.getProject().getId().equals(projectDto.id())) {
                 projectToUpdate = userProject.getProject();
+                content = userProject.getDescription();
                 break;
             }
         }
@@ -139,6 +148,6 @@ public class ProjectService {
         // 변경 사항 저장
         projectRepository.save(projectToUpdate);
 
-        return ProjectResponse.from(projectToUpdate);
+        return ProjectResponse.from(projectToUpdate, null, content);
     }
 }
