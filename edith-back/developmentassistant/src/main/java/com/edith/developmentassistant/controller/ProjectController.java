@@ -54,6 +54,14 @@ public class ProjectController {
         return success(projectService.getProjects(token));
     }
 
+    @GetMapping("{projectId}")
+    public ApiResult<ProjectResponse> getProjects(
+            @CookieValue(value = "accessToken", required = false) String token,
+            @PathVariable Long projectId
+    ) {
+        return success(projectService.getProject(token, projectId));
+    }
+
     @PutMapping
     public ApiResult<ProjectResponse> updateProject(
             @CookieValue(value = "accessToken", required = false) String token,
