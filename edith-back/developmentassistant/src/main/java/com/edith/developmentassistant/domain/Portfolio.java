@@ -2,6 +2,7 @@ package com.edith.developmentassistant.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -27,4 +28,12 @@ public class Portfolio {
     private LocalDateTime startDate;
     @Column(name = "end_date")
     private LocalDateTime endDate;
+
+    @Builder
+    public Portfolio(UserProject userProject, String content, LocalDateTime startDate, LocalDateTime endDate) {
+        this.userProject = userProject;
+        this.content = content;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
 }

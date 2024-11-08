@@ -16,9 +16,9 @@ public class PortfolioController {
 
     private final PortfolioService portfolioService;
 
-    @GetMapping("/{projectId}")
+    @PostMapping("/{projectId}")
 //    public ApiUtils.ApiResult<RegisterProjectResponse> registerProjects(
-    public ApiUtils.ApiResult<?> registerProjects(
+    public ApiUtils.ApiResult<?> makePortfolio(
             @CookieValue(value = "accessToken", required = false) String token,
             @PathVariable String projectId,
             @RequestParam String branch) {
