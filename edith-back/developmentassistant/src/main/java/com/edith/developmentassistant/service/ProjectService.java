@@ -48,11 +48,12 @@ public class ProjectService {
         userProjectRepository.save(createUserProject(request, project, userId));
     }
 
-    public List<GitCommit> fetchGitLabCommits(Long projectId, String accessToken){
+    public List<GitCommit> fetchGitLabCommits(Long projectId, String accessToken) {
         UserDto userDto = userServiceClient.getUserByToken(accessToken);
         String projectAccessToken = gitLabServiceClient.generateProjectAccessToken(projectId, userDto.getVcsAccessToken());
-        List<GitCommit> commits = gitLabServiceClient.fetchGitLabCommits(projectId,projectAccessToken);
+        List<GitCommit> commits = gitLabServiceClient.fetchGitLabCommits(projectId, projectAccessToken);
         return commits;
+    }
 
     public UserProject findUserProjectByUserIdAndProjectId(Long userId, Long projectId) {
         return userProjectRepository.findByUserIdAndProjectId(userId, projectId)
