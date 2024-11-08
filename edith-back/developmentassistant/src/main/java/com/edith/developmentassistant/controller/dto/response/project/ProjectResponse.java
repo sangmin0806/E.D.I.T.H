@@ -18,7 +18,8 @@ public record ProjectResponse(Long id,
                               List<ContributorSimpleDto> contributors,
                               String content
 ) {
-    public static ProjectResponse from(Project project, List<ContributorDto> contributors, String content) {
+    public static ProjectResponse from(Project project, String projectName, List<ContributorDto> contributors,
+                                       String content) {
 
         List<ContributorSimpleDto> simpleContributors = contributors.stream()
                 .map(ContributorSimpleDto::from)
@@ -27,7 +28,7 @@ public record ProjectResponse(Long id,
         return new ProjectResponse(
                 project.getId(),
                 project.getUrl(),
-                project.getName(),
+                projectName,
                 project.getToken(),
                 project.getBranches().stream().map(BranchDto::from).toList(),
                 project.getLastModifiedDate(),
