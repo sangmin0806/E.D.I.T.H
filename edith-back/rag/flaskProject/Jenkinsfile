@@ -217,7 +217,7 @@ pipeline {
         DOCKER_REPO = credentials('DOCKER_REPO')
         EC2_IP = credentials('k11c206_IP')
         SSH_INFO = credentials('k11c206_SSH')
-        OPENAI_API_KEY = credentials('OPENAI_API_KEY')
+        // OPENAI_API_KEY = credentials('OPENAI_API_KEY')
     }
 
     stages {
@@ -292,7 +292,7 @@ pipeline {
                     docker rmi ${DOCKER_REPO_USR}/${DOCKER_REPO_PSW}:${DOCKER_IMG_NAME}-latest || true
                     docker system prune -f --volumes
                     docker pull ${DOCKER_REPO_USR}/${DOCKER_REPO_PSW}:${DOCKER_IMG_NAME}-latest
-                    docker run -it -d --name ${DOCKER_IMG_NAME} -p ${SERVER_PORT}:${SERVER_PORT} -e OPENAI_API_KEY=${OPENAI_API_KEY} ${DOCKER_REPO_USR}/${DOCKER_REPO_PSW}:${DOCKER_IMG_NAME}-latest
+                    docker run -d --name ${DOCKER_IMG_NAME} -p ${SERVER_PORT}:${SERVER_PORT} --env-file .env ${DOCKER_REPO_USR}/${DOCKER_REPO_PSW}:${DOCKER_IMG_NAME}-latest
                     EOF
                     """.stripIndent()
                 }
