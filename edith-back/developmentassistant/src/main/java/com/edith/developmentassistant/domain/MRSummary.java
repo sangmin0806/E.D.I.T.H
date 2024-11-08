@@ -2,6 +2,7 @@ package com.edith.developmentassistant.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,4 +26,12 @@ public class MRSummary {
     private Project project;
 
     private String content;
+
+    @Builder
+    private MRSummary(String mrId, String gitlabEmail, Project project, String content) {
+        this.mrId = mrId;
+        this.gitlabEmail = gitlabEmail;
+        this.project = project;
+        this.content = content;
+    }
 }

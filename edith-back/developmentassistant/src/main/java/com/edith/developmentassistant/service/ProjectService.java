@@ -3,6 +3,8 @@ package com.edith.developmentassistant.service;
 import com.edith.developmentassistant.client.dto.UserDto;
 import com.edith.developmentassistant.client.gitlab.GitLabServiceClient;
 import com.edith.developmentassistant.client.user.UserServiceClient;
+import com.edith.developmentassistant.controller.dto.response.project.ProjectDto;
+import com.edith.developmentassistant.controller.dto.response.project.ProjectResponse;
 import com.edith.developmentassistant.client.dto.gitlab.GitCommit;
 import com.edith.developmentassistant.domain.Project;
 import com.edith.developmentassistant.domain.UserProject;
@@ -11,11 +13,12 @@ import com.edith.developmentassistant.repository.ProjectRepository;
 import com.edith.developmentassistant.repository.UserProjectRepository;
 import com.edith.developmentassistant.service.dto.request.RegisterProjectServiceRequest;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
+@Slf4j
 @Transactional
 @Service
 @RequiredArgsConstructor
@@ -32,7 +35,6 @@ public class ProjectService {
 //        UserDto user = userApiClient.getUserByToken(token);
         UserDto user = createUserDto();
 
-        // TODO : Project Access Token 생성
         String personalAccessToken = user.getVcsAccessToken();
         Long userId = user.getId();
 
@@ -48,6 +50,18 @@ public class ProjectService {
         userProjectRepository.save(createUserProject(request, project, userId));
     }
 
+
+    public List<ProjectResponse> getProjects(String token) {
+//        UserDto userByToken = userServiceClient.getUserByToken(token);
+//        Long userId = userByToken.getId();
+        Long userId = 1L;
+        List<UserProject> byUserId = userProjectRepository.findByUserId(userId);
+
+        return byUserId.stream()
+                .map(UserProject::getProject)
+                .map(ProjectResponse::from)
+                .toList();
+
     public List<GitCommit> fetchGitLabCommits(Long projectId, String accessToken) {
         UserDto userDto = userServiceClient.getUserByToken(accessToken);
         String projectAccessToken = gitLabServiceClient.generateProjectAccessToken(projectId, userDto.getVcsAccessToken());
@@ -58,6 +72,7 @@ public class ProjectService {
     public UserProject findUserProjectByUserIdAndProjectId(Long userId, Long projectId) {
         return userProjectRepository.findByUserIdAndProjectId(userId, projectId)
                 .orElse(null);
+
     }
 
     private Project createNewProject(RegisterProjectServiceRequest request, String personalAccessToken) {
@@ -88,5 +103,38 @@ public class ProjectService {
                 .vcsBaseUrl("https://lab.ssafy.com/")
                 .vcsAccessToken("NHMeAABxUvZVyLq6u5Qx")
                 .build();
+    }
+
+
+    public ProjectResponse updateProject(ProjectDto projectDto, String token) {
+        // TODO : 배포 환경에서 주석 해제 후 사용
+//    UserDto userByToken = userServiceClient.getUserByToken(token);
+//    Long userId = userByToken.getId();
+        Long userId = 1L;
+        List<UserProject> userProjects = userProjectRepository.findByUserId(userId);
+
+        if (userProjects == null || userProjects.isEmpty()) {
+            throw new IllegalArgumentException("Illegal user");
+        }
+
+        Project projectToUpdate = null;
+        for (UserProject userProject : userProjects) {
+            if (userProject.getProject().getId().equals(projectDto.id())) {
+                projectToUpdate = userProject.getProject();
+                break;
+            }
+        }
+
+        if (projectToUpdate == null) {
+            throw new IllegalArgumentException("Project not found for the user");
+        }
+
+        // 프로젝트 업데이트
+        projectToUpdate.updateProject(projectDto);
+
+        // 변경 사항 저장
+        projectRepository.save(projectToUpdate);
+
+        return ProjectResponse.from(projectToUpdate);
     }
 }
