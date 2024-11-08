@@ -1,10 +1,12 @@
 import UserHeader from "../../componets/header/UserHeader";
 import PortfolioList from "../../componets/porfolio/PortfolioList";
+import { useRedirectIfNotLoggedIn } from "../../hooks/useAuth.";
 interface userProps {
   account: "";
 }
 // function MyPorfolioPage({ account }: userProps) {
 function MyPorfolioPage() {
+  useRedirectIfNotLoggedIn();
   const account = "ssafy";
   return (
     <>

@@ -14,7 +14,9 @@ const PortfolioPage = React.lazy(() => import("./pages/repos/PortfolioPage"));
 const MyPorfolioListPage = React.lazy(
   () => import("./pages/repos/MyPortfolioPage")
 );
-
+const NotFoundErrorPage = React.lazy(
+  () => import("./pages/common/NotFoundErrorPage")
+);
 function App() {
   return (
     <HelmetProvider>
@@ -59,6 +61,8 @@ function App() {
                 </HeaderLayout>
               }
             />
+            {/* 지정되지 않은 URL에 대한 NotFoundErrorPage */}
+            <Route path="*" element={<NotFoundErrorPage />} />
           </Routes>
         </Suspense>
       </BrowserRouter>

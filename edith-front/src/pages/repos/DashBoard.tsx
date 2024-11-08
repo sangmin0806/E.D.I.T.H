@@ -1,8 +1,10 @@
 import RepoHeader from "../../componets/header/RepoHeader";
 import RepoDashboard from "../../componets/project/RepoDashboard";
+import { useRedirectIfNotLoggedIn } from "../../hooks/useAuth.";
 
 function RepoDetailPages() {
   //나중에 로그인 후 저장된 storage에서 가져올 데이터
+  useRedirectIfNotLoggedIn();
   const data = {
     account: "ssafy",
     accountImg: "https://imgur.com/t93p7DF",

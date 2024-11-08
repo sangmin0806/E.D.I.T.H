@@ -51,20 +51,14 @@ public class PortfolioService {
     String FLASK_PORTFOLIO_URL;
 
     // Portfolio 생성 로직
-    public void createPortfolio(String accessToken, String projectId, String branch) {
-        // 1. User 찾기
-        UserDto user = userServiceClient.getUserByToken(accessToken);
-        // 2. project summery 찾기 -> projectId로 찾기
-        List<Summary> summaries = mrSummaryRepository.findByProjectId(Long.parseLong(projectId)).stream()
-                .map(Summary::from)
-                .toList();
-        // 3. GitLab 에서 해당 Branch 의 MR 리스트 받아 파싱하기
+    public String createPortfolio(String accessToken, String projectId, String branch) {
 
         try {
             // 1. User, userProject 찾기
 //            UserDto user = userServiceClient.getUserByToken(accessToken);
             UserDto user = createUserDto();
-            UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getId(), Long.parseLong(projectId));
+            UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getId(),
+                    Long.parseLong(projectId));
 
             // 2. project summery 찾기 -> projectId 로 찾기
             List<Summary> summaries = mrSummaryRepository.findByProjectId(Long.parseLong(projectId)).stream()

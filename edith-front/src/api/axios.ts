@@ -1,5 +1,7 @@
 import axios, { AxiosResponse } from "axios";
+import { useNavigate } from "react-router-dom";
 
+const navigate = useNavigate();
 const BASE_URL =
   import.meta.env.VITE_NOW_BASEURL === "local"
     ? import.meta.env.VITE_API_LOCAL_URL
@@ -40,7 +42,7 @@ axiosInstance.interceptors.response.use(
         const newToken = await refreshToken();
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        window.location.href = "/login";
+        navigate("/login");
         return Promise.reject(refreshError);
       }
     }
@@ -62,20 +64,25 @@ const refreshToken = async (): Promise<string> => {
 
 export const apiRequest = async <T>(
   requestFn: () => Promise<AxiosResponse<T>>
-): Promise<{ success: boolean; response?: T; error?: string }> => {
+): Promise<{
+  success: boolean;
+  response?: T;
+  error?: string;
+}> => {
   try {
     const response = await requestFn();
     return { success: true, response: response.data };
   } catch (error) {
     let errorMessage = "알 수 없는 오류가 발생했습니다.";
+    let errorStatus: number | undefined = undefined;
     if (axios.isAxiosError(error)) {
       // AxiosError 타입 확인 및 처리
-      errorMessage = error.response?.data?.message || error.message;
-    } else if (error instanceof Error) {
-      // 일반 JavaScript Error 처리
-      errorMessage = error.message;
+      errorMessage = error.response?.data?.error?.message || error.message;
     }
-    console.error(`User API Request: ${errorMessage}`);
-    return { success: false, error: errorMessage };
+    console.error(`User API Request: ${errorMessage} (Status: ${errorStatus})`);
+    return {
+      success: false,
+      error: errorMessage,
+    };
   }
 };
