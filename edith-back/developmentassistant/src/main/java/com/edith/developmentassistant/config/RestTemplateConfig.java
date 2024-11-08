@@ -43,4 +43,13 @@ public class RestTemplateConfig {
 
         return restTemplate;
     }
+
+    @Bean
+    @Qualifier("portfolioRestTemplate")
+    public RestTemplate portfolioRestTemplate() {
+        RestTemplate restTemplate = new RestTemplate();
+        List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
+        restTemplate.setInterceptors(interceptors);
+        return restTemplate;
+    }
 }

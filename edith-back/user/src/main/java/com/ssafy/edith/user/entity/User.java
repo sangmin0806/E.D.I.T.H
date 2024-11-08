@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @Table(name = "`user`")
-public class User extends BaseEntity{
+public class User extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,15 +17,17 @@ public class User extends BaseEntity{
     @Column(unique = true, nullable = false)
     private String email;
 
-    private String password;
     private String vcsBaseUrl;
+    private String password;
+    private boolean vcs;
     private String vcsAccessToken;
 
     @Builder
-    public User(String email, String password, String vcsBaseUrl, String vcsAccessToken) {
+    public User(String email, String password, boolean vcs, String vcsAccessToken, String vcsBaseUrl) {
         this.email = email;
         this.password = password;
-        this.vcsBaseUrl = vcsBaseUrl;
+        this.vcs = vcs;
         this.vcsAccessToken = vcsAccessToken;
+        this.vcsBaseUrl = vcsBaseUrl;
     }
 }

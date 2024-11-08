@@ -14,7 +14,7 @@ def portfolio_make():
     data = request.get_json()
     user_id = data['userId']
     summaries = data.get('summaries')
-    merge_request = data.get('mergeRequest')
+    merge_request = data.get('mergeRequests')
 
     result = portfolio.make_portfolio(user_id, summaries, merge_request)
     if result:

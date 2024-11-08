@@ -12,5 +12,6 @@ public class UserDto {
     private String email;
     private String password;
     private String vcsBaseUrl;
+    private boolean vcs;
     private String vcsAccessToken;
 }

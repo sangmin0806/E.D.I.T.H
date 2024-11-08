@@ -19,7 +19,7 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 public class UserServiceClient {
 
-    private static final String USER_API_URL = "http://k11c206.p.ssafy.io:8081";
+    private static final String USER_API_URL = "http://localhost:8081";
     private static final String USER_INFO_ENDPOINT = "/api/v1/users/info";
 
     private final RestTemplate userServiceRestTemplate;

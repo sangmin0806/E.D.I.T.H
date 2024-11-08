@@ -20,6 +20,9 @@ spring:
     redis:
       host: k11c206.p.ssafy.io
       port: 6379
+fastapi:
+  url: http://fastapi:8000
+
 
 server:
   port: 8081

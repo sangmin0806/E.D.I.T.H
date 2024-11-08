@@ -1,5 +1,6 @@
 package com.ssafy.edith.user.api.service;
 
+import com.ssafy.edith.user.api.response.UserInfoResponse;
 import com.ssafy.edith.user.client.valueobject.FaceEmbeddingRegisterRequest;
 import com.ssafy.edith.user.api.request.SignInRequest;
 import com.ssafy.edith.user.api.request.SignUpRequest;
@@ -31,17 +32,20 @@ public class UserService {
     private final VersionControlClient versionControlClient;
     private final FastAPIClient fastAPIClient;
 
-    public User signUp(SignUpRequest signUpRequest) {
+    private String determineVcsBaseUrl(boolean vcs) {
+        return vcs ? "https://lab.ssafy.com" : "http://github.com";
+    }
 
+    public User signUp(SignUpRequest signUpRequest) {
         if (hasVcsInfo(signUpRequest)) {
-            versionControlClient.validateAccessToken(signUpRequest.vcsBaseUrl(), signUpRequest.vcsAccessToken());
+            String vcsBaseUrl = determineVcsBaseUrl(signUpRequest.vcs());
+            versionControlClient.validateAccessToken(vcsBaseUrl, signUpRequest.vcsAccessToken());
         }
 
         String encryptedPassword = passwordEncoder.encode(signUpRequest.password());
         String encryptedAccessToken = encryptionUtil.encrypt(signUpRequest.vcsAccessToken());
 
-        User user = signUpRequest.toEntity(encryptedPassword, encryptedAccessToken);
-
+        User user = signUpRequest.toEntity(encryptedPassword, signUpRequest.vcs(), encryptedAccessToken, determineVcsBaseUrl(signUpRequest.vcs()));
         return userRepository.save(user);
     }
     public SignInResponse signIn(SignInRequest signInRequest) {
@@ -89,6 +93,12 @@ public class UserService {
         Long userId = jwtUtil.extractUserId(accessToken);
         FaceEmbeddingRegisterRequest faceEmbeddingRegisterRequest = new FaceEmbeddingRegisterRequest(userId, embeddingVector);
         fastAPIClient.registerFaceEmbedding(faceEmbeddingRegisterRequest);
+    }
+    public UserInfoResponse getUserInfo(String accessToken) {
+        Long userId = jwtUtil.extractUserId(accessToken);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        return UserInfoResponse.of(user);
     }
 
     private User  validateRefreshToken(String refreshToken) {

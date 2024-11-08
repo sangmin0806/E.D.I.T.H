@@ -5,6 +5,7 @@ import com.edith.developmentassistant.client.gitlab.GitLabServiceClient;
 import com.edith.developmentassistant.client.user.UserServiceClient;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectDto;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectResponse;
+import com.edith.developmentassistant.client.dto.gitlab.GitCommit;
 import com.edith.developmentassistant.domain.Project;
 import com.edith.developmentassistant.domain.UserProject;
 import com.edith.developmentassistant.factory.ProjectFactory;
@@ -49,6 +50,7 @@ public class ProjectService {
         userProjectRepository.save(createUserProject(request, project, userId));
     }
 
+
     public List<ProjectResponse> getProjects(String token) {
 //        UserDto userByToken = userServiceClient.getUserByToken(token);
 //        Long userId = userByToken.getId();
@@ -59,6 +61,18 @@ public class ProjectService {
                 .map(UserProject::getProject)
                 .map(ProjectResponse::from)
                 .toList();
+
+    public List<GitCommit> fetchGitLabCommits(Long projectId, String accessToken) {
+        UserDto userDto = userServiceClient.getUserByToken(accessToken);
+        String projectAccessToken = gitLabServiceClient.generateProjectAccessToken(projectId, userDto.getVcsAccessToken());
+        List<GitCommit> commits = gitLabServiceClient.fetchGitLabCommits(projectId, projectAccessToken);
+        return commits;
+    }
+
+    public UserProject findUserProjectByUserIdAndProjectId(Long userId, Long projectId) {
+        return userProjectRepository.findByUserIdAndProjectId(userId, projectId)
+                .orElse(null);
+
     }
 
     private Project createNewProject(RegisterProjectServiceRequest request, String personalAccessToken) {

@@ -3,6 +3,7 @@ package com.ssafy.edith.user.api.controller;
 import com.ssafy.edith.user.api.request.SignInRequest;
 import com.ssafy.edith.user.api.request.SignUpRequest;
 import com.ssafy.edith.user.api.response.SignInResponse;
+import com.ssafy.edith.user.api.response.UserInfoResponse;
 import com.ssafy.edith.user.api.service.UserService;
 import com.ssafy.edith.user.util.CookieUtil;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,6 +23,12 @@ import static com.ssafy.edith.user.api.controller.ApiUtils.ApiResult;
 public class UserController {
     private final UserService userService;
     private final CookieUtil cookieUtil;
+
+    @GetMapping("/validate")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResult<Void> validateToken() {
+        return success(null);
+    }
 
     @PostMapping("/sign-up")
     @ResponseStatus(HttpStatus.CREATED)
@@ -64,6 +71,11 @@ public class UserController {
         return success(null);
     }
 
+    @GetMapping("/info")
+    public ApiResult<UserInfoResponse> getUserInfo(@CookieValue("accessToken") String accessToken) {
+        UserInfoResponse userInfoResponse = userService.getUserInfo(accessToken);
+        return success(userInfoResponse);
+    }
     @GetMapping("/test")
     public ApiResult<String> test() { //routing test
         System.out.println("test success");
