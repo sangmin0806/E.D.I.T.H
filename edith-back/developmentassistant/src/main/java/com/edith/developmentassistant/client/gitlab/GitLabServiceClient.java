@@ -204,11 +204,11 @@ public class GitLabServiceClient {
         return null; // 실패 시 null 반환
     }
 
-    public List<GitCommit> fetchGitLabCommits(Long projectId, String personalAccessToken) {
+    public List<GitCommit> fetchGitLabCommits(Long projectId, String projectAccessToken) {
         String url = GITLAB_API_URL + "/projects/" + projectId + "/repository/commits?per_page=10";
 
         HttpHeaders headers = new HttpHeaders();
-        headers.set("PRIVATE-TOKEN", personalAccessToken);
+        headers.set("PRIVATE-TOKEN", projectAccessToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {

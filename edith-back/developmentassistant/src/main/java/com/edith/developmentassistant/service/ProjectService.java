@@ -50,7 +50,8 @@ public class ProjectService {
 
     public List<GitCommit> fetchGitLabCommits(Long projectId, String accessToken){
         UserDto userDto = userServiceClient.getUserByToken(accessToken);
-        List<GitCommit> commits = gitLabServiceClient.fetchGitLabCommits(projectId,userDto.getVcsAccessToken());
+        String projectAccessToken = gitLabServiceClient.generateProjectAccessToken(projectId, userDto.getVcsAccessToken());
+        List<GitCommit> commits = gitLabServiceClient.fetchGitLabCommits(projectId,projectAccessToken);
         return commits;
     }
 
