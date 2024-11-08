@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useComponentStore } from "../../store/repoPageStore";
 interface KebabMenuProps {
-  projectID: string;
+  projectID: number;
 }
 
 function KebabMenu({ projectID }: KebabMenuProps) {

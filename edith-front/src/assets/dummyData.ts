@@ -1,5 +1,7 @@
 // projectData.ts
 
+import { ProjectListItem } from "../types/projectType";
+
 // Define an interface for the project data
 interface Project {
   projectName: string;
@@ -64,52 +66,135 @@ export const travelCommunityProject: Project = {
   `,
 };
 
-// Define an interface for the project list
-interface ProjectListItem {
-  id: string;
-  subject: string;
-  content: string;
-  recentDate: Date; // Use Date for dates
-  codeReview: boolean;
-  teamMemberImg: string[]; // Array of strings for image URLs
-}
-
 // Create the project list data following the specified format
 export const projectList: ProjectListItem[] = [
   {
-    id: "1",
-    subject: "Project Alpha",
-    content: "Building a responsive web application.",
-    recentDate: new Date("2024-10-15"), // Use Date for dates
-    codeReview: true,
-    teamMemberImg: [
-      "https://example.com/img/member1.jpg",
-      "https://example.com/img/member2.jpg",
-      "https://example.com/img/member3.jpg",
+    id: 824085,
+    url: null,
+    name: "Example Project",
+    token: "GfQ_e1hqiiaovywByhyd",
+    contents:
+      "This is an example project description with detailed information.",
+    branches: [
+      {
+        id: 1,
+        name: "main",
+      },
+      {
+        id: 2,
+        name: "develop",
+      },
+      {
+        id: 3,
+        name: "feature/new-feature",
+      },
+      {
+        id: 4,
+        name: "test",
+      },
     ],
-  },
-  {
-    id: "2",
-    subject: "Project Beta",
-    content: "Implementing authentication and authorization.",
-    recentDate: new Date("2024-10-20"), // Use Date for dates
-    codeReview: false,
-    teamMemberImg: [
-      "https://example.com/img/member4.jpg",
-      "https://example.com/img/member5.jpg",
-    ],
-  },
-  {
-    id: "3",
-    subject: "Project Gamma",
-    content: "Developing real-time data processing pipeline.",
-    recentDate: new Date("2024-10-28"), // Use Date for dates
-    codeReview: true,
-    teamMemberImg: [
-      "https://example.com/img/member6.jpg",
-      "https://example.com/img/member7.jpg",
-      "https://example.com/img/member8.jpg",
-      "https://example.com/img/member9.jpg",
+    updatedAt: "2024-11-08",
+    contributors: [
+      {
+        name: "Sanghyun Lee",
+        avatarUrl:
+          "https://secure.gravatar.com/avatar/d28a5f01188ed324cd3a4eae7528f21b120ccf579222e1ec4d5b24c433bb7b4f?s=80&d=identicon",
+      },
+      {
+        name: "TaeHee-Lee",
+        avatarUrl:
+          "https://secure.gravatar.com/avatar/685a4857f9f3aba0ed616b0e5c1f1b03552885b7166ae3e2fe367f262137ddc6?s=80&d=identicon",
+      },
+      {
+        name: "Sangjin RYU",
+        avatarUrl:
+          "https://lab.ssafy.com/uploads/-/system/user/avatar/547/avatar.png",
+      },
+      {
+        name: "choiinkuk",
+        avatarUrl:
+          "https://secure.gravatar.com/avatar/71419dd1ff37e7592bc8a86c60eeba73a02c83c4edc806253f3ffa3839e86d72?s=80&d=identicon",
+      },
+      {
+        name: "Sungjoon Kim",
+        avatarUrl:
+          "https://secure.gravatar.com/avatar/4a8162cae2aae230a1066d73399032443e89415436a97abfb25a1fb7521ab264?s=80&d=identicon",
+      },
+      {
+        name: "한기철",
+        avatarUrl:
+          "https://secure.gravatar.com/avatar/da6cf26c03f79efa8def9761aaeba7077af8719769d65a4988972231ee3d7bc2?s=80&d=identicon",
+      },
+      {
+        name: "최호근",
+        avatarUrl:
+          "https://lab.ssafy.com/uploads/-/system/user/avatar/1084/avatar.png",
+      },
+      {
+        name: "김신일",
+        avatarUrl:
+          "https://secure.gravatar.com/avatar/9e1e7fb0236cd5318af2abb9e4509c1cc95ab8f9812471e86f69ed419464bddb?s=80&d=identicon",
+      },
+      {
+        name: "박찬국",
+        avatarUrl:
+          "https://secure.gravatar.com/avatar/d747270063e9f58a0329b1acb475b4b6d556f1f223f462fdf2569a1bdecddf5c?s=80&d=identicon",
+      },
+      {
+        name: "김성재",
+        avatarUrl:
+          "https://secure.gravatar.com/avatar/b31772e34dbf399f7a2c0f7e62311958df85e6c44cd1ce7ac95b1dcd76c0fbf3?s=80&d=identicon",
+      },
+      {
+        name: "서성수",
+        avatarUrl:
+          "https://secure.gravatar.com/avatar/e4c133f4266f08c8f3e398517c29cb17216a3cf5537c1eadc73a2b8e60ae21e5?s=80&d=identicon",
+      },
+      {
+        name: "김민정",
+        avatarUrl:
+          "https://secure.gravatar.com/avatar/38c18aaa2942aaf3210edb56349dc64eed1a1eb43b06fd5e2396b50d73349524?s=80&d=identicon",
+      },
+      {
+        name: "강시몬",
+        avatarUrl:
+          "https://secure.gravatar.com/avatar/9e57014e14368868b08d88a83b4b154e968609c8a8ae9475fa403ff054779553?s=80&d=identicon",
+      },
+      {
+        name: "이승윤",
+        avatarUrl:
+          "https://secure.gravatar.com/avatar/228deae4f9775c163bdf5246b1bc4d75ff93e4065ebc4eb3db54b48037b59417?s=80&d=identicon",
+      },
+      {
+        name: "박세영",
+        avatarUrl:
+          "https://lab.ssafy.com/uploads/-/system/user/avatar/7045/avatar.png",
+      },
+      {
+        name: "정용기",
+        avatarUrl:
+          "https://secure.gravatar.com/avatar/020b94d5deb0093fd5244d6da90519b3617378c919286748ddeee0fd4763e4c9?s=80&d=identicon",
+      },
+      {
+        name: "오형남",
+        avatarUrl:
+          "https://secure.gravatar.com/avatar/423bd2d2ba8dd1d3c4edb77a3533dc2072d8c4a50e43066e585fcee5b59b02e2?s=80&d=identicon",
+      },
+      {
+        name: "고성현",
+        avatarUrl:
+          "https://secure.gravatar.com/avatar/8cbfe854136e4fc07baf7ecd6258f745265b7676624c04a5c79c152964fc7216?s=80&d=identicon",
+      },
+      {
+        name: "이현석",
+        avatarUrl:
+          "https://secure.gravatar.com/avatar/329c8b5eb96dc17937637b96921167b71919176eb9135bbf45bd4272abe8c25f?s=80&d=identicon",
+      },
+      {
+        name: "구자용",
+        avatarUrl:
+          "https://secure.gravatar.com/avatar/b067d34bfab7b7a0efff85df2bd97711404d45c3a44130eb389c6ceccfa9732a?s=80&d=identicon",
+      },
     ],
   },
 ];

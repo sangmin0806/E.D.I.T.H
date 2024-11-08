@@ -3,12 +3,12 @@ import create from "zustand";
 interface ComponentState {
   showProject: number;
   showDashboard: boolean;
-  selectedProjectID: string | undefined;
+  selectedProjectID: number | undefined;
   toggleComponent: (num: number) => void;
   togglePortfolio: () => void;
   setShowComponentOne: () => void;
   setShowDashboardTrue: () => void;
-  setSelectedProjectID: (id: string | null) => void;
+  setSelectedProjectID: (id: number | null) => void;
 }
 
 export const useComponentStore = create<ComponentState>((set) => ({
