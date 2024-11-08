@@ -45,6 +45,11 @@ public class ProjectService {
         userProjectRepository.save(createUserProject(request, project, userId));
     }
 
+    public UserProject findUserProjectByUserIdAndProjectId(Long userId, Long projectId) {
+        return userProjectRepository.findByUserIdAndProjectId(userId, projectId)
+                .orElse(null);
+    }
+
     private Project createNewProject(RegisterProjectServiceRequest request, String personalAccessToken) {
         webhookService.registerWebhook(request, personalAccessToken);
         return projectRepository.save(ProjectFactory.createProject(request, personalAccessToken));
