@@ -3,6 +3,9 @@ import mainRight from "../../assets/main_right.png";
 import logo from "../../assets/logo.png";
 import { JoinInfo } from "../../types/userTypes";
 import { useState } from "react";
+import { registerRequest } from "../../api/userApi";
+import { useNavigate } from "react-router-dom";
+import { useRedirectIfLoggedIn } from "../../hooks/useAuth.";
 
 function JoinPage() {
   // 상태 정의
@@ -12,10 +15,25 @@ function JoinPage() {
     vcsAccessToken: "",
     vcs: true, // default를 gitLab으로 설정
   });
+  const navigate = useNavigate();
+  useRedirectIfLoggedIn();
 
   // 비밀번호 유효성 검사 상태
   const [passwordError, setPasswordError] = useState<string>("");
 
+  const handleToSignup = async () => {
+    try {
+      // API 명세
+      // const response = await registerRequest(joinInfo);
+      // if (!response.success) {
+      //   throw new Error(response.error || "");
+      // }
+      console.log(joinInfo);
+      navigate("/join/finish");
+    } catch (error) {
+      alert(error);
+    }
+  };
   // 입력 값 변경 핸들러
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -138,7 +156,10 @@ function JoinPage() {
               </div>
             </div>
           </div>
-          <div className="p-1.5 bg-black rounded-2xl justify-center items-center gap-2.5 inline-flex">
+          <div
+            className="p-1.5 bg-black rounded-2xl justify-center items-center gap-2.5 inline-flex"
+            onClick={handleToSignup}
+          >
             <p className="w-36 text-center text-white text-xl font-medium font-['Pretendard Variable']">
               회원가입
             </p>
