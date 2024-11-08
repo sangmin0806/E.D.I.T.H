@@ -186,8 +186,6 @@ public class PortfolioService {
         private final LocalDateTime startDate;
         private final LocalDateTime endDate;
         private final List<MergeRequest> mergeRequests;
-
-        // 생성자 및 getter 생략...
     }
 }
 
