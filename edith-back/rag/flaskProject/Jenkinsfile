@@ -193,6 +193,7 @@
 
 // backend jenkinsfile
 
+// ec2
 def skipRemainingStages = true
 
 pipeline {
