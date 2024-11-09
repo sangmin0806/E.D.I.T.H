@@ -2,10 +2,13 @@ package com.edith.developmentassistant.controller;
 
 import static com.edith.developmentassistant.controller.ApiUtils.success;
 
+import com.edith.developmentassistant.client.dto.gitlab.GitBranch;
 import com.edith.developmentassistant.client.dto.gitlab.GitCommit;
+import com.edith.developmentassistant.client.dto.gitlab.GitGraph;
 import com.edith.developmentassistant.client.gitlab.GitLabServiceClient;
 import com.edith.developmentassistant.controller.ApiUtils.ApiResult;
 import com.edith.developmentassistant.controller.dto.request.RegisterProjectRequest;
+import com.edith.developmentassistant.controller.dto.response.gitlab.GitLabBranchesResponse;
 import com.edith.developmentassistant.controller.dto.response.gitlab.GitLabCommitsResponse;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectDto;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectResponse;
@@ -13,14 +16,7 @@ import com.edith.developmentassistant.controller.dto.response.project.RegisterPr
 import com.edith.developmentassistant.service.ProjectService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/projects")
@@ -38,16 +34,6 @@ public class ProjectController {
         return success(null);
     }
 
-    @GetMapping("/commits/{projectId}")
-    public ApiResult<GitLabCommitsResponse> getGitLabCommits(
-            @PathVariable Long projectId,
-            @CookieValue(value = "accessToken", required = false) String token) {
-
-        List<GitCommit> commits = projectService.fetchGitLabCommits(projectId, token);
-
-        return success(GitLabCommitsResponse.of(commits));
-    }
-
     @GetMapping
     public ApiResult<List<ProjectResponse>> getProjects(
             @CookieValue(value = "accessToken", required = false) String token) {
@@ -59,6 +45,14 @@ public class ProjectController {
             @CookieValue(value = "accessToken", required = false) String token,
             @RequestBody ProjectDto projectDto) {
         return success(projectService.updateProject(projectDto, token));
+    }
+    @GetMapping("/gitgraph/{projectId}")
+    public ApiResult<List<GitGraph>> getGitGraphData(
+            @PathVariable Long projectId,
+            @CookieValue(value = "accessToken", required = false)  String accessToken
+    ) {
+        List<GitGraph> gitGraphDatas = projectService.getGitGraphData(projectId, accessToken);
+        return success(gitGraphDatas);
     }
 
     @GetMapping("/health")
