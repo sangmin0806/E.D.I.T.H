@@ -244,6 +244,7 @@ public class GitLabServiceClient {
             return response.getBody();
         } catch (RestClientException e) {
             log.error("Error fetching GitLab commit details for commit {} in project {}: {}", commitSha, projectId, e.getMessage());
+            throw e;
         }
     }
 
