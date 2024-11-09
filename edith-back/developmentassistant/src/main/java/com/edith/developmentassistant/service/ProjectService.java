@@ -2,6 +2,7 @@ package com.edith.developmentassistant.service;
 
 import com.edith.developmentassistant.client.dto.UserDto;
 import com.edith.developmentassistant.client.dto.gitlab.GitBranch;
+import com.edith.developmentassistant.client.dto.gitlab.ContributorDto;
 import com.edith.developmentassistant.client.dto.gitlab.GitCommit;
 import com.edith.developmentassistant.client.dto.gitlab.GitGraph;
 import com.edith.developmentassistant.client.dto.gitlab.GitMerge;
@@ -17,18 +18,13 @@ import com.edith.developmentassistant.repository.UserProjectRepository;
 import com.edith.developmentassistant.service.dto.MergeRequest;
 import com.edith.developmentassistant.service.dto.request.RegisterProjectServiceRequest;
 import jakarta.transaction.Transactional;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-
-
 
 @Slf4j
 @Transactional
@@ -64,14 +60,23 @@ public class ProjectService {
 
 
     public List<ProjectResponse> getProjects(String token) {
+        // TODO : 배포 환경에서 주석 해제 후 사용
 //        UserDto userByToken = userServiceClient.getUserByToken(token);
 //        Long userId = userByToken.getId();
         Long userId = 1L;
-        List<UserProject> byUserId = userProjectRepository.findByUserId(userId);
+        List<UserProject> userProjects = userProjectRepository.findByUserId(userId);
+        return userProjects.stream()
+                .map(userProject -> {
+                    Project project = userProject.getProject();
 
-        return byUserId.stream()
-                .map(UserProject::getProject)
-                .map(ProjectResponse::from)
+                    // GitLab에서 프로젝트의 기여자 목록 가져오기
+                    List<ContributorDto> contributors = gitLabServiceClient.fetchContributors(project.getId(),
+                            project.getToken());
+
+                    // 프로젝트와 기여자 리스트를 사용하여 ProjectResponse 생성
+                    return ProjectResponse.from(project, userProject.getTitle(), contributors,
+                            userProject.getDescription());
+                })
                 .toList();
     }
 
@@ -148,15 +153,17 @@ public class ProjectService {
 //    Long userId = userByToken.getId();
         Long userId = 1L;
         List<UserProject> userProjects = userProjectRepository.findByUserId(userId);
-
+        String content = "";
         if (userProjects == null || userProjects.isEmpty()) {
             throw new IllegalArgumentException("Illegal user");
         }
-
+        String projectName = "";
         Project projectToUpdate = null;
         for (UserProject userProject : userProjects) {
             if (userProject.getProject().getId().equals(projectDto.id())) {
                 projectToUpdate = userProject.getProject();
+                content = userProject.getDescription();
+                projectName = userProject.getTitle();
                 break;
             }
         }
@@ -171,6 +178,22 @@ public class ProjectService {
         // 변경 사항 저장
         projectRepository.save(projectToUpdate);
 
-        return ProjectResponse.from(projectToUpdate);
+        return ProjectResponse.from(projectToUpdate, projectName, null, content);
+    }
+
+    public ProjectResponse getProject(String token, Long projectId) {
+        // TODO : 배포 환경에서 주석 해제 후 사용
+//        UserDto userByToken = userServiceClient.getUserByToken(token);
+//        Long userId = userByToken.getId();
+        Long userId = 1L;
+
+        UserProject userProject = userProjectRepository.findByUserIdAndProjectId(userId, projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found for the user"));
+
+        Project project = userProject.getProject();
+
+        List<ContributorDto> contributors = gitLabServiceClient.fetchContributors(project.getId(), project.getToken());
+
+        return ProjectResponse.from(project, userProject.getTitle(), contributors, userProject.getDescription());
     }
 }

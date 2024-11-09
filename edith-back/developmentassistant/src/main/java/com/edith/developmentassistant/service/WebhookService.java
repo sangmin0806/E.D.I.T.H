@@ -50,14 +50,8 @@ public class WebhookService {
         MergeRequestDiffResponse MergeDiff = gitLabServiceClient.fetchMergeRequestDiff(projectId, mergeRequestIid,
                 token);
         MergeDiff.getProjectId();
-        URL urlObj = null;
-        try {
-            urlObj = new URL(MergeDiff.getWebUrl());
-        } catch (Exception e) {
-            log.error("URL is not valid");
-        }
 
-        String baseUrl = urlObj.getProtocol() + "://" + urlObj.getHost() + "/";
+        String baseUrl = "https://lab.ssafy.com";
         List<CodeReviewChanges> changes = MergeDiff.getChanges().stream().map(Change::toCodeReviewChanges)
                 .toList();
 

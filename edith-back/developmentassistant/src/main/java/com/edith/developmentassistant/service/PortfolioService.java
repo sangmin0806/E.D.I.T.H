@@ -2,8 +2,6 @@ package com.edith.developmentassistant.service;
 
 import com.edith.developmentassistant.client.dto.UserDto;
 import com.edith.developmentassistant.client.user.UserServiceClient;
-import com.edith.developmentassistant.domain.Portfolio;
-import com.edith.developmentassistant.domain.Project;
 import com.edith.developmentassistant.domain.UserProject;
 import com.edith.developmentassistant.repository.MRSummaryRepository;
 import com.edith.developmentassistant.repository.PortfolioRepository;
@@ -11,8 +9,9 @@ import com.edith.developmentassistant.repository.UserProjectRepository;
 import com.edith.developmentassistant.service.dto.MergeRequest;
 import com.edith.developmentassistant.service.dto.Summary;
 import com.edith.developmentassistant.service.dto.request.CreatePortfolioServiceRequest;
+import com.edith.developmentassistant.service.dto.response.CreatePortfolioResponse;
 import com.edith.developmentassistant.service.dto.response.GitLabMergeRequestResponse;
-import com.edith.developmentassistant.service.dto.response.PortfolioResponse;
+import com.edith.developmentassistant.service.dto.response.FlaskPortfolioResponse;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +26,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -51,7 +51,7 @@ public class PortfolioService {
     String FLASK_PORTFOLIO_URL;
 
     // Portfolio 생성 로직
-    public String createPortfolio(String accessToken, String projectId, String branch) {
+    public CreatePortfolioResponse createPortfolio(String accessToken, String projectId, String branch) {
 
         try {
             // 1. User, userProject 찾기
@@ -76,24 +76,21 @@ public class PortfolioService {
             );
 //            log.info("Create portfolio request: {}", request);
             // 5. 포트폴리오 받아 저장, 반환하기
-            ResponseEntity<PortfolioResponse> response = portfolioRestTemplate.postForEntity(
+            ResponseEntity<FlaskPortfolioResponse> response = portfolioRestTemplate.postForEntity(
                     FLASK_PORTFOLIO_URL,
                     request,
-                    PortfolioResponse.class // 응답 타입
+                    FlaskPortfolioResponse.class // 응답 타입
             );
 
-//            log.info(Objects.requireNonNull(response.getBody()).getPortfolio());
-            Portfolio portfolio = Portfolio.builder()
-                    .userProject(userProject)
-                    .content(response.getBody().getPortfolio())
-                    .endDate(mergeRequestdateRange.getStartDate())
-                    .startDate(mergeRequestdateRange.getEndDate())
+            return CreatePortfolioResponse.builder()
+                    .portfolio(response.getBody().getPortfolio())
+//                    .name(userProject.getTitle())
+//                    .content(userProject.getDescription())
+                    .endDate(mergeRequestdateRange.getEndDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                    .startDate(mergeRequestdateRange.getStartDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                     .build();
 
-            portfolioRepository.save(portfolio);
-            log.info("saved portfolio = {}", portfolio);
-
-            return response.getBody().getPortfolio();
+//            return response.getBody().getPortfolio();
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -186,8 +183,6 @@ public class PortfolioService {
         private final LocalDateTime startDate;
         private final LocalDateTime endDate;
         private final List<MergeRequest> mergeRequests;
-
-        // 생성자 및 getter 생략...
     }
 }
 

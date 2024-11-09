@@ -5,11 +5,11 @@ export const loginRequest = async (
   loginInfo: LoginInfo
 ): Promise<{
   success: boolean;
-  response?: any;
+  response?: userInfo;
   error?: string;
 }> => {
   return apiRequest(() =>
-    axiosInstance.post<userInfo>("/api/v1/users/sign-in", loginInfo)
+    axiosInstance.post("/api/v1/users/sign-in", loginInfo)
   );
 };
 
@@ -17,7 +17,7 @@ export const registerRequest = async (
   joinInfo: JoinInfo
 ): Promise<{ success: boolean; response?: userInfo; error?: string }> => {
   const result = await apiRequest(() =>
-    axiosInstance.post<userInfo>("/api/v1/users/sign-up", joinInfo)
+    axiosInstance.post("/api/v1/users/sign-up", joinInfo)
   );
 
   return {

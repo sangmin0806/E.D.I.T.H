@@ -10,7 +10,7 @@ interface FormContainerProps {
 function ProjectFormContainer({
   mode,
   initialData = {
-    projectId: "",
+    projectId: 0,
     title: "",
     description: "",
     branches: [],
