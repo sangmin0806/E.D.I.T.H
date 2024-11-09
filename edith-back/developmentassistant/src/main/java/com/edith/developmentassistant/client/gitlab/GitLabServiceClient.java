@@ -3,7 +3,12 @@ package com.edith.developmentassistant.client.gitlab;
 import com.edith.developmentassistant.client.dto.CommentRequest;
 import com.edith.developmentassistant.client.dto.ProjectAccessTokenRequest;
 import com.edith.developmentassistant.client.dto.RegisterWebhookRequest;
+
+import com.edith.developmentassistant.client.dto.gitlab.GitBranch;
+import com.edith.developmentassistant.client.dto.gitlab.GitMerge;
+
 import com.edith.developmentassistant.client.dto.gitlab.ContributorDto;
+
 import com.edith.developmentassistant.client.dto.mergerequest.MergeRequestDiffResponse;
 import com.edith.developmentassistant.client.dto.gitlab.GitCommit;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -205,8 +210,9 @@ public class GitLabServiceClient {
         return null; // 실패 시 null 반환
     }
 
-    public List<GitCommit> fetchGitLabCommits(Long projectId, String projectAccessToken) {
-        String url = GITLAB_API_URL + "/projects/" + projectId + "/repository/commits?per_page=10";
+
+    public List<GitCommit> fetchCommitsInMergeRequest(Long projectId, Long mergeRequestIid, String projectAccessToken) {
+        String url = GITLAB_API_URL + "/projects/" + projectId + "/merge_requests/" + mergeRequestIid + "/commits";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("PRIVATE-TOKEN", projectAccessToken);
@@ -219,8 +225,25 @@ public class GitLabServiceClient {
 
             return response.getBody();
         } catch (RestClientException e) {
-            log.error("Error fetching GitLab commits for project {}: {}", projectId, e.getMessage());
+            log.error("Error fetching commits for merge request {} in project {}: {}", mergeRequestIid, projectId, e.getMessage());
             throw e;
+        }
+    }
+
+    public GitCommit fetchCommitDetails(Long projectId, String commitSha, String projectAccessToken) {
+        String url = GITLAB_API_URL + "/projects/" + projectId + "/repository/commits/" + commitSha;
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("PRIVATE-TOKEN", projectAccessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<GitCommit> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, GitCommit.class
+            );
+
+            return response.getBody();
+        } catch (RestClientException e) {
+            log.error("Error fetching GitLab commit details for commit {} in project {}: {}", commitSha, projectId, e.getMessage());
         }
     }
 
@@ -252,6 +275,25 @@ public class GitLabServiceClient {
             }
         } catch (RestClientException e) {
             log.error("Error fetching contributors for project {}: {}", projectId, e.getMessage());
+
+            throw e;
+        }
+    }
+
+    public List<GitMerge> fetchGitLabMergeRequests(Long projectId, String projectAccessToken) {
+        String url = GITLAB_API_URL + "/projects/" + projectId + "/merge_requests?state=merged&per_page=5";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("PRIVATE-TOKEN", projectAccessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+
+        try {
+            ResponseEntity<List<GitMerge>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<GitMerge>>() {});
+            return response.getBody();
+        } catch (RestClientException e) {
+            log.error("Error fetching GitLab merge for project {}: {}", projectId, e.getMessage());
             throw e;
         }
     }

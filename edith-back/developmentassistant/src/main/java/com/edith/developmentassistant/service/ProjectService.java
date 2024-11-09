@@ -1,8 +1,11 @@
 package com.edith.developmentassistant.service;
 
 import com.edith.developmentassistant.client.dto.UserDto;
+import com.edith.developmentassistant.client.dto.gitlab.GitBranch;
 import com.edith.developmentassistant.client.dto.gitlab.ContributorDto;
 import com.edith.developmentassistant.client.dto.gitlab.GitCommit;
+import com.edith.developmentassistant.client.dto.gitlab.GitGraph;
+import com.edith.developmentassistant.client.dto.gitlab.GitMerge;
 import com.edith.developmentassistant.client.gitlab.GitLabServiceClient;
 import com.edith.developmentassistant.client.user.UserServiceClient;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectDto;
@@ -12,13 +15,16 @@ import com.edith.developmentassistant.domain.UserProject;
 import com.edith.developmentassistant.factory.ProjectFactory;
 import com.edith.developmentassistant.repository.ProjectRepository;
 import com.edith.developmentassistant.repository.UserProjectRepository;
+import com.edith.developmentassistant.service.dto.MergeRequest;
 import com.edith.developmentassistant.service.dto.request.RegisterProjectServiceRequest;
 import jakarta.transaction.Transactional;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
 
 @Slf4j
 @Transactional
@@ -74,13 +80,36 @@ public class ProjectService {
                 .toList();
     }
 
-    public List<GitCommit> fetchGitLabCommits(Long projectId, String accessToken) {
+    public List<GitGraph> getGitGraphData(Long projectId, String accessToken) {
+
         UserDto userDto = userServiceClient.getUserByToken(accessToken);
-        String projectAccessToken = gitLabServiceClient.generateProjectAccessToken(projectId,
-                userDto.getVcsAccessToken());
-        List<GitCommit> commits = gitLabServiceClient.fetchGitLabCommits(projectId, projectAccessToken);
-        return commits;
+        String projectAccessToken = gitLabServiceClient.generateProjectAccessToken(projectId, userDto.getVcsAccessToken());
+
+        // 최근 MergeRequest목록 가져오기 (5개)
+        List<GitMerge> merges = gitLabServiceClient.fetchGitLabMergeRequests(projectId, projectAccessToken);
+
+        return merges.stream()
+                .map(mergeRequest -> {
+                    // MergeRequest 커밋 가져오기
+                    GitCommit mergeCommit = gitLabServiceClient.fetchCommitDetails(projectId, mergeRequest.getMerge_commit_sha(), projectAccessToken);
+
+                    // 해당 MergeRequest내 전체 커밋을 가져오기
+                    List<GitCommit> sourceBranchCommits = gitLabServiceClient.fetchCommitsInMergeRequest(
+                            projectId,
+                            mergeRequest.getIid(),
+                            projectAccessToken
+                    );
+
+                    return GitGraph.of(
+                            mergeRequest.getSource_branch(),
+                            mergeRequest.getTarget_branch(),
+                            mergeCommit,
+                            sourceBranchCommits
+                    );
+                })
+                .collect(Collectors.toList());
     }
+
 
     public UserProject findUserProjectByUserIdAndProjectId(Long userId, Long projectId) {
         return userProjectRepository.findByUserIdAndProjectId(userId, projectId)
