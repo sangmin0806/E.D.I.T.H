@@ -44,8 +44,8 @@ pipeline {
         DOCKER_USERINFO = credentials('DOCKER_USER')
         DOCKER_REPO = credentials('DOCKER_REPO')
 
-				// SPRING
-				SPRING_JWT_SECRET = credentials('SPRING_JWT_SECRET')
+        // SPRING
+        SPRING_JWT_SECRET = credentials('SPRING_JWT_SECRET')
     }
 
     stages {
