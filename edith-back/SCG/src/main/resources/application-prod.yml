@@ -36,9 +36,9 @@ spring:
             - Path=/ws/users/face_recognition
 
         - id: developmentassistant-api
-          uri: http://developmentassistant-spring-boot-service:8182
+          uri: http://developmentassistant-spring-boot-app:8182
           predicates:
-            - Path=/api/v1/project/**
+            - Path=/api/v1/projects/**
 
         - id: kubetest
           uri: http://kubetest:9190
