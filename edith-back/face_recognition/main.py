@@ -1,7 +1,8 @@
 import uvicorn
 from fastapi import FastAPI
-from register_face_embedding import face_recognition_router as register_router
-from face_recognition import face_recognition_router as match_router
+from routers.register_face_embedding import register_face as register_router
+from routers.face_recognition import match_router as match_router
+
 
 app = FastAPI()
 
