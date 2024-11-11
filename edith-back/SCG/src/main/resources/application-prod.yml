@@ -30,10 +30,10 @@ spring:
           predicates:
             - Path=/api/v1/users/**
 
-        - id: user-api
-          uri: http://user-spring-boot-service:8081
+        - id: user-websocket
+          uri: ws://user-fastapi-service:8083
           predicates:
-            - Path=/api/v1/users/**
+            - Path=/ws/users/face_recognition
 
         - id: developmentassistant-api
           uri: http://developmentassistant-spring-boot-service:8082
