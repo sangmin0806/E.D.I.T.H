@@ -32,7 +32,7 @@ public class CookieUtil {
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         response.addCookie(cookie);
-        response.setHeader("Set-Cookie", "accessToken=" + value + "; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=" + cookieExpiration);
+        response.addHeader("Set-Cookie", "accessToken=" + value + "; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=" + cookieExpiration);
 
     }
     public void addRefreshToken(HttpServletResponse response, String value) {
@@ -42,6 +42,6 @@ public class CookieUtil {
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         response.addCookie(cookie);
-        response.setHeader("Set-Cookie", "refreshToken=" + value + "; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=" + cookieExpiration);
+        response.addHeader("Set-Cookie", "refreshToken=" + value + "; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=" + cookieExpiration);
     }
 }
