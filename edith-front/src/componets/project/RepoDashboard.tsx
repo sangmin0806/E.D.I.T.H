@@ -26,9 +26,9 @@ function RepoDashboard() {
             yellowStateSubject={"오늘의 커밋 수"}
             yellowStateNum={data.codeReviewCnt}
           />
-          <div className="py-8 pl-8 pr-8 bg-white/30 rounded-3xl flex-col justify-center items-center gap-6 inline-flex">
-            <div className="py-8 pl-8 pr-8 bg-white/30 rounded-3xl flex-col justify-center gap-6 inline-flex">
-              <p className="text-xl font-semibold">Git History</p>
+          <div className="py-8 pl-4 pr-4 bg-white/30 rounded-3xl flex-col justify-center items-center gap-6 inline-flex">
+            <div className="w-[90%] py-8 pl-8 pr-8 bg-white/30 rounded-3xl flex-col justify-center gap-6 inline-flex shadow-custom">
+              <p className="text-2xl font-semibold">Git History</p>
               <GitGraphComponent />
             </div>
           </div>
