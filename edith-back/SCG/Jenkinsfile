@@ -1,4 +1,3 @@
-//
 def skipRemainingStages = true
 
 pipeline {
