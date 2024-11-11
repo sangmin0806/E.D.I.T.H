@@ -1,18 +1,18 @@
-export type PortfolioRequestInfo = () => {
+export type PortfolioRequestInfo = {
   name: string;
   content: string;
   endDate: string;
   portfolio: string;
 };
 
-export type PortfolioListItem = () => {
+export type PortfolioListItem = {
   name: string;
   content: string;
   lastModified: string;
   projectId: number;
 };
 
-export type PortfolioInfo = () => {
+export type PortfolioInfo = {
   name: string;
   content: string;
   startDate: string;

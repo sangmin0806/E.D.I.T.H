@@ -1,3 +1,4 @@
+import { PortfolioListItem } from "../types/portfolioType";
 import { FormValues, ProjectListItem } from "../types/projectType";
 import { apiRequest, axiosInstance } from "./axios";
 
@@ -8,6 +9,16 @@ export const projectEnrollRequest = async (
     axiosInstance.post("/api/v1/projects", formValues)
   );
   return { success: result.success };
+};
+
+export const projectGetRequest = async (
+  id: number
+): Promise<{
+  success: boolean;
+  response?: FormValues;
+  error?: string;
+}> => {
+  return apiRequest(() => axiosInstance.get(`/api/v1/projects/${id}`));
 };
 
 export const projectModifyRequest = async (

@@ -5,7 +5,7 @@ interface ElementProps {
   id: number;
   portfolioName: string;
   repoName: string;
-  savedDate: Date;
+  savedDate: string;
 }
 function PortfolioListBox({
   id,
@@ -14,7 +14,6 @@ function PortfolioListBox({
   savedDate,
 }: ElementProps) {
   const navigate = useNavigate();
-  const dateStr = formatDate(savedDate);
   const handleClick = () => {
     //string일수도 있으니까 한번 더 확인하깅
     // navigate(`/repo/detail/${id}`);
@@ -31,7 +30,7 @@ function PortfolioListBox({
           <p className="font-normal text-base">{repoName}</p>
         </div>
         <div className="flex flex-col items-end h-full justify-center gap-3">
-          <p className="font-normal text-base"> {dateStr}</p>
+          <p className="font-normal text-base"> {savedDate}</p>
         </div>
       </div>
     </>
