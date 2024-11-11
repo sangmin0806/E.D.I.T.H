@@ -31,10 +31,12 @@ function MainPage() {
   const loginAPI = async () => {
     try {
       const result = await loginRequest(login);
+      console.log(result);
       if (!result.success) {
         throw new Error(result.error);
       }
-      navigate("/dashboard");
+      alert("로그인이 완료되었습니다.");
+      navigate("/project");
     } catch (error) {
       alert(error);
     }
