@@ -2,7 +2,7 @@ spring:
   application:
     name: developmentassistant
   datasource:
-    url: jdbc:mysql://developmentassistant-mysql-clusterip.eks-work2.svc.cluster.local:3307/developmentassistant_database
+    url: jdbc:mysql://developmentassistant-mysql-clusterip.eks-work2.svc.cluster.local:3306/developmentassistant_database
     username: edith
     password: ssafy
     driver-class-name: com.mysql.cj.jdbc.Driver
