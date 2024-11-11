@@ -60,7 +60,7 @@ public class PortfolioService {
             UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getId(),
                     Long.parseLong(projectId));
 
-            // 2. project summery 찾기 -> projectId 로 찾기
+            // 2. project summery 찾기 -> id 로 찾기
             List<Summary> summaries = mrSummaryRepository.findByProjectId(Long.parseLong(projectId)).stream()
                     .map(Summary::from)
                     .toList();
@@ -102,7 +102,7 @@ public class PortfolioService {
         return gitLabWebClient
                 .get()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/projects/{projectId}/merge_requests")
+                        .path("/projects/{id}/merge_requests")
                         .queryParam("target_branch", branch)
                         .queryParam("state", "merged")
                         .build(projectId))

@@ -1,7 +1,6 @@
 package com.edith.developmentassistant.service;
 
 import com.edith.developmentassistant.client.dto.UserDto;
-import com.edith.developmentassistant.client.dto.gitlab.GitBranch;
 import com.edith.developmentassistant.client.dto.gitlab.ContributorDto;
 import com.edith.developmentassistant.client.dto.gitlab.GitCommit;
 import com.edith.developmentassistant.client.dto.gitlab.GitGraph;
@@ -15,11 +14,8 @@ import com.edith.developmentassistant.domain.UserProject;
 import com.edith.developmentassistant.factory.ProjectFactory;
 import com.edith.developmentassistant.repository.ProjectRepository;
 import com.edith.developmentassistant.repository.UserProjectRepository;
-import com.edith.developmentassistant.service.dto.MergeRequest;
 import com.edith.developmentassistant.service.dto.request.RegisterProjectServiceRequest;
 import jakarta.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -46,10 +42,10 @@ public class ProjectService {
         String personalAccessToken = user.getVcsAccessToken();
         Long userId = user.getId();
 
-        String projectAccessToken = gitLabServiceClient.generateProjectAccessToken(request.projectId(),
+        String projectAccessToken = gitLabServiceClient.generateProjectAccessToken(request.id(),
                 personalAccessToken);
 
-        Project project = projectRepository.findById(request.projectId())
+        Project project = projectRepository.findById(request.id())
                 .orElseGet(() -> createNewProject(request, projectAccessToken));
 
         updateBranchesIfNeeded(project, request);
@@ -122,7 +118,7 @@ public class ProjectService {
     }
 
     private void updateBranchesIfNeeded(Project project, RegisterProjectServiceRequest request) {
-        project.updateBranches(request.branchesName().stream()
+        project.updateBranches(request.branches().stream()
                 .map(branchName -> ProjectFactory.createBranch(branchName, project))
                 .toList());
     }
@@ -130,8 +126,8 @@ public class ProjectService {
     private UserProject createUserProject(RegisterProjectServiceRequest request, Project project, Long userId) {
         return UserProject.builder()
                 .userId(userId)
-                .description(request.description())
-                .title(request.title())
+                .description(request.contents())
+                .title(request.name())
                 .project(project)
                 .build();
     }

@@ -13,12 +13,12 @@ public class ProjectFactory {
 
     public static Project createProject(RegisterProjectServiceRequest request , String personalAccessToken) {
         Project project = Project.builder()
-                .projectId(request.projectId())
-                .name(request.title())
+                .projectId(request.id())
+                .name(request.name())
                 .token(personalAccessToken)
                 .build();
 
-        List<Branch> branches = request.branchesName().stream()
+        List<Branch> branches = request.branches().stream()
                 .map(branchName -> createBranch(branchName, project))
                 .toList();
 
@@ -36,8 +36,8 @@ public class ProjectFactory {
 
     public static UserProject createUserProject(RegisterProjectServiceRequest request, Project project) {
         return UserProject.builder()
-                .description(request.description())
-                .title(request.title())
+                .description(request.contents())
+                .title(request.name())
                 .project(project)
                 .build();
     }
