@@ -43,7 +43,7 @@ public class UserController {
         SignInResponse signInResponse = userService.signIn(signInRequest);
 
         cookieUtil.addAccessToken(response, signInResponse.accessToken());
-        cookieUtil.addRefreshToken(response, signInResponse.accessToken());
+        cookieUtil.addRefreshToken(response, signInResponse.refreshToken());
 
         return success(signInResponse);
     }

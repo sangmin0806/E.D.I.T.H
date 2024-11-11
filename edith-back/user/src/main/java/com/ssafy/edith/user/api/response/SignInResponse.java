@@ -4,11 +4,12 @@ public record SignInResponse(
         Long userId,
         String email,
         String accessToken,
+        String refreshToken,
         String username,
         String name,
         String profileImageUrl
 ) {
-    public static SignInResponse of(Long userId, String email, String accessToken,String username, String name, String profileImageUrl) {
-        return new SignInResponse(userId, email, accessToken,username, name, profileImageUrl);
+    public static SignInResponse of(Long userId, String email, String accessToken,String refreshToken,String username, String name, String profileImageUrl) {
+        return new SignInResponse(userId, email, accessToken,refreshToken,username, name, profileImageUrl);
     }
 }
