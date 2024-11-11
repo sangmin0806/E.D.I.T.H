@@ -41,7 +41,7 @@ public class RestTemplateConfig {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
         factory.setConnectTimeout(30000);    // 30초
         factory.setReadTimeout(600000);      // 10분
-        RestTemplate restTemplate = new RestTemplate();
+        RestTemplate restTemplate = new RestTemplate(factory);
         List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
         restTemplate.setInterceptors(interceptors);
 
