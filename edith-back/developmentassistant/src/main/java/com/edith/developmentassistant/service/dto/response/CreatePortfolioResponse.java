@@ -8,6 +8,7 @@ import lombok.Data;
 @Builder
 public class CreatePortfolioResponse {
     private String name;
+    private Long projectId;
     private String content;
     private String startDate;
     private String endDate;
