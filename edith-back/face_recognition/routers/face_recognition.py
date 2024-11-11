@@ -1,8 +1,10 @@
 import os
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect,APIRouter
 from qdrant_client import QdrantClient
 
 app = FastAPI()
+
+match_router = APIRouter()
 
 # Qdrant 서버 정보 가져오기
 qdrant_host = os.getenv("QDRANT_HOST", "qdrant.eks-work2.svc.cluster.local")

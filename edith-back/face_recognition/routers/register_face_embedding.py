@@ -28,6 +28,7 @@ except Exception:
         collection_name=collection_name,
         vectors_config=VectorParams(size=vector_size, distance=distance)
     )
+register_router = APIRouter()
 
 class FaceEmbedding(BaseModel):
     user_id: str  # user_id 직접 전달받음
