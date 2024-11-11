@@ -1,14 +1,9 @@
 import axios, { AxiosResponse } from "axios";
-const BASE_URL =
-  import.meta.env.VITE_NOW_BASEURL === "local"
-    ? import.meta.env.VITE_API_LOCAL_URL
-    : import.meta.env.VITE_API_DEPLOYED_URL;
-
 export const axiosInstance = axios.create({
-  baseURL: BASE_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  baseURL: "https://edith-ai.xyz:30443",
+  // headers: {
+  //   "Content-Type": "application/json",
+  // },
 
   timeout: 30000, // 30초 이상 응답 없으면 요청 취소
   withCredentials: true,
