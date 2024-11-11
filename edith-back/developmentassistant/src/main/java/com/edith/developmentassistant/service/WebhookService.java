@@ -13,11 +13,6 @@ import com.edith.developmentassistant.domain.Project;
 import com.edith.developmentassistant.repository.MRSummaryRepository;
 import com.edith.developmentassistant.repository.ProjectRepository;
 import com.edith.developmentassistant.service.dto.request.RegisterProjectServiceRequest;
-import jakarta.persistence.Column;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import java.net.URL;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +29,7 @@ public class WebhookService {
     private final MRSummaryRepository mrSummaryRepository;
 
     public void registerWebhook(RegisterProjectServiceRequest request, String token) {
-        Long projectId = request.projectId();
+        Long projectId = request.id();
         gitLabServiceClient.registerWebhook(projectId, token);
     }
 
