@@ -7,12 +7,12 @@ import com.edith.developmentassistant.repository.MRSummaryRepository;
 import com.edith.developmentassistant.repository.PortfolioRepository;
 import com.edith.developmentassistant.repository.UserProjectRepository;
 import com.edith.developmentassistant.service.dto.MergeRequest;
+import com.edith.developmentassistant.service.dto.MergeRequestDateRange;
 import com.edith.developmentassistant.service.dto.Summary;
 import com.edith.developmentassistant.service.dto.request.CreatePortfolioServiceRequest;
 import com.edith.developmentassistant.service.dto.response.CreatePortfolioResponse;
 import com.edith.developmentassistant.service.dto.response.GitLabMergeRequestResponse;
 import com.edith.developmentassistant.service.dto.response.FlaskPortfolioResponse;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -84,13 +84,11 @@ public class PortfolioService {
 
             return CreatePortfolioResponse.builder()
                     .portfolio(response.getBody().getPortfolio())
-//                    .name(userProject.getTitle())
-//                    .content(userProject.getDescription())
+                    .name(userProject.getTitle())
+                    .content(userProject.getDescription())
                     .endDate(mergeRequestdateRange.getEndDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                     .startDate(mergeRequestdateRange.getStartDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
                     .build();
-
-//            return response.getBody().getPortfolio();
 
         } catch (Exception e) {
             log.error(e.getMessage());
@@ -177,13 +175,7 @@ public class PortfolioService {
                 .build();
     }
 
-    @Getter
-    @RequiredArgsConstructor
-    class MergeRequestDateRange {
-        private final LocalDateTime startDate;
-        private final LocalDateTime endDate;
-        private final List<MergeRequest> mergeRequests;
-    }
+
 }
 
 
