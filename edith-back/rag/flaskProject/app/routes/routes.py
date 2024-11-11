@@ -24,7 +24,6 @@ def portfolio_make():
 
 @routes_bp.route('/rag/code-review', methods=['POST'])
 def code_review():
-    print('코드리뷰 도착')
     data = request.get_json()
     url = data.get('url')
     token = data.get('token')
@@ -33,7 +32,6 @@ def code_review():
     changes = data.get('changes')
 
     review, portfolio = reviewer.getCodeReview(url, token, projectId, branch, changes)
-    print('코드리뷰 생성 완료')
     if review and portfolio:
         return jsonify({'status': 'success', 'review': review, 'summary': portfolio})
     else:
