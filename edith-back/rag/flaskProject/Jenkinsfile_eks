@@ -43,8 +43,8 @@ pipeline {
         DOCKER_USERINFO = credentials('DOCKER_USER')
         DOCKER_REPO = credentials('DOCKER_REPO')
 
-				// SPRING
-				SPRING_JWT_SECRET = credentials('SPRING_JWT_SECRET')
+        // SPRING
+        SPRING_JWT_SECRET = credentials('SPRING_JWT_SECRET')
     }
 
     stages {
@@ -97,7 +97,7 @@ pipeline {
 
         stage('Push Docker Image to ECR') {
             when {
-                changeset "${CHECKOUT_FOLDER}/**"
+                changeset "${CHECKOUT_FOLDER}/${SERVER_NAME}/**"
             }
             steps {
                 script {
