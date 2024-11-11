@@ -2,22 +2,28 @@ package com.edith.developmentassistant.controller;
 
 import static com.edith.developmentassistant.controller.ApiUtils.success;
 
-import com.edith.developmentassistant.client.dto.gitlab.GitBranch;
-import com.edith.developmentassistant.client.dto.gitlab.GitCommit;
 import com.edith.developmentassistant.client.dto.gitlab.GitGraph;
 import com.edith.developmentassistant.client.gitlab.GitLabServiceClient;
 import com.edith.developmentassistant.client.rag.RagServiceClient;
+import com.edith.developmentassistant.client.user.UserServiceClient;
 import com.edith.developmentassistant.controller.ApiUtils.ApiResult;
 import com.edith.developmentassistant.controller.dto.request.RegisterProjectRequest;
-import com.edith.developmentassistant.controller.dto.response.gitlab.GitLabBranchesResponse;
-import com.edith.developmentassistant.controller.dto.response.gitlab.GitLabCommitsResponse;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectDto;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectResponse;
 import com.edith.developmentassistant.controller.dto.response.project.RegisterProjectResponse;
 import com.edith.developmentassistant.service.ProjectService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/projects")
@@ -27,6 +33,7 @@ public class ProjectController {
     private final ProjectService projectService;
     private final GitLabServiceClient gitlabServiceClient;
     private final RagServiceClient ragServiceClient;
+    private final UserServiceClient userServiceClient;
 
     @PostMapping
     public ApiResult<RegisterProjectResponse> registerProjects(
@@ -82,5 +89,17 @@ public class ProjectController {
     @GetMapping("/embedded")
     public String embedded() {
         return ragServiceClient.getHealthCheck();
+    }
+
+    @GetMapping("/user")
+    public String getUserInfo(
+            @CookieValue(value = "accessToken", required = false) String token
+    ) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            return objectMapper.writeValueAsString(userServiceClient.getUserByToken(token));
+        } catch (JsonProcessingException e) {
+            return "Error while serializing UserDto to JSON string";
+        }
     }
 }
