@@ -15,4 +15,9 @@ public class MergeRequestDateRange {
         this.endDate = endDate;
         this.mergeRequests = mergeRequests;
     }
+
+    @Override
+    public String toString() {
+        return startDate.toString() + " - " + endDate.toString();
+    }
 }

@@ -57,8 +57,8 @@ public class PortfolioService {
             // 1. User, userProject 찾기
 //            UserDto user = userServiceClient.getUserByToken(accessToken);
             UserDto user = createUserDto();
-            UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getId(),
-                    Long.parseLong(projectId));
+//            UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getId(), Long.parseLong(projectId));
+            UserProject userProject = createUserProject();
 
             // 2. project summery 찾기 -> projectId 로 찾기
             List<Summary> summaries = mrSummaryRepository.findByProjectId(Long.parseLong(projectId)).stream()
@@ -67,7 +67,7 @@ public class PortfolioService {
 
             // 3. GitLab 에서 해당 Branch 의 MR 리스트 받아 파싱하기 (WebClient)
             MergeRequestDateRange mergeRequestdateRange = getMergedMRs(projectId, branch, "NHMeAABxUvZVyLq6u5Qx");
-
+            log.info("Merged MRs from {}", mergeRequestdateRange);
             // 4. Flask 에 포폴 생성 요청하기
             CreatePortfolioServiceRequest request = new CreatePortfolioServiceRequest(
                     "doublehyun98@gmail.com",
@@ -75,7 +75,7 @@ public class PortfolioService {
                     mergeRequestdateRange.getMergeRequests()
             );
 //            log.info("Create portfolio request: {}", request);
-            // 5. 포트폴리오 받아 저장, 반환하기
+            // 5. 포트폴리오 받아 반환하기
             ResponseEntity<FlaskPortfolioResponse> response = portfolioRestTemplate.postForEntity(
                     FLASK_PORTFOLIO_URL,
                     request,
@@ -84,6 +84,7 @@ public class PortfolioService {
 
             return CreatePortfolioResponse.builder()
                     .portfolio(response.getBody().getPortfolio())
+                    .projectId(Long.parseLong(projectId))
                     .name(userProject.getTitle())
                     .content(userProject.getDescription())
                     .endDate(mergeRequestdateRange.getEndDate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
@@ -103,6 +104,7 @@ public class PortfolioService {
                         .path("/projects/{projectId}/merge_requests")
                         .queryParam("target_branch", branch)
                         .queryParam("state", "merged")
+                        .queryParam("per_page", 100000000)
                         .build(projectId))
                 .header("PRIVATE-TOKEN", accessToken)
                 .retrieve()
@@ -174,6 +176,16 @@ public class PortfolioService {
                 .vcsAccessToken("ZH3_Ft1HJmHqwXYmgYHs")
                 .build();
     }
+
+    private UserProject createUserProject() {
+        return UserProject.builder()
+                .userId(1L)
+                .title("E.D.I.T.H.")
+                .description("asdfasdf")
+                .build();
+    }
+
+
 
 
 }
