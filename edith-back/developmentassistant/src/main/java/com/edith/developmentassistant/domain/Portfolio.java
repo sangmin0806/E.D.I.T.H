@@ -1,10 +1,7 @@
 package com.edith.developmentassistant.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -12,13 +9,13 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "portfolio")
-public class Portfolio {
+public class Portfolio extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_project_id")
     private UserProject userProject;
 
@@ -34,6 +31,15 @@ public class Portfolio {
     public Portfolio(UserProject userProject, String content, LocalDateTime startDate, LocalDateTime endDate) {
         this.userProject = userProject;
         this.content = content;
+        this.startDate = startDate;
+        this.endDate = endDate;
+    }
+
+    public void updateContent(String content) {
+        this.content = content;
+    }
+
+    public void updateDates(LocalDateTime startDate, LocalDateTime endDate) {
         this.startDate = startDate;
         this.endDate = endDate;
     }

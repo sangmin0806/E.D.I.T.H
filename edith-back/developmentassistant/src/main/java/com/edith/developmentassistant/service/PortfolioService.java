@@ -2,6 +2,8 @@ package com.edith.developmentassistant.service;
 
 import com.edith.developmentassistant.client.dto.UserDto;
 import com.edith.developmentassistant.client.user.UserServiceClient;
+import com.edith.developmentassistant.domain.Portfolio;
+import com.edith.developmentassistant.domain.Project;
 import com.edith.developmentassistant.domain.UserProject;
 import com.edith.developmentassistant.repository.MRSummaryRepository;
 import com.edith.developmentassistant.repository.PortfolioRepository;
@@ -10,7 +12,8 @@ import com.edith.developmentassistant.service.dto.MergeRequest;
 import com.edith.developmentassistant.service.dto.MergeRequestDateRange;
 import com.edith.developmentassistant.service.dto.Summary;
 import com.edith.developmentassistant.service.dto.request.CreatePortfolioServiceRequest;
-import com.edith.developmentassistant.service.dto.response.CreatePortfolioResponse;
+import com.edith.developmentassistant.service.dto.PortfolioDto;
+import com.edith.developmentassistant.service.dto.response.FindAllPortfolioResponse;
 import com.edith.developmentassistant.service.dto.response.GitLabMergeRequestResponse;
 import com.edith.developmentassistant.service.dto.response.FlaskPortfolioResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +28,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -51,14 +55,14 @@ public class PortfolioService {
     String FLASK_PORTFOLIO_URL;
 
     // Portfolio 생성 로직
-    public CreatePortfolioResponse createPortfolio(String accessToken, String projectId, String branch) {
+    public PortfolioDto createPortfolio(String accessToken, String projectId, String branch) {
 
         try {
             // 1. User, userProject 찾기
-//            UserDto user = userServiceClient.getUserByToken(accessToken);
-            UserDto user = createUserDto();
-//            UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getId(), Long.parseLong(projectId));
-            UserProject userProject = createUserProject();
+            UserDto user = userServiceClient.getUserByToken(accessToken);
+//            UserDto user = createUserDto();
+            UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getId(), Long.parseLong(projectId));
+//            UserProject userProject = createUserProject();
 
             // 2. project summery 찾기 -> id 로 찾기
             List<Summary> summaries = mrSummaryRepository.findByProjectId(Long.parseLong(projectId)).stream()
@@ -82,7 +86,7 @@ public class PortfolioService {
                     FlaskPortfolioResponse.class // 응답 타입
             );
 
-            return CreatePortfolioResponse.builder()
+            return PortfolioDto.builder()
                     .portfolio(response.getBody().getPortfolio())
                     .projectId(Long.parseLong(projectId))
                     .name(userProject.getTitle())
@@ -148,6 +152,45 @@ public class PortfolioService {
                 .block(Duration.ofSeconds(30));
     }
 
+    public PortfolioDto savePortfolio(String accessToken, PortfolioDto portfolio) {
+
+        UserDto user = userServiceClient.getUserByToken(accessToken);
+//        UserDto user = createUserDto();
+        UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getId(), portfolio.getProjectId());
+//        UserProject userProject = createUserProject();
+
+        Optional<Portfolio> existingPortfolio = portfolioRepository.findByUserProject(userProject);
+        PortfolioDto savedPortfolio;
+        if (existingPortfolio.isPresent()) {
+            // 기존 portfolio 업데이트
+            Portfolio portfolioToUpdate = existingPortfolio.get();
+            portfolioToUpdate.updateContent(portfolio.getPortfolio());  // 내용 업데이트 메소드 필요
+            portfolioToUpdate.updateDates(  // 날짜 업데이트 메소드 필요
+                    LocalDate.parse(portfolio.getStartDate()).atStartOfDay(),
+                    LocalDate.parse(portfolio.getEndDate()).atStartOfDay()
+            );
+            savedPortfolio = new PortfolioDto(userProject, portfolioRepository.save(portfolioToUpdate));
+        } else {
+            // 새로운 portfolio 생성
+            Portfolio savePortfolio = Portfolio.builder()
+                    .content(portfolio.getPortfolio())
+                    .userProject(userProject)
+                    .startDate(LocalDate.parse(portfolio.getStartDate()).atStartOfDay())
+                    .endDate(LocalDate.parse(portfolio.getEndDate()).atStartOfDay())
+                    .build();
+            savedPortfolio = new PortfolioDto(userProject, portfolioRepository.save(savePortfolio));
+        }
+
+        return savedPortfolio;
+    }
+
+    public List<FindAllPortfolioResponse> findAllPortfolioResponseList(String accessToken) {
+        UserDto user = userServiceClient.getUserByToken(accessToken);
+//        log.info("portfolios = {}", portfolioRepository.findAll());
+//        UserDto user = createUserDto();
+        return portfolioRepository.findAllDtoByUserId(user.getId());
+    }
+
     private Mono<String> getMRDiff(String projectId, Long mrIid, String accessToken) {
         return gitLabWebClient
                 .get()
@@ -167,23 +210,31 @@ public class PortfolioService {
                 .timeout(Duration.ofSeconds(10));
     }
 
-    private UserDto createUserDto() {
-        return UserDto.builder()
-                .id(1L)
-                .email("doublehyun98")
-                .password("1234")
-                .vcsBaseUrl("https://lab.ssafy.com/")
-                .vcsAccessToken("ZH3_Ft1HJmHqwXYmgYHs")
-                .build();
-    }
-
-    private UserProject createUserProject() {
-        return UserProject.builder()
-                .userId(1L)
-                .title("E.D.I.T.H.")
-                .description("asdfasdf")
-                .build();
-    }
+//    private UserDto createUserDto() {
+//        return UserDto.builder()
+//                .id(1L)
+//                .email("doublehyun98")
+//                .password("1234")
+//                .vcsBaseUrl("https://lab.ssafy.com/")
+//                .vcsAccessToken("ZH3_Ft1HJmHqwXYmgYHs")
+//                .build();
+//    }
+//
+//    private UserProject createUserProject() {
+//
+//        Project project = Project.builder()
+//                .projectId(824085L)
+//
+//                .build();
+//
+//
+//        return UserProject.builder()
+//                .userId(1L)
+//                .title("E.D.I.T.H.")
+//                .description("asdfasdf")
+//                .project(project)
+//                .build();
+//    }
 
 
 
