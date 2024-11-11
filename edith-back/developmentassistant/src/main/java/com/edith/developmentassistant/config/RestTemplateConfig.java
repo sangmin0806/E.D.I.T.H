@@ -38,6 +38,9 @@ public class RestTemplateConfig {
     @Bean
     @Qualifier("ragRestTemplate")
     public RestTemplate ragRestTemplate() {
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(30000);    // 30초
+        factory.setReadTimeout(600000);      // 10분
         RestTemplate restTemplate = new RestTemplate();
         List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
         restTemplate.setInterceptors(interceptors);
