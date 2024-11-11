@@ -33,7 +33,7 @@ public class SecurityConfig {
         config.setAllowedOriginPatterns(Arrays.asList("*"));
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         config.setAllowedHeaders(Arrays.asList("*"));
-
+        config.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
