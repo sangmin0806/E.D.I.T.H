@@ -13,11 +13,13 @@ const GitGraphComponent: React.FC = () => {
   const smallFontTemplate = templateExtend(TemplateName.Metro, {
     branch: {
       lineWidth: 4,
+      spacing: 30,
       label: {
         font: "14px Arial",
       },
     },
     commit: {
+      spacing: 50,
       dot: {
         size: 10, // 커밋 점 크기 (기본값은 12)
       },
@@ -31,16 +33,6 @@ const GitGraphComponent: React.FC = () => {
   useEffect(() => {
     setData(gitGraphData); // 실제로는 API 호출 결과를 여기서 설정
   }, []);
-
-  const formatMessage = (message: string) => {
-    // 글자 수에 따라 두 줄로 나누기
-    const maxLength = 20; // 각 줄의 최대 글자 수
-    if (message.length > maxLength) {
-      return `${message.slice(0, maxLength)}<br />${message.slice(maxLength)}`;
-    }
-    return message;
-  };
-
   if (!data || data.length === 0) {
     return null;
   }
@@ -50,11 +42,8 @@ const GitGraphComponent: React.FC = () => {
       {(gitgraph) => {
         const branches: { [key: string]: Branch } = {};
 
-        // 메인 브랜치 (develop) 생성
-        branches["develop"] = gitgraph.branch("develop").commit("초기 커밋");
-
-        // response 데이터를 사용하여 각 브랜치와 커밋을 생성
-        data?.forEach((branchData) => {
+        // 초기 커밋을 추가하지 않고, 데이터에 따라 브랜치 및 커밋 생성
+        data.forEach((branchData) => {
           const {
             sourceBranch,
             targetBranch,
@@ -62,12 +51,12 @@ const GitGraphComponent: React.FC = () => {
             sourceBranchCommits,
           } = branchData;
 
-          // 브랜치가 존재하지 않으면 생성
+          // sourceBranch가 존재하지 않으면 새 브랜치를 생성
           if (!branches[sourceBranch]) {
             branches[sourceBranch] = gitgraph.branch(sourceBranch);
           }
 
-          // 각 커밋을 sourceBranch에 추가
+          // sourceBranch에 커밋 추가
           sourceBranchCommits.forEach((commitData) => {
             branches[sourceBranch].commit({
               subject: commitData.message,
@@ -76,6 +65,9 @@ const GitGraphComponent: React.FC = () => {
           });
 
           // 병합 커밋 처리
+          if (!branches[targetBranch]) {
+            branches[targetBranch] = gitgraph.branch(targetBranch);
+          }
           branches[targetBranch]
             .merge(branches[sourceBranch], mergeCommit.message)
             .commit({
@@ -87,5 +79,4 @@ const GitGraphComponent: React.FC = () => {
     </Gitgraph>
   );
 };
-
 export default GitGraphComponent;
