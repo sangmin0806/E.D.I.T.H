@@ -1,15 +1,13 @@
 package com.edith.developmentassistant.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Getter
 @Entity
+@ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserProject extends BaseEntity {
 
@@ -21,7 +19,7 @@ public class UserProject extends BaseEntity {
     private String description;
     private String title;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Project project;
 
     @OneToOne(mappedBy = "userProject")

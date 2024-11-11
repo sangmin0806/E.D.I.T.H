@@ -5,9 +5,12 @@ import static com.edith.developmentassistant.controller.ApiUtils.success;
 
 import com.edith.developmentassistant.service.PortfolioService;
 import com.edith.developmentassistant.service.dto.PortfolioDto;
+import com.edith.developmentassistant.service.dto.response.FindAllPortfolioResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @Slf4j
@@ -37,6 +40,11 @@ public class PortfolioController {
         return success(result);
     }
 
+    @GetMapping()
+    public ApiUtils.ApiResult<List<FindAllPortfolioResponse>> getPortfolios(
+            @CookieValue(value = "accessToken", required = false) String token) {
 
+        return success(portfolioService.findAllPortfolioResponseList(token));
+    }
 
 }
