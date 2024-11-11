@@ -2,6 +2,7 @@ package com.edith.developmentassistant.service;
 
 import com.edith.developmentassistant.client.dto.UserDto;
 import com.edith.developmentassistant.client.user.UserServiceClient;
+import com.edith.developmentassistant.domain.Portfolio;
 import com.edith.developmentassistant.domain.UserProject;
 import com.edith.developmentassistant.repository.MRSummaryRepository;
 import com.edith.developmentassistant.repository.PortfolioRepository;
@@ -10,7 +11,7 @@ import com.edith.developmentassistant.service.dto.MergeRequest;
 import com.edith.developmentassistant.service.dto.MergeRequestDateRange;
 import com.edith.developmentassistant.service.dto.Summary;
 import com.edith.developmentassistant.service.dto.request.CreatePortfolioServiceRequest;
-import com.edith.developmentassistant.service.dto.response.CreatePortfolioResponse;
+import com.edith.developmentassistant.service.dto.PortfolioDto;
 import com.edith.developmentassistant.service.dto.response.GitLabMergeRequestResponse;
 import com.edith.developmentassistant.service.dto.response.FlaskPortfolioResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
@@ -51,7 +53,7 @@ public class PortfolioService {
     String FLASK_PORTFOLIO_URL;
 
     // Portfolio 생성 로직
-    public CreatePortfolioResponse createPortfolio(String accessToken, String projectId, String branch) {
+    public PortfolioDto createPortfolio(String accessToken, String projectId, String branch) {
 
         try {
             // 1. User, userProject 찾기
@@ -82,7 +84,7 @@ public class PortfolioService {
                     FlaskPortfolioResponse.class // 응답 타입
             );
 
-            return CreatePortfolioResponse.builder()
+            return PortfolioDto.builder()
                     .portfolio(response.getBody().getPortfolio())
                     .projectId(Long.parseLong(projectId))
                     .name(userProject.getTitle())
@@ -147,6 +149,24 @@ public class PortfolioService {
                 })
                 .block(Duration.ofSeconds(30));
     }
+
+    public PortfolioDto savePortfolio(String accessToken, PortfolioDto portfolio) {
+
+        //            UserDto user = userServiceClient.getUserByToken(accessToken);
+        UserDto user = createUserDto();
+
+        Portfolio savePortfolio = Portfolio.builder()
+                .content(portfolio.getContent())
+                .startDate(LocalDate.parse(portfolio.getStartDate()).atStartOfDay())
+                .endDate(LocalDate.parse(portfolio.getEndDate()).atStartOfDay())
+                .userProject(projectService.findUserProjectByUserIdAndProjectId(user.getId(), portfolio.getProjectId()))
+                .build();
+
+        portfolioRepository.save(savePortfolio);
+        return portfolio;
+    }
+
+
 
     private Mono<String> getMRDiff(String projectId, Long mrIid, String accessToken) {
         return gitLabWebClient
