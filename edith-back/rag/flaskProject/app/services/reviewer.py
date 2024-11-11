@@ -9,9 +9,11 @@ from langchain.memory import ConversationBufferMemory
 from langchain_core.prompts import ChatPromptTemplate
 from langchain.text_splitter import TokenTextSplitter
 from app.services.llm_model import LLMModel
+import time
 import uuid
 
 def getCodeReview(url, token, projectId, branch, changes):
+
     chunker = None
     vectorDB = None
     uuid = generate_uuid()
@@ -19,7 +21,6 @@ def getCodeReview(url, token, projectId, branch, changes):
     try:
         # 0. DB 초기화
         vectorDB = CodeEmbeddingProcessor(uuid)
-
         # 1. git Clone
         chunker = GitLabCodeChunker(
             gitlab_url=url,
@@ -30,12 +31,23 @@ def getCodeReview(url, token, projectId, branch, changes):
         )
 
         # 2. 파일별 임베딩
+        start_time1 = time.time()
         project_path = chunker.clone_project()
         if not project_path:
             return '', ''
 
+        end_time1 = time.time()
+        print(f"gitClone 실행 시간: {end_time1 - start_time1:.6f} seconds")
+        
         # 3. 리뷰 할 코드들 메서드 Chunking
+        start_time2 = time.time()
         file_chunks = []
+
+        # changes 에 포함된 파일 확장자 정보 미리 저장
+        relevant_extensions = set()
+        for change in changes:
+            relevant_extensions.add(get_language_from_extension(change['path']))
+
         for root, _, files in os.walk(project_path):
             for file in files:
                 file_path = Path(root) / file
@@ -51,12 +63,17 @@ def getCodeReview(url, token, projectId, branch, changes):
                 if not language:
                     continue
 
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    chunks = chunker.chunk_file(str(file_path), language)
-                    file_chunks.extend(chunks)
+                # changes 의 path 필드에 존재하는 파일 확장자명만 임베딩
+                if language in relevant_extensions:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        chunks = chunker.chunk_file(str(file_path), language)
+                        file_chunks.extend(chunks)
 
         vectorDB.store_embeddings(file_chunks)
+        end_time2 = time.time()
+        print(f"임베딩 실행 시간: {end_time2 - start_time2:.6f} seconds")
 
+        start_time3 = time.time()
         review_queries = [] # path, diff (전문), 참고할 코드 (메서드)
         for change in changes:
             language = get_language_from_extension(change['path'])
@@ -75,14 +92,22 @@ def getCodeReview(url, token, projectId, branch, changes):
             for code_chunk in code_chunks:
                 similar_codes.append(vectorDB.query_similar_code(code_chunk, 5)) # 여기여기==================
             review_queries.append([change['path'], change['diff'], similar_codes])
+        
+        end_time3 = time.time()
+        print(f"유사도 분석 실행 시간: {end_time3 - start_time3:.6f} seconds")
+
 
         # 5. 메서드 별 관련 코드 가져와 리트리버 생성, 질의
         llm_model = LLMModel()
         llm = llm_model.llm
 
         # 6. LLM 에 질의해 결과 반환
+        start_time4 = time.time()
         result = get_code_review(projectId, review_queries, llm)
+        end_time4 = time.time()
+        print(f"LLM 질의 실행 시간: {end_time4 - start_time4:.6f} seconds")
         return result
+        
 
     except Exception as e:
         print(f"오류 발생: {e}")
@@ -210,27 +235,36 @@ def get_code_review(projectId, review_queries, llm):
 
     try:
         for file_path, code_chunk, similar_codes in review_queries:
+
             try:
+                start_time = time.time()
                 review_result = chunked_review(projectId, llm, file_path, code_chunk, similar_codes, review_chain, code_review_memory)
 
                 portfolio_memory.save_context(
                     {"input": f"Review for {file_path}"},
                     {"output": review_result}
                 )
-
+                end_time = time.time()
+                print(f"요청 1회 실행 시간: {end_time - start_time:.6f} seconds")
             except Exception as e:
                 print(f"개별 리뷰 중 오류 발생: {e}")
                 continue
 
+        start_time5 = time.time()
         portfolio_result = portfolio_chain.invoke({
             "input": "Generate final portfolio",
             "history": portfolio_memory.load_memory_variables({})[f"{projectId}_portfolio_{uuid}"]
         })
+        end_time5 = time.time()
+        print(f"포폴 최종 실행 시간: {end_time5 - start_time5:.6f} seconds")
 
+        start_time6 = time.time()
         code_review_result = final_review_chain.invoke({
             "input": "Generate final review",
             "history": code_review_memory.load_memory_variables({})[f"{projectId}_code_review_{uuid}"]
         }).replace('\n', '').replace('```html', '').replace('```', '')
+        end_time6 = time.time()
+        print(f"코드 실행 시간: {end_time6 - start_time6:.6f} seconds")
 
         return re.sub(r'<title>.*?</title>', '', code_review_result), portfolio_result
 
