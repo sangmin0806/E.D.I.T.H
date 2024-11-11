@@ -62,4 +62,9 @@ public class RagServiceClient {
             throw new RuntimeException("Error during code review request", ex);
         }
     }
+
+    public String getHealthCheck() {
+        String url = URL + "/health-check";
+        return restTemplate.getForObject(url, String.class);
+    }
 }
