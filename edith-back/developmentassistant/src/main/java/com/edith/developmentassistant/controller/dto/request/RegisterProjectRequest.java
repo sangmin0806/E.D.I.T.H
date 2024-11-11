@@ -4,7 +4,7 @@ import com.edith.developmentassistant.service.dto.request.RegisterProjectService
 import java.util.List;
 
 public record RegisterProjectRequest(
-        Long projectId,
+        Long id,
         String title,
         String description,
         Long userId,
@@ -13,7 +13,7 @@ public record RegisterProjectRequest(
 
     public RegisterProjectServiceRequest toServiceRequest() {
         return new RegisterProjectServiceRequest(
-                this.projectId,
+                this.id,
                 this.title,
                 this.description,
                 this.branches

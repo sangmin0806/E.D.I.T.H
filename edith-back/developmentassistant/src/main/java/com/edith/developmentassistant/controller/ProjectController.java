@@ -6,6 +6,7 @@ import com.edith.developmentassistant.client.dto.gitlab.GitBranch;
 import com.edith.developmentassistant.client.dto.gitlab.GitCommit;
 import com.edith.developmentassistant.client.dto.gitlab.GitGraph;
 import com.edith.developmentassistant.client.gitlab.GitLabServiceClient;
+import com.edith.developmentassistant.client.rag.RagServiceClient;
 import com.edith.developmentassistant.controller.ApiUtils.ApiResult;
 import com.edith.developmentassistant.controller.dto.request.RegisterProjectRequest;
 import com.edith.developmentassistant.controller.dto.response.gitlab.GitLabBranchesResponse;
@@ -25,6 +26,7 @@ public class ProjectController {
 
     private final ProjectService projectService;
     private final GitLabServiceClient gitlabServiceClient;
+    private final RagServiceClient ragServiceClient;
 
     @PostMapping
     public ApiResult<RegisterProjectResponse> registerProjects(
@@ -54,16 +56,17 @@ public class ProjectController {
             @RequestBody ProjectDto projectDto) {
         return success(projectService.updateProject(projectDto, token));
     }
+
     @GetMapping("/gitgraph/{projectId}")
     public ApiResult<List<GitGraph>> getGitGraphData(
             @PathVariable Long projectId,
-            @CookieValue(value = "accessToken", required = false)  String accessToken
+            @CookieValue(value = "accessToken", required = false) String accessToken
     ) {
         List<GitGraph> gitGraphDatas = projectService.getGitGraphData(projectId, accessToken);
         return success(gitGraphDatas);
     }
 
-    @GetMapping("/health")
+    @GetMapping("/health-check")
     public String healthCheck() {
         return "health check";
     }
@@ -74,5 +77,10 @@ public class ProjectController {
                 리뷰입니다.
                 """;
         gitlabServiceClient.addMergeRequestComment(824085L, 64L, "TWD9FX7P7Qc1bYqyo_cC", review);
+    }
+
+    @GetMapping("/embedded")
+    public String embedded() {
+        return ragServiceClient.getHealthCheck();
     }
 }

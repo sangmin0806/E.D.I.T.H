@@ -1,3 +1,4 @@
+//
 def skipRemainingStages = true
 
 pipeline {
@@ -44,8 +45,8 @@ pipeline {
         DOCKER_USERINFO = credentials('DOCKER_USER')
         DOCKER_REPO = credentials('DOCKER_REPO')
 
-				// SPRING
-				SPRING_JWT_SECRET = credentials('SPRING_JWT_SECRET')
+        // SPRING
+        SPRING_JWT_SECRET = credentials('SPRING_JWT_SECRET')
     }
 
     stages {
@@ -75,7 +76,7 @@ pipeline {
                     cd ${PROJECT_ROOT}/${CHECKOUT_FOLDER}/${SERVER_NAME}
                     chmod +x ./gradlew
                     ./gradlew clean build -x test
-                    docker build -t ${SERVER_LOWER_NAME}-${APP_TYPE}:latest --build-arg JAR_FILE=build/libs/${SERVER_LOWER_NAME}-0.0.1-SNAPSHOT.jar .
+                    docker build -t ${SERVER_LOWER_NAME}-${APP_TYPE}:latest --build-arg JAR_FILE=build/libs/${SERVER_NAME}-0.0.1-SNAPSHOT.jar .
                     docker tag ${SERVER_LOWER_NAME}-${APP_TYPE}:latest ${ECR_URL}/${ECR_REPO}:${CURRENT_IMG_TAG}
                     """
                 }
@@ -100,7 +101,7 @@ pipeline {
 
         stage('Push Docker Image to ECR') {
             when {
-                changeset "${CHECKOUT_FOLDER}/**"
+                changeset "${CHECKOUT_FOLDER}/${SERVER_NAME}/**"
             }
             steps {
                 script {
@@ -136,7 +137,7 @@ pipeline {
                         sh """
                         git config --global user.email ${GITHUB_ID}
                         git config --global user.name ${GITHUB_NAME}
-                        cd ${YAML_ROOT}/${SERVER_NAME}
+                        cd ${YAML_ROOT}/${SERVER_LOWER_NAME}
                         sed -i 's|image: \\(.*\\):[^ ]*|image: \\1:${CURRENT_IMG_TAG}|' ${YAML_PATH}
                         git add .
                         git commit -m 'fix: Update image tag to ${CURRENT_IMG_TAG}'
