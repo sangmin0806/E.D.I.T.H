@@ -158,6 +158,7 @@ public class PortfolioService {
 //        UserDto user = createUserDto();
         UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getId(), portfolio.getProjectId());
 //        UserProject userProject = createUserProject();
+//        userProjectRepository.save(userProject);
 
         Optional<Portfolio> existingPortfolio = portfolioRepository.findByUserProject(userProject);
         PortfolioDto savedPortfolio;
@@ -191,6 +192,23 @@ public class PortfolioService {
         return portfolioRepository.findAllDtoByUserId(user.getId());
     }
 
+    public PortfolioDto getPortfolio(String accessToken, String portfolioId) {
+//        UserDto user = createUserDto();
+
+        UserDto user = userServiceClient.getUserByToken(accessToken);
+//        createUserProject();
+        UserProject userProject = userProjectRepository.findByUserIdAndProjectId(user.getId(), Long.parseLong(portfolioId))
+                .orElse(null);
+
+        Portfolio portfolio = portfolioRepository.findByUserProject(userProject)
+                .orElse(null);
+
+        if (portfolio == null || userProject == null) {
+            return null;
+        }
+        return new PortfolioDto(userProject, portfolio);
+    }
+
     private Mono<String> getMRDiff(String projectId, Long mrIid, String accessToken) {
         return gitLabWebClient
                 .get()
@@ -210,31 +228,30 @@ public class PortfolioService {
                 .timeout(Duration.ofSeconds(10));
     }
 
-//    private UserDto createUserDto() {
-//        return UserDto.builder()
-//                .id(1L)
-//                .email("doublehyun98")
-//                .password("1234")
-//                .vcsBaseUrl("https://lab.ssafy.com/")
-//                .vcsAccessToken("ZH3_Ft1HJmHqwXYmgYHs")
-//                .build();
-//    }
-//
-//    private UserProject createUserProject() {
-//
-//        Project project = Project.builder()
-//                .projectId(824085L)
-//
-//                .build();
-//
-//
-//        return UserProject.builder()
-//                .userId(1L)
-//                .title("E.D.I.T.H.")
-//                .description("asdfasdf")
-//                .project(project)
-//                .build();
-//    }
+    private UserDto createUserDto() {
+        return UserDto.builder()
+                .id(1L)
+                .email("doublehyun98")
+                .password("1234")
+                .vcsBaseUrl("https://lab.ssafy.com/")
+                .vcsAccessToken("ZH3_Ft1HJmHqwXYmgYHs")
+                .build();
+    }
+
+    private UserProject createUserProject() {
+
+        Project project = Project.builder()
+                .projectId(824085L)
+                .build();
+
+
+        return UserProject.builder()
+                .userId(1L)
+                .title("E.D.I.T.H.")
+                .description("asdfasdf")
+                .project(project)
+                .build();
+    }
 
 
 

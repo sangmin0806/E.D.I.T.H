@@ -47,4 +47,11 @@ public class PortfolioController {
         return success(portfolioService.findAllPortfolioResponseList(token));
     }
 
+    @GetMapping("/{projectId}")
+    public ApiUtils.ApiResult<PortfolioDto> getPortfolios(
+            @CookieValue(value = "accessToken", required = false) String token,
+            @PathVariable String projectId) {
+        return success(portfolioService.getPortfolio(token, projectId));
+    }
+
 }
