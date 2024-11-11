@@ -62,7 +62,7 @@ public class UserService {
 
         GitLabProfile profile = versionControlClient.fetchProfile(user.getVcsBaseUrl(), decryptedAccessToken);
 
-        return SignInResponse.of(user.getId(), user.getEmail(), accessToken, profile.username(), profile.name(), profile.avatar_url());
+        return SignInResponse.of(user.getId(), user.getEmail(), accessToken,refreshToken, profile.username(), profile.name(), profile.avatar_url());
     }
     public SignInResponse faceLogin(Long userId) {
         User user = userRepository.findById(userId)
@@ -79,7 +79,7 @@ public class UserService {
 
         GitLabProfile profile = versionControlClient.fetchProfile(user.getVcsBaseUrl(), decryptedAccessToken);
 
-        return SignInResponse.of(user.getId(), user.getEmail(), accessToken, profile.username(), profile.name(), profile.avatar_url());
+        return SignInResponse.of(user.getId(), user.getEmail(), accessToken,refreshToken, profile.username(), profile.name(), profile.avatar_url());
     }
 
     public String refreshAccessToken(String refreshToken) {
