@@ -35,9 +35,9 @@ public class ProjectService {
     private final GitLabServiceClient gitLabServiceClient;
 
     public void registerProject(RegisterProjectServiceRequest request, String token) {
-        // TODO : 실제 배포 환경에서는 UserApiClient를 통해 유저 정보를 가져와야 함
-//        UserDto user = userApiClient.getUserByToken(token);
-        UserDto user = createUserDto();
+         // TODO : 실제 배포 환경에서는 UserApiClient를 통해 유저 정보를 가져와야 함
+        UserDto user = userServiceClient.getUserByToken(token);
+//        UserDto user = createUserDto();
 
         String personalAccessToken = user.getVcsAccessToken();
         Long userId = user.getId();
@@ -57,9 +57,9 @@ public class ProjectService {
 
     public List<ProjectResponse> getProjects(String token) {
         // TODO : 배포 환경에서 주석 해제 후 사용
-//        UserDto userByToken = userServiceClient.getUserByToken(token);
-//        Long userId = userByToken.getId();
-        Long userId = 1L;
+        UserDto userByToken = userServiceClient.getUserByToken(token);
+        Long userId = userByToken.getId();
+//        Long userId = 1L;
         List<UserProject> userProjects = userProjectRepository.findByUserId(userId);
         return userProjects.stream()
                 .map(userProject -> {
@@ -145,9 +145,9 @@ public class ProjectService {
 
     public ProjectResponse updateProject(ProjectDto projectDto, String token) {
         // TODO : 배포 환경에서 주석 해제 후 사용
-//    UserDto userByToken = userServiceClient.getUserByToken(token);
-//    Long userId = userByToken.getId();
-        Long userId = 1L;
+    UserDto userByToken = userServiceClient.getUserByToken(token);
+    Long userId = userByToken.getId();
+//        Long userId = 1L;
         List<UserProject> userProjects = userProjectRepository.findByUserId(userId);
         String content = "";
         if (userProjects == null || userProjects.isEmpty()) {
@@ -179,9 +179,9 @@ public class ProjectService {
 
     public ProjectResponse getProject(String token, Long projectId) {
         // TODO : 배포 환경에서 주석 해제 후 사용
-//        UserDto userByToken = userServiceClient.getUserByToken(token);
-//        Long userId = userByToken.getId();
-        Long userId = 1L;
+        UserDto userByToken = userServiceClient.getUserByToken(token);
+        Long userId = userByToken.getId();
+//        Long userId = 1L;
 
         UserProject userProject = userProjectRepository.findByUserIdAndProjectId(userId, projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found for the user"));
