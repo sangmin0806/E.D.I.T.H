@@ -12,31 +12,31 @@ spring:
     gateway:
       routes:
         - id: user-test
-          uri: http://user-spring-boot-service:8081
+          uri: http://user-spring-boot-service:8181
           predicates:
             - Path=/api/v1/users/test
           filters:
             - name: JwtAuthFilter
 
         - id: user-validate
-          uri: http://user-spring-boot-service:8081
+          uri: http://user-spring-boot-service:8181
           predicates:
             - Path=/api/v1/users/validate
           filters:
             - name: JwtAuthFilter
 
         - id: user-api
-          uri: http://user-spring-boot-service:8081
+          uri: http://user-spring-boot-service:8181
           predicates:
             - Path=/api/v1/users/**
 
         - id: user-websocket
-          uri: ws://user-fastapi-service:8083
+          uri: ws://user-fastapi-service:8184
           predicates:
             - Path=/ws/users/face_recognition
 
         - id: developmentassistant-api
-          uri: http://developmentassistant-spring-boot-service:8082
+          uri: http://developmentassistant-spring-boot-service:8182
           predicates:
             - Path=/api/v1/project/**
 
