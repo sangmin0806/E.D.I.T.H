@@ -7,7 +7,7 @@ import jwt
 
 app = FastAPI()
 
-
+register_router = APIRouter()
 # Qdrant 서버 정보 가져오기
 qdrant_host = os.getenv("QDRANT_HOST", "qdrant.eks-work2.svc.cluster.local")
 qdrant_port = os.getenv("QDRANT_PORT", "6333")
@@ -28,7 +28,7 @@ except Exception:
         collection_name=collection_name,
         vectors_config=VectorParams(size=vector_size, distance=distance)
     )
-register_router = APIRouter()
+
 
 class FaceEmbedding(BaseModel):
     user_id: str  # user_id 직접 전달받음
