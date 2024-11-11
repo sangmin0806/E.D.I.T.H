@@ -1,5 +1,6 @@
 // projectData.ts
 
+import { BranchData } from "../types/gitGraphType";
 import { PortfolioListItem } from "../types/portfolioType";
 import { ProjectListItem } from "../types/projectType";
 
@@ -240,4 +241,40 @@ export const dummyPortfolioData: PortfolioListItem[] = [
     content: "AWS와 Azure 기반 클라우드 프로젝트",
     lastModified: "2024-07-05",
   },
+];
+
+export const gitGraphData: BranchData[] = [
+  {
+    sourceBranch: "feature/S11P31C206-160-BE-포폴반환-변경",
+    targetBranch: "develop",
+    mergeCommit: {
+      id: "45de09858d8d8ad7e29673907caa3a9c3bd0767d",
+      message:
+        "Merge branch 'feature/S11P31C206-160-BE-포폴반환-변경' into 'develop'",
+      author_name: "이중현",
+      authored_date: "2024-11-08T17:54:52.000+09:00",
+      parent_ids: [
+        "1ab5300654114fa2cdc9dce46c97b04e2e61c005",
+        "59a03264c55d4d9bbd9b78c5b1063be241191753",
+      ],
+    },
+    sourceBranchCommits: [
+      {
+        id: "59a03264c55d4d9bbd9b78c5b1063be241191753",
+        message:
+          "Merge branch 'develop' of https://lab.ssafy.com/s11-final/S11P31C206 into feature/S11P31C206-160-BE-포폴반환-변경",
+        author_name: "Lee-JoungHyun",
+        authored_date: "2024-11-08T17:12:49.000+09:00",
+        parent_ids: [],
+      },
+      {
+        id: "18a22ca62b09b265471dae110d8aae06f71252db",
+        message: "fix: 포폴 내용 변환",
+        author_name: "Lee-JoungHyun",
+        authored_date: "2024-11-08T17:07:49.000+09:00",
+        parent_ids: [],
+      },
+    ],
+  },
+  // 다른 브랜치 데이터...
 ];

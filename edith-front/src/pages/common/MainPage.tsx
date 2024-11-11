@@ -25,16 +25,25 @@ function MainPage() {
 
   // 매개변수로 email과 pw를 받아 상태를 업데이트한 후 로그인 진행
   const handleEmailLoginClick = async () => {
-    //loginAPI();
+    console.log(login);
+    loginAPI();
   };
   const loginAPI = async () => {
     try {
       const result = await loginRequest(login);
       if (!result.success) {
         throw new Error(result.error);
-        navigate("/dashboard");
       }
-    } catch (error) {}
+      navigate("/dashboard");
+    } catch (error) {
+      alert(error);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      handleEmailLoginClick();
+    }
   };
   return (
     <>
@@ -80,11 +89,13 @@ function MainPage() {
                     }
                   />
                   <input
+                    type="password"
                     className="w-[320px] text-xl h-12 p-2.5 bg-white border border-zinc-400"
                     placeholder="비밀번호"
                     onChange={(e) =>
                       setLogin({ ...login, password: e.target.value })
                     }
+                    onKeyDown={handleKeyDown}
                   />
                 </div>
                 <p
