@@ -12,20 +12,8 @@ import { useRedirectIfLoggedIn } from "../../hooks/useAuth.";
 function MainPage() {
   const [login, setLogin] = useState<LoginInfo>({ email: "", password: "" });
   const navigate = useNavigate();
-  useRedirectIfLoggedIn();
-
   //로딩될 때마다 로그인 유무 확인하고 로그인 되어있을시, dashboard로 이동하기
-  // useEffect(() => {
-  //   const checkLogin = async () => {
-  //     const result: boolean | undefined = await isLogin();
-  //     if (result) {
-  //       alert("잘못된 접근입니다.");
-  //       navigate("/dashboard");
-  //     }
-  //   };
-
-  //   checkLogin();
-  // }, []);
+  useRedirectIfLoggedIn();
 
   // 회원가입 하러 가기
   const handleJoinClick = () => {
@@ -37,17 +25,17 @@ function MainPage() {
 
   // 매개변수로 email과 pw를 받아 상태를 업데이트한 후 로그인 진행
   const handleEmailLoginClick = async () => {
-    // try {
-    //   const response = await loginRequest(login);
-    //   if (!response.success) {
-    //     throw new Error(response.error);
-    //   }
-    //   console.log("/dashboard");
-    // } catch (error) {
-    //   alert(error);
-    // }
+    //loginAPI();
   };
-
+  const loginAPI = async () => {
+    try {
+      const result = await loginRequest(login);
+      if (!result.success) {
+        throw new Error(result.error);
+        navigate("/dashboard");
+      }
+    } catch (error) {}
+  };
   return (
     <>
       <img

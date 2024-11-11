@@ -1,21 +1,23 @@
 // projectData.ts
 
+import { PortfolioListItem } from "../types/portfolioType";
 import { ProjectListItem } from "../types/projectType";
 
-// Define an interface for the project data
 interface Project {
-  projectName: string;
+  name: string;
   startDate: string; // Use string for dates in the specified format
   endDate: string; // Use string for dates in the specified format
-  contents: string; // Markdown content as a string
+  content: string; // Project description
+  portfolio: string; // Additional portfolio content
 }
 
 // Create the project data following the specified format
 export const travelCommunityProject: Project = {
-  projectName: "여행 한담",
+  name: "E.D.I.T.H.",
   startDate: "2023-03-01",
   endDate: "2023-12-30",
-  contents: `
+  content: "SSAFY 자율 프로젝트",
+  portfolio: `
   # 1. 프로젝트 개요
 - **프로젝트 설명**: '여행 한담'은 사용자가 여행지를 공유하고 추천하는 커뮤니티 플랫폼입니다. 사용자 맞춤형 추천 기능과 여행 일정 자동 생성 기능을 포함하며, 대규모 데이터를 실시간으로 처리할 수 있는 시스템을 구축했습니다.  
 - **주요 목표**:
@@ -200,42 +202,42 @@ export const projectList: ProjectListItem[] = [
 ];
 
 interface PortfolioData {
-  id: number;
-  portfolioName: string;
-  repoProjectName: string;
-  savedDate: Date; // 날짜 형식은 문자열로 설정
+  projectId: number;
+  name: string;
+  content: string;
+  lastModified: string; // 날짜를 문자열 형식으로 저장
 }
 
-// 더미 데이터 생성
-export const dummyPortfolioData: PortfolioData[] = [
+// Create the dummy portfolio data
+export const dummyPortfolioData: PortfolioListItem[] = [
   {
-    id: 1,
-    portfolioName: "Front-End Projects Collection",
-    repoProjectName: "여행 한담",
-    savedDate: new Date("2024-11-01"),
+    projectId: 824085,
+    name: "E.D.I.T.H.",
+    content: "SSAFY 자율 프로젝트",
+    lastModified: "2024-10-23",
   },
   {
-    id: 2,
-    portfolioName: "Back-End Development Series",
-    repoProjectName: "Real-Time Chat Application",
-    savedDate: new Date("2024-10-25"),
+    projectId: 824086,
+    name: "Front-End Portfolio",
+    content: "React와 Vue 프로젝트 모음",
+    lastModified: "2024-10-20",
   },
   {
-    id: 3,
-    portfolioName: "Data Visualization Works",
-    repoProjectName: "Sales Dashboard",
-    savedDate: new Date("2024-09-15"),
+    projectId: 824087,
+    name: "Back-End Portfolio",
+    content: "Spring Boot와 Node.js 프로젝트 모음",
+    lastModified: "2024-09-15",
   },
   {
-    id: 4,
-    portfolioName: "Blockchain Solutions",
-    repoProjectName: "NFT Marketplace",
-    savedDate: new Date("2024-08-10"),
+    projectId: 824088,
+    name: "Data Science Projects",
+    content: "데이터 분석 및 시각화 프로젝트",
+    lastModified: "2024-08-10",
   },
   {
-    id: 5,
-    portfolioName: "Cloud-Based Applications",
-    repoProjectName: "Microservices with AWS",
-    savedDate: new Date("2024-07-05"),
+    projectId: 824089,
+    name: "Cloud-Based Applications",
+    content: "AWS와 Azure 기반 클라우드 프로젝트",
+    lastModified: "2024-07-05",
   },
 ];

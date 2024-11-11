@@ -1,7 +1,4 @@
 import axios, { AxiosResponse } from "axios";
-import { useNavigate } from "react-router-dom";
-
-const navigate = useNavigate();
 const BASE_URL =
   import.meta.env.VITE_NOW_BASEURL === "local"
     ? import.meta.env.VITE_API_LOCAL_URL
@@ -42,7 +39,7 @@ axiosInstance.interceptors.response.use(
         const newToken = await refreshToken();
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        navigate("/login");
+        window.location.href = "/";
         return Promise.reject(refreshError);
       }
     }
