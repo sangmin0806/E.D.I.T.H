@@ -14,6 +14,7 @@ ENTRYPOINT ["java", \
  "-verbose:gc", \
  "-Xlog:gc*:stdout:time,uptime,level,tags", \
  "-Djava.security.egd=file:/dev/./urandom", \
+ "-Dspring.profiles.active=prod", \
  "-jar", \
  "/developmentassistant.jar", \
  "--server.port=8082"]
