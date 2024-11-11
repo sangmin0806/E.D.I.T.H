@@ -10,13 +10,6 @@ spring:
     secret: ${SPRING_JWT_SECRET}
   cloud:
     gateway:
-      global-cors:
-        corsConfigurations:
-          '[/**]':
-            allowedOriginPatterns: "*"
-            allowedMethods: "*"
-            allowedHeaders: "*"
-            allowCredentials: true
       routes:
         - id: user-test
           uri: http://user-spring-boot-service:8181
