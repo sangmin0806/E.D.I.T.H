@@ -7,7 +7,6 @@ function PortfolioList() {
   const [data, setData] = useState<PortfolioListItem[] | undefined>([]);
   useEffect(() => {
     setData(dummyPortfolioData);
-    // getListAPI();
   }, []);
   const getListAPI = () => {
     try {

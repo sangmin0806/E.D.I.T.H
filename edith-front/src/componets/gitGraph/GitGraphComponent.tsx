@@ -1,15 +1,52 @@
-import { Gitgraph, Branch, CommitOptions } from "@gitgraph/react";
+import {
+  Gitgraph,
+  Branch,
+  templateExtend,
+  TemplateName,
+} from "@gitgraph/react";
 import { useEffect, useState } from "react";
 import { BranchData } from "../../types/gitGraphType";
 import { gitGraphData } from "../../assets/dummyData";
 
 const GitGraphComponent: React.FC = () => {
-  const [data, setData] = useState<BranchData[] | undefined>([]);
+  const [data, setData] = useState<BranchData[] | undefined>();
+  const smallFontTemplate = templateExtend(TemplateName.Metro, {
+    branch: {
+      lineWidth: 4,
+      label: {
+        font: "14px Arial",
+      },
+    },
+    commit: {
+      dot: {
+        size: 10, // 커밋 점 크기 (기본값은 12)
+      },
+      message: {
+        display: true,
+        font: "14px Arial",
+      },
+    },
+  });
+
   useEffect(() => {
-    setData(gitGraphData);
+    setData(gitGraphData); // 실제로는 API 호출 결과를 여기서 설정
   }, []);
+
+  const formatMessage = (message: string) => {
+    // 글자 수에 따라 두 줄로 나누기
+    const maxLength = 20; // 각 줄의 최대 글자 수
+    if (message.length > maxLength) {
+      return `${message.slice(0, maxLength)}<br />${message.slice(maxLength)}`;
+    }
+    return message;
+  };
+
+  if (!data || data.length === 0) {
+    return null;
+  }
+
   return (
-    <Gitgraph>
+    <Gitgraph options={{ template: smallFontTemplate }}>
       {(gitgraph) => {
         const branches: { [key: string]: Branch } = {};
 

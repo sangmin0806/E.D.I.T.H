@@ -5,30 +5,37 @@ import { projectListRequest } from "../../api/projectApi";
 import { ProjectListItem } from "../../types/projectType";
 
 function RepoList() {
-  // API 통신 후 데이터 (예시 데이터)
   const [data, setData] = useState<ProjectListItem[]>([]);
+
   useEffect(() => {
-    setData(projectList);
-    // getListAPI();
+    getListAPI();
   }, []);
-  const getListAPI = () => {
+
+  const getListAPI = async () => {
     try {
-      const request = async () => {
-        const result = await projectListRequest();
-        if (!result.success || !result.response) {
-          throw new Error(result.error);
-        }
+      const result = await projectListRequest();
+      if (!result.success || !result.response) {
+        throw new Error(result.error);
+      }
+
+      // 응답이 배열인지 확인
+      if (Array.isArray(result.response)) {
         setData(result.response);
-      };
-      request();
+      } else {
+        console.error("Expected an array, but got:", result.response);
+        setData([]); // 배열이 아니면 빈 배열로 설정
+      }
     } catch (error) {
-      alert(error);
+      console.error("API 요청 중 오류 발생:", error);
+      alert("데이터를 불러오는 중 오류가 발생했습니다.");
     }
   };
+
   return (
-    <div className="w-full rounded-3xl flex-col justify-center items-center gap-4 inline-flex">
+    <div className="rounded-3xl flex-col justify-center items-center gap-4 inline-flex">
       {data.map((d) => (
         <RepoListBox
+          key={d.id}
           id={d.id}
           name={d.name}
           contents={d.contents}

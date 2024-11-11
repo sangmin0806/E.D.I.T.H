@@ -24,10 +24,10 @@ function JoinPage() {
   const handleToSignup = async () => {
     try {
       // API 명세
-      // const response = await registerRequest(joinInfo);
-      // if (!response.success) {
-      //   throw new Error(response.error || "");
-      // }
+      const response = await registerRequest(joinInfo);
+      if (!response.success) {
+        throw new Error(response.error || "");
+      }
       console.log(joinInfo);
       navigate("/join/finish");
     } catch (error) {
@@ -97,7 +97,7 @@ function JoinPage() {
                 </div>
                 <div className="flex flex-col">
                   <input
-                    name="pw"
+                    name="password"
                     type="password"
                     className="w-96 p-3 bg-white rounded-2xl border border-zinc-400"
                     value={joinInfo.password}
@@ -113,7 +113,7 @@ function JoinPage() {
                   git Peronal Access Token
                 </div>
                 <input
-                  name="accessToken"
+                  name="vcsAccessToken"
                   className="w-96 p-3 bg-white rounded-2xl border border-zinc-400"
                   value={joinInfo.vcsAccessToken}
                   onChange={handleInputChange}
