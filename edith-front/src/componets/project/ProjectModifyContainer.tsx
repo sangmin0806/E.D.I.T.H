@@ -16,9 +16,9 @@ function ProjectModifyContainer({ selectedProjectID }: ModifyProps) {
   useEffect(() => {
     //api 통신하기 !!!!!
     const data: FormValues = {
-      projectId: 12345,
-      title: "기존 프로젝트 이름",
-      description: "기존 설명",
+      id: 12345,
+      name: "기존 프로젝트 이름",
+      contents: "기존 설명",
       branches: ["main", "dev"],
     };
     setInitialData(data);
