@@ -32,7 +32,7 @@ const Registration: React.FC = () => {
   // 얼굴 사진 캡처
   const captureImages = async () => {
     if (!videoRef.current) return;
-
+    const collectedEmbeddings: number[][] = [];
     captureInterval.current = setInterval(async () => {
       if (videoRef.current) {
         const detections = await faceapi
@@ -56,12 +56,12 @@ const Registration: React.FC = () => {
               if (newCount >= 10) {
                 stopCapture();
                 setStatus("회원가입 완료! 10장의 사진을 저장했습니다.");
-                sendEmbeddingsToServer(); // 모든 사진 촬영 후 서버로 전송
+                sendEmbeddingsToServer(collectedEmbeddings); // 모든 사진 촬영 후 서버로 전송
               }
               return newCount;
             });
 
-            setEmbeddings((prev) => [...prev, ...embedding]); 
+            collectedEmbeddings.push(embedding);
           }
         }
       }
@@ -78,12 +78,12 @@ const Registration: React.FC = () => {
   };
 
   // 얼굴 임베딩 서버 전송
-  const sendEmbeddingsToServer = async () => {
+  const sendEmbeddingsToServer = async (embeddings: number[][]) => {
     setStatus("임베딩 데이터를 서버에 전송 중...");
     try {
         console.log(embeddings)
       const response = await faceRegisterRequest({
-        embeddingVector: embeddings,
+        embeddingVectors: embeddings,
       });
       if (response.success) {
         setStatus("임베딩 데이터가 서버에 성공적으로 전송되었습니다.");

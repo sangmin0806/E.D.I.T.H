@@ -19,7 +19,8 @@ distance = "Cosine"  # 유사도 계산 방식
 
 # 컬렉션 생성 (존재하지 않는 경우)
 try:
-    qdrant_client.get_collection(collection_name)
+    qdrant_client.delete_collection(collection_name)
+    #qdrant_client.get_collection(collection_name)
 except Exception:
     qdrant_client.delete_collection(collection_name)
     qdrant_client.create_collection(
@@ -30,14 +31,17 @@ except Exception:
 
 class FaceEmbedding(BaseModel):
     userId: int   # user_id 직접 전달받음
-    embeddingVector: list[float]  # 클라이언트에서 전송한 벡터를 리스트로 받음
+    embeddingVectors: list[list[float]]  # 클라이언트에서 전송한 벡터를 리스트로 받음
 
 @register_router.post("/register-face")
 async def register_face(data: FaceEmbedding):
-    # 전달된 user_id와 벡터를 Qdrant에 저장
+    # 개별 임베딩 벡터를 Qdrant에 저장
     try:
-        point = PointStruct(id=data.userId, vector=data.embeddingVector, payload={"user_id": data.userId})
-        qdrant_client.upsert(collection_name=collection_name, points=[point])
+        points = [
+            PointStruct(id=f"{data.userId}_{i}", vector=vec, payload={"user_id": data.userId})
+            for i, vec in enumerate(data.embeddingVectors)
+        ]
+        qdrant_client.upsert(collection_name=collection_name, points=points)
         return {"message": "얼굴 임베딩이 등록되었습니다."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"임베딩 저장 실패: {str(e)}")
