@@ -92,7 +92,7 @@ public class UserService {
     }
     public void registerFaceEmbedding(EmbeddingRequest embeddingRequest, String accessToken) {
         Long userId = jwtUtil.extractUserId(accessToken);
-        FaceEmbeddingRegisterRequest faceEmbeddingRegisterRequest = new FaceEmbeddingRegisterRequest(userId, embeddingRequest.embeddingVector());
+        FaceEmbeddingRegisterRequest faceEmbeddingRegisterRequest = new FaceEmbeddingRegisterRequest(userId, embeddingRequest.embeddingVectors());
         fastAPIClient.registerFaceEmbedding(faceEmbeddingRegisterRequest);
     }
     public UserInfoResponse getUserInfo(String accessToken) {
