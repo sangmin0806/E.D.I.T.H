@@ -15,7 +15,7 @@ import java.util.List;
 @RestController
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping("/portfolio")
+@RequestMapping("/api/v1/portfolio")
 public class PortfolioController {
 
     private final PortfolioService portfolioService;
