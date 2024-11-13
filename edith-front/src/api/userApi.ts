@@ -37,13 +37,13 @@ export const validAccessTokenRequest = async (): Promise<{
 };
 
 export const faceRegisterRequest = async (embeddings: {
-  embeddingVector: number[];
+  embeddingVectors: number[][];
 }): Promise<{
   success: boolean;
   error?: string;
 }> => {
   const result = await apiRequest(() =>
-    axiosInstance.post("/api/v1/users/face/register", { embeddingVector: embeddings.embeddingVector })
+    axiosInstance.post("/api/v1/users/face/register", { embeddingVectors: embeddings.embeddingVectors })
   );
   return {
     success: result.success,
