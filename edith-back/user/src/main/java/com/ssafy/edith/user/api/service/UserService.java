@@ -17,7 +17,7 @@ import com.ssafy.edith.user.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.CookieValue;
+
 
 
 @Service
@@ -122,7 +122,7 @@ public class UserService {
     }
 
     private boolean hasVcsInfo(SignUpRequest signUpRequest) {
-        return signUpRequest.vcsBaseUrl() != null && signUpRequest.vcsAccessToken() != null;
+        return signUpRequest.vcs() && signUpRequest.vcsAccessToken() != null;
     }
 
 }
