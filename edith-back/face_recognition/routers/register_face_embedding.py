@@ -1,11 +1,8 @@
 import os
-from fastapi import FastAPI,APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from qdrant_client import QdrantClient
 from qdrant_client.models import PointStruct, VectorParams
-import jwt
-
-app = FastAPI()
 
 register_router = APIRouter()
 # Qdrant 서버 정보 가져오기

@@ -1,8 +1,6 @@
 import os
-from fastapi import FastAPI, WebSocket, WebSocketDisconnect,APIRouter
+from fastapi import  WebSocket, WebSocketDisconnect,APIRouter
 from qdrant_client import QdrantClient
-
-app = FastAPI()
 
 match_router = APIRouter()
 

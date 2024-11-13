@@ -72,7 +72,8 @@ pipeline {
                     skipRemainingStages = false
                     sh """
                     cd ${PROJECT_ROOT}/${CHECKOUT_FOLDER}/${SERVER_NAME}
-                    docker build -t ${SERVER_NAME}-${APP_TYPE}:latest .
+                    docker pull ${ECR_URL}/${ECR_REPO}:latest
+                    docker build --cache-from ${ECR_URL}/${ECR_REPO}:latest -t ${SERVER_NAME}-${APP_TYPE}:latest .
                     docker tag ${SERVER_NAME}-${APP_TYPE}:latest ${ECR_URL}/${ECR_REPO}:${CURRENT_IMG_TAG}
                     """
                 }
