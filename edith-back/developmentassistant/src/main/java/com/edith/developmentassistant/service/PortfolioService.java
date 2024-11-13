@@ -3,19 +3,18 @@ package com.edith.developmentassistant.service;
 import com.edith.developmentassistant.client.dto.UserDto;
 import com.edith.developmentassistant.client.user.UserServiceClient;
 import com.edith.developmentassistant.domain.Portfolio;
-import com.edith.developmentassistant.domain.Project;
 import com.edith.developmentassistant.domain.UserProject;
 import com.edith.developmentassistant.repository.MRSummaryRepository;
 import com.edith.developmentassistant.repository.PortfolioRepository;
 import com.edith.developmentassistant.repository.UserProjectRepository;
 import com.edith.developmentassistant.service.dto.MergeRequest;
 import com.edith.developmentassistant.service.dto.MergeRequestDateRange;
+import com.edith.developmentassistant.service.dto.PortfolioDto;
 import com.edith.developmentassistant.service.dto.Summary;
 import com.edith.developmentassistant.service.dto.request.CreatePortfolioServiceRequest;
-import com.edith.developmentassistant.service.dto.PortfolioDto;
 import com.edith.developmentassistant.service.dto.response.FindAllPortfolioResponse;
-import com.edith.developmentassistant.service.dto.response.GitLabMergeRequestResponse;
 import com.edith.developmentassistant.service.dto.response.FlaskPortfolioResponse;
+import com.edith.developmentassistant.service.dto.response.GitLabMergeRequestResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,6 +26,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -61,7 +61,7 @@ public class PortfolioService {
             // 1. User, userProject 찾기
             UserDto user = userServiceClient.getUserByToken(accessToken);
 //            UserDto user = createUserDto();
-            UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getId(), Long.parseLong(projectId));
+            UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getUserId(), Long.parseLong(projectId));
 //            UserProject userProject = createUserProject();
 
             // 2. project summery 찾기 -> id 로 찾기
@@ -155,10 +155,7 @@ public class PortfolioService {
     public PortfolioDto savePortfolio(String accessToken, PortfolioDto portfolio) {
 
         UserDto user = userServiceClient.getUserByToken(accessToken);
-//        UserDto user = createUserDto();
-        UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getId(), portfolio.getProjectId());
-//        UserProject userProject = createUserProject();
-//        userProjectRepository.save(userProject);
+        UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getUserId(), portfolio.getProjectId());
 
         Optional<Portfolio> existingPortfolio = portfolioRepository.findByUserProject(userProject);
         PortfolioDto savedPortfolio;
@@ -187,17 +184,13 @@ public class PortfolioService {
 
     public List<FindAllPortfolioResponse> findAllPortfolioResponseList(String accessToken) {
         UserDto user = userServiceClient.getUserByToken(accessToken);
-//        log.info("portfolios = {}", portfolioRepository.findAll());
-//        UserDto user = createUserDto();
-        return portfolioRepository.findAllDtoByUserId(user.getId());
+        return portfolioRepository.findAllDtoByUserId(user.getUserId());
     }
 
     public PortfolioDto getPortfolio(String accessToken, String portfolioId) {
-//        UserDto user = createUserDto();
 
         UserDto user = userServiceClient.getUserByToken(accessToken);
-//        createUserProject();
-        UserProject userProject = userProjectRepository.findByUserIdAndProjectId(user.getId(), Long.parseLong(portfolioId))
+        UserProject userProject = userProjectRepository.findByUserIdAndProjectId(user.getUserId(), Long.parseLong(portfolioId))
                 .orElse(null);
 
         Portfolio portfolio = portfolioRepository.findByUserProject(userProject)
@@ -228,30 +221,30 @@ public class PortfolioService {
                 .timeout(Duration.ofSeconds(10));
     }
 
-    private UserDto createUserDto() {
-        return UserDto.builder()
-                .id(1L)
-                .email("doublehyun98")
-                .password("1234")
-                .vcsBaseUrl("https://lab.ssafy.com/")
-                .vcsAccessToken("ZH3_Ft1HJmHqwXYmgYHs")
-                .build();
-    }
-
-    private UserProject createUserProject() {
-
-        Project project = Project.builder()
-                .projectId(824085L)
-                .build();
-
-
-        return UserProject.builder()
-                .userId(1L)
-                .title("E.D.I.T.H.")
-                .description("asdfasdf")
-                .project(project)
-                .build();
-    }
+//    private UserDto createUserDto() {
+//        return UserDto.builder()
+//                .userId(1L)
+//                .email("doublehyun98")
+//                .password("1234")
+//                .vcsBaseUrl("https://lab.ssafy.com/")
+//                .vcsAccessToken("ZH3_Ft1HJmHqwXYmgYHs")
+//                .build();
+//    }
+//
+//    private UserProject createUserProject() {
+//
+//        Project project = Project.builder()
+//                .projectId(824085L)
+//                .build();
+//
+//
+//        return UserProject.builder()
+//                .userId(1L)
+//                .title("E.D.I.T.H.")
+//                .description("asdfasdf")
+//                .project(project)
+//                .build();
+//    }
 
 
 

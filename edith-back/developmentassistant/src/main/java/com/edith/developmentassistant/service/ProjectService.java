@@ -40,7 +40,7 @@ public class ProjectService {
 //        UserDto user = createUserDto();
 
         String personalAccessToken = user.getVcsAccessToken();
-        Long userId = user.getId();
+        Long userId = user.getUserId();
 
         String projectAccessToken = gitLabServiceClient.generateProjectAccessToken(request.id(),
                 personalAccessToken);
@@ -58,7 +58,7 @@ public class ProjectService {
     public List<ProjectResponse> getProjects(String token) {
         // TODO : 배포 환경에서 주석 해제 후 사용
         UserDto userByToken = userServiceClient.getUserByToken(token);
-        Long userId = userByToken.getId();
+        Long userId = userByToken.getUserId();
 //        Long userId = 1L;
         List<UserProject> userProjects = userProjectRepository.findByUserId(userId);
         return userProjects.stream()
@@ -134,7 +134,7 @@ public class ProjectService {
 
     private UserDto createUserDto() {
         return UserDto.builder()
-                .id(1L)
+                .userId(1L)
                 .email("marmong9770@gmail.com")
                 .password("1234")
                 .vcsBaseUrl("https://lab.ssafy.com/")
@@ -146,7 +146,7 @@ public class ProjectService {
     public ProjectResponse updateProject(ProjectDto projectDto, String token) {
         // TODO : 배포 환경에서 주석 해제 후 사용
     UserDto userByToken = userServiceClient.getUserByToken(token);
-    Long userId = userByToken.getId();
+    Long userId = userByToken.getUserId();
 //        Long userId = 1L;
         List<UserProject> userProjects = userProjectRepository.findByUserId(userId);
         String content = "";
@@ -180,7 +180,7 @@ public class ProjectService {
     public ProjectResponse getProject(String token, Long projectId) {
         // TODO : 배포 환경에서 주석 해제 후 사용
         UserDto userByToken = userServiceClient.getUserByToken(token);
-        Long userId = userByToken.getId();
+        Long userId = userByToken.getUserId();
 //        Long userId = 1L;
 
         UserProject userProject = userProjectRepository.findByUserIdAndProjectId(userId, projectId)
