@@ -1,5 +1,7 @@
+// Registration.tsx
 import React, { useEffect, useRef, useState } from "react";
 import * as faceapi from "@vladmandic/face-api";
+import { faceRegisterRequest } from "../../api/userApi";
 
 const Registration: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -27,7 +29,7 @@ const Registration: React.FC = () => {
     console.log("모델 로딩 완료!");
   };
 
-  // 얼굴 캡처
+  // 얼굴 사진 캡처
   const captureImages = async () => {
     if (!videoRef.current) return;
 
@@ -38,26 +40,59 @@ const Registration: React.FC = () => {
           .withFaceLandmarks()
           .withFaceDescriptors();
 
-        // 검출된 얼굴 수 확인 및 상태 업데이트
+        console.log("검출된 얼굴 수:", detections.length);
+
         if (detections.length === 1) {
           const embedding = detections[0].descriptor;
-          setEmbeddings((prev) => [...prev, embedding]);
-          setImageCount((prev) => prev + 1);
-          setStatus(`사진 ${imageCount + 1}장 촬영 완료`);
+          console.log("추출된 임베딩:", embedding);
 
-          if (imageCount + 1 >= 10) {
-            stopCapture();
-            setStatus("얼굴등록 완료!");
+          if (embedding) {
+            console.log(`임베딩 (사진 ${imageCount + 1}):`, embedding);
+
+            setImageCount((prevCount) => {
+              const newCount = prevCount + 1;
+              setStatus(`사진 ${newCount}장 찍음`);
+
+              if (newCount >= 10) {
+                stopCapture();
+                setStatus("회원가입 완료! 10장의 사진을 저장했습니다.");
+                sendEmbeddingsToServer(); // 모든 사진 촬영 후 서버로 전송
+              }
+              return newCount;
+            });
+
+            setEmbeddings((prevEmbeddings) => [...prevEmbeddings, embedding]);
           }
         }
       }
-    }, 1000);
+    }, 1000); // 1초마다 캡처
   };
 
-  // 촬영 중지
+  // 캡처 중지
   const stopCapture = () => {
-    if (captureInterval.current) clearInterval(captureInterval.current);
+    if (captureInterval.current) {
+      clearInterval(captureInterval.current);
+      captureInterval.current = null;
+    }
     setIsRegistering(false);
+  };
+
+  // 얼굴 임베딩 서버 전송
+  const sendEmbeddingsToServer = async () => {
+    setStatus("임베딩 데이터를 서버에 전송 중...");
+    try {
+      const response = await faceRegisterRequest({
+        embeddingVector: embeddings,
+      });
+      if (response.success) {
+        setStatus("임베딩 데이터가 서버에 성공적으로 전송되었습니다.");
+      } else {
+        setStatus("임베딩 데이터 전송에 실패했습니다. 다시 시도해 주세요.");
+      }
+    } catch (error) {
+      setStatus("임베딩 데이터 전송에 실패했습니다. 다시 시도해 주세요.");
+      console.error("임베딩 전송 에러:", error);
+    }
   };
 
   // 등록 시작

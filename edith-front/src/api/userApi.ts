@@ -35,3 +35,18 @@ export const validAccessTokenRequest = async (): Promise<{
   );
   return { success: result.success };
 };
+
+export const faceRegisterRequest = async (embeddings: {
+  embeddingVector: Float32Array[];
+}): Promise<{
+  success: boolean;
+  error?: string;
+}> => {
+  const result = await apiRequest(() =>
+    axiosInstance.post("/api/v1/face/register", { embeddingVector: embeddings.embeddingVector })
+  );
+  return {
+    success: result.success,
+    error: result.error,
+  };
+};

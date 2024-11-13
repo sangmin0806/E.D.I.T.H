@@ -3,7 +3,8 @@ package com.ssafy.edith.user.api.response;
 import com.ssafy.edith.user.entity.User;
 import com.ssafy.edith.user.util.EncryptionUtil;
 
-public record UserInfoResponse(String email,
+public record UserInfoResponse(Long userId,
+                               String email,
                                String password,
                                boolean vcs,
                                String vcsBaseUrl,
@@ -12,6 +13,7 @@ public record UserInfoResponse(String email,
         String decryptedAccessToken = EncryptionUtil.decrypt(user.getVcsAccessToken());
 
         return new UserInfoResponse(
+                user.getId(),
                 user.getEmail(),
                 user.getPassword(),
                 user.isVcs(),
