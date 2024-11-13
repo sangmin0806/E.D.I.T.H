@@ -31,15 +31,23 @@ class FaceEmbedding(BaseModel):
     userId: int   # user_id 직접 전달받음
     embeddingVectors: list[list[float]]  # 클라이언트에서 전송한 벡터를 리스트로 받음
 
+
 @register_router.post("/register-face")
 async def register_face(data: FaceEmbedding):
-    # 여러 벡터를 같은 userId로 저장
     try:
-        points = [
-            PointStruct(id=data.userId, vector=vec, payload={"user_id": data.userId})
-            for vec in data.embeddingVectors
-        ]
-        qdrant_client.upsert(collection_name=collection_name, points=points)
-        return {"message": "얼굴 임베딩이 등록되었습니다."}
+        # 벡터 리스트 전체를 payload로 저장
+        point = PointStruct(
+            id=data.userId,
+            vector=data.embeddingVectors[0],  # 첫 번째 벡터를 `vector` 필드에 사용 (필수로 하나가 있어야 함)
+            payload={
+                "user_id": data.userId,
+                "embeddingVectors": data.embeddingVectors  # 2차원 리스트 전체를 payload로 추가
+            }
+        )
+
+        # Qdrant에 단일 포인트로 업로드
+        qdrant_client.upsert(collection_name=collection_name, points=[point])
+
+        return {"message": "2차원 벡터 리스트가 userId와 매핑되어 저장되었습니다."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"임베딩 저장 실패: {str(e)}")

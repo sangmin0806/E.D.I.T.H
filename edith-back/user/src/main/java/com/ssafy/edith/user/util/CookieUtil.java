@@ -4,6 +4,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -26,10 +27,24 @@ public class CookieUtil {
         return null;
     }
     public void addAccessToken(HttpServletResponse response, String value) {
-        response.addHeader("Set-Cookie", "accessToken=" + value + "; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=" + cookieExpiration);
+        ResponseCookie cookie = ResponseCookie.from("accessToken",value)
+                        .path("/")
+                        .sameSite("None")
+                        .httpOnly(true)
+                        .secure(true)
+                        .maxAge(cookieExpiration)
+                        .build();
+        response.addHeader("Set-Cookie", cookie.toString());
 
     }
     public void addRefreshToken(HttpServletResponse response, String value) {
-        response.addHeader("Set-Cookie", "refreshToken=" + value + "; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=" + cookieExpiration);
+        ResponseCookie cookie = ResponseCookie.from("refreshToken",value)
+                .path("/")
+                .sameSite("None")
+                .httpOnly(true)
+                .secure(true)
+                .maxAge(cookieExpiration)
+                .build();
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 }
