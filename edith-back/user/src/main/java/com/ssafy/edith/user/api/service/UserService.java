@@ -16,6 +16,8 @@ import com.ssafy.edith.user.repository.UserRepository;
 import com.ssafy.edith.user.util.EncryptionUtil;
 import com.ssafy.edith.user.util.RedisUtil;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserService {
 
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final EncryptionUtil encryptionUtil;
@@ -92,6 +95,7 @@ public class UserService {
     }
     public void registerFaceEmbedding(EmbeddingRequest embeddingRequest, String accessToken) {
         Long userId = jwtUtil.extractUserId(accessToken);
+        log.info("userId: {}",userId);
         FaceEmbeddingRegisterRequest faceEmbeddingRegisterRequest = new FaceEmbeddingRegisterRequest(userId, embeddingRequest.embeddingVectors());
         fastAPIClient.registerFaceEmbedding(faceEmbeddingRegisterRequest);
     }
