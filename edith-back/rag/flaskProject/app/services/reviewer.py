@@ -90,7 +90,7 @@ def getCodeReview(url, token, projectId, branch, changes):
                 code_chunks.extend(method)
             # 유사도 분석
             for code_chunk in code_chunks:
-                similar_codes.append(vectorDB.query_similar_code(code_chunk, 5)) # 여기여기==================
+                similar_codes.append(vectorDB.query_similar_code(code_chunk, 5))
             review_queries.append([change['path'], change['diff'], similar_codes])
         
         end_time3 = time.time()
@@ -379,7 +379,7 @@ def chunked_review(project_id, llm, file_path: str, code_chunk: str, similar_cod
 
             return final_review
     except Exception as e:
-        print(f"오류발생: {e}")
+        print(f"코드리뷰 시 오류발생: {e}")
         return ''
     finally:
         file_codeReview_memory.clear()
