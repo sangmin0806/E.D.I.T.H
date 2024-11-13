@@ -6,12 +6,14 @@ import { getPortfolioList } from "../../api/portfolioApi";
 function PortfolioList() {
   const [data, setData] = useState<PortfolioListItem[] | undefined>([]);
   useEffect(() => {
-    setData(dummyPortfolioData);
+    getListAPI();
   }, []);
   const getListAPI = () => {
     try {
       const request = async () => {
         const result = await getPortfolioList();
+        setData(result.response);
+        console.log(result.response);
         if (!result.success || !result.response) {
           throw new Error(result.error);
         }

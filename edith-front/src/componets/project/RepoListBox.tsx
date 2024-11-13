@@ -22,8 +22,7 @@ function RepoListBox({
   const navigate = useNavigate();
   const handleClick = () => {
     //string일수도 있으니까 한번 더 확인하깅
-    // navigate(`/repo/detail/${id}`);
-    navigate(`/dashboard`);
+    navigate(`/dashboard/${id}`);
   };
   return (
     <>
@@ -39,8 +38,14 @@ function RepoListBox({
             <img src={PlugImg} className=" w-7 h-7" />
             {/* <img src={profileImg} className=" w-7 h-7 rounded-full" />
             <img src={profileImg} className=" w-7 h-7 rounded-full" /> */}
-            <img src={contributors[1].avatarUrl} />
-            <img src={contributors[0].avatarUrl} />
+            <img
+              className="w-7 h-7 rounded-full"
+              src={contributors[1].avatarUrl}
+            />
+            <img
+              className="w-7 h-7 rounded-full"
+              src={contributors[0].avatarUrl}
+            />
           </div>
         </div>
       </div>

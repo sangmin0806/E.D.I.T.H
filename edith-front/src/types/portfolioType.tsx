@@ -14,6 +14,7 @@ export type PortfolioListItem = {
 
 export type PortfolioInfo = {
   name: string;
+  projectId: number;
   content: string;
   startDate: string;
   endDate: string;

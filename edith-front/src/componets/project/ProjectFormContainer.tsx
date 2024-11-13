@@ -10,9 +10,9 @@ interface FormContainerProps {
 function ProjectFormContainer({
   mode,
   initialData = {
-    projectId: 0,
-    title: "",
-    description: "",
+    id: 0,
+    name: "",
+    contents: "",
     branches: [],
   },
   onSave,
@@ -66,6 +66,8 @@ function ProjectFormContainer({
                 git 프로젝트 ID
               </p>
               <input
+                name="id"
+                value={formValues.id}
                 className="flex h-9 w-full max-w-[400px] bg-white rounded-2xl border border-zinc-300 p-4"
                 onChange={handleInputChange}
                 disabled={mode === "modify"}
@@ -77,6 +79,8 @@ function ProjectFormContainer({
                 프로젝트 이름
               </p>
               <input
+                value={formValues.name}
+                name="name"
                 className="flex h-9 w-full max-w-[400px] bg-white rounded-2xl border border-zinc-300 p-4"
                 onChange={handleInputChange}
               />
@@ -124,7 +128,12 @@ function ProjectFormContainer({
 
             <div className="flex w-full justify-center">
               <p className="w-48 text-black text-lg font-medium">설명 (선택)</p>
-              <textarea className="flex h-20 w-full max-w-[400px] bg-white rounded-2xl border border-zinc-300 p-4" />
+              <textarea
+                className="flex h-20 w-full max-w-[400px] bg-white rounded-2xl border border-zinc-300 p-4"
+                name="contents"
+                value={formValues.contents}
+                onChange={handleInputChange}
+              />
             </div>
 
             <div className="flex w-full justify-center"></div>

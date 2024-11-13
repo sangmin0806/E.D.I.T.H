@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@gitgraph/react": "^1.6.0",
+    "@iconify/react": "^5.0.2",
     "@types/react-router-dom": "^5.3.3",
     "axios": "^1.7.2",
     "crypto-js": "^4.2.0",
@@ -65,5 +66,5 @@
     "not ie <= 11",
     "not op_mini all"
   ],
-    "proxy": "https://edith-ai.xyz:30443"
+  "proxy": "https://edith-ai.xyz:30443"
 }

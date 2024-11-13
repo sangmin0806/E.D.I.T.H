@@ -26,11 +26,17 @@ export const getPortfolioList = async (): Promise<{
 };
 
 export const getPortfolioItem = async (
-  id: string
+  id: number
 ): Promise<{
   success: boolean;
   response?: PortfolioInfo;
   error?: string;
 }> => {
   return axiosInstance.get(`/api/v1/portfolio/${id}`);
+};
+
+export const makePorfolio = async (
+  id: number
+): Promise<{ success: boolean; response?: PortfolioInfo; error?: string }> => {
+  return axiosInstance.put(`https://edith-ai.xyz:30443/api/v1/portfolio/${id}`);
 };

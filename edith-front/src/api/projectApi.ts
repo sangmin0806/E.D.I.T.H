@@ -1,3 +1,4 @@
+import { BranchData } from "../types/gitGraphType";
 import { PortfolioListItem } from "../types/portfolioType";
 import { FormValues, ProjectListItem } from "../types/projectType";
 import { apiRequest, axiosInstance } from "./axios";
@@ -36,4 +37,16 @@ export const projectListRequest = async (): Promise<{
   error?: string;
 }> => {
   return apiRequest(() => axiosInstance.get("/api/v1/projects"));
+};
+
+export const getGitGraphRequest = async (
+  projectId: number
+): Promise<{
+  success: boolean;
+  response?: BranchData[];
+  error?: string;
+}> => {
+  return apiRequest(() =>
+    axiosInstance.get(`/api/v1/projects/gitgraph/${projectId}`)
+  );
 };

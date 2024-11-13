@@ -1,7 +1,7 @@
 import { useComponentStore } from "../../store/repoPageStore";
 import React, { useState } from "react";
 import defaultImg from "../../assets/defaultImg.jpg";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface UserProps {
   userGitAccount: string;
@@ -11,11 +11,12 @@ interface UserProps {
 const RepoHeader = React.memo(
   ({ userGitAccount, showDashboard }: UserProps) => {
     const navigate = useNavigate();
+    const { projectID } = useParams();
     const handleMoveToPortfolio = () => {
-      navigate("/portfolio"); //이후에 아이디 추가
+      navigate(`/portfolio/${projectID}`);
     };
     const handleMoveToDashboard = () => {
-      navigate("/dashboard"); //이후에 아이디 추가
+      navigate(`/dashboard/${projectID}`);
     };
 
     return (
