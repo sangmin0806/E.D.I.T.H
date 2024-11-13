@@ -28,14 +28,14 @@ except Exception:
 
 
 class FaceEmbedding(BaseModel):
-    user_id: int   # user_id 직접 전달받음
+    userId: int   # user_id 직접 전달받음
     embeddingVector: list[float]  # 클라이언트에서 전송한 벡터를 리스트로 받음
 
 @register_router.post("/register-face")
 async def register_face(data: FaceEmbedding):
     # 전달된 user_id와 벡터를 Qdrant에 저장
     try:
-        point = PointStruct(id=data.user_id, vector=data.embeddingVector, payload={"user_id": data.user_id})
+        point = PointStruct(id=data.userId, vector=data.embeddingVector, payload={"user_id": data.userId})
         qdrant_client.upsert(collection_name=collection_name, points=[point])
         return {"message": "얼굴 임베딩이 등록되었습니다."}
     except Exception as e:
