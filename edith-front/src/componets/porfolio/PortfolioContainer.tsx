@@ -6,28 +6,39 @@ import copyLogo from "../../assets/copy.png";
 import gfm from "remark-gfm";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "../common/LoadingSpinner";
+import { makePorfolio } from "../../api/portfolioApi";
+import { useParams } from "react-router-dom";
+import { PortfolioInfo } from "../../types/portfolioType";
 
 interface portfolioProp {
   userGitAccount: string;
 }
 function RepoPortfolio({ userGitAccount }: portfolioProp) {
+  const { projectID } = useParams();
+  const numericProjectID = Number(projectID);
   const [loading, setLoading] = useState(true);
-  const data = travelCommunityProject;
+  const [data, setData] = useState<PortfolioInfo | undefined>();
   const handleSave = () => {};
   const handleCopy = () => {
+    if (!data) return;
     navigator.clipboard.writeText(data.content);
   };
   useEffect(() => {
-    // setLoading(false);
-
-    // 이건 나중에 지우기 !!
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 3000);
-
-    // 컴포넌트가 언마운트될 때 타이머를 정리합니다.
-    return () => clearTimeout(timer);
+    getPortfolioApi();
   }, []);
+  const getPortfolioApi = async () => {
+    try {
+      const result = await makePorfolio(numericProjectID);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      setData(result.response);
+    } catch (error) {
+      alert(error);
+    } finally {
+      setLoading(false);
+    }
+  };
   if (loading) {
     return (
       <div className="flex w-full h-full items-center justify-center">
@@ -37,43 +48,46 @@ function RepoPortfolio({ userGitAccount }: portfolioProp) {
   }
   return (
     <>
-      <div className="flex flex-col items-center gap-12">
-        <div className="flex flex-col mx-4 gap-8">
-          <div className="flex gap-3">
-            <img src={edithLogo} />
-            <p className="font-semibold text-lg">{userGitAccount} Portfolio</p>
-          </div>
-          <div className="flex flex-col gap-4">
-            <div className="px-6 py-10 bg-white/30 rounded-3xl justify-center items-start gap-2.5 inline-flex flex-col">
-              <p className="font-semibold text-lg">프로젝트 : {data.name}</p>
+      {data && (
+        <div className="flex flex-col items-center gap-12 w-full">
+          <div className="flex flex-col mx-4 gap-8 w-full">
+            <div className="flex gap-3">
+              <img src={edithLogo} />
               <p className="font-semibold text-lg">
-                기간 : {data.startDate} ~ {data.endDate}
+                {userGitAccount} Portfolio
               </p>
             </div>
-            <div className="py-8 pl-8 pr-8 bg-white/60 rounded-3xl flex-col gap-6 inline-flex">
-              <div className="flex gap-2 justify-end">
-                <img className="w-8 h-8 cursor-pointer" src={editLogo} />
-                <img
-                  className="w-8 h-8 cursor-pointer"
-                  src={copyLogo}
-                  onClick={handleCopy}
-                />
+            <div className="flex flex-col gap-4">
+              <div className="px-6 py-10 bg-white/30 rounded-3xl justify-center items-start gap-2.5 inline-flex flex-col">
+                <p className="font-semibold text-lg">프로젝트 : {data.name}</p>
+                <p className="font-semibold text-lg">
+                  기간 : {data.startDate} ~ {data.endDate}
+                </p>
               </div>
-              <ReactMarkdown remarkPlugins={[gfm]}>
-                {data.content}
-              </ReactMarkdown>
+              <div className="py-8 pl-8 pr-8 bg-white/60 rounded-3xl flex-col gap-6 inline-flex">
+                <div className="flex gap-2 justify-end">
+                  <img
+                    className="w-8 h-8 cursor-pointer"
+                    src={copyLogo}
+                    onClick={handleCopy}
+                  />
+                </div>
+                <ReactMarkdown remarkPlugins={[gfm]}>
+                  {data.content}
+                </ReactMarkdown>
+              </div>
             </div>
           </div>
+          <div
+            className="p-1.5 mb-8 bg-black rounded-2xl justify-center items-center inline-flex"
+            onClick={handleSave}
+          >
+            <p className="w-32 text-center text-white text-lg font-medium">
+              저장하기
+            </p>
+          </div>
         </div>
-        <div
-          className="p-1.5 mb-8 bg-black rounded-2xl justify-center items-center inline-flex"
-          onClick={handleSave}
-        >
-          <p className="w-32 text-center text-white text-lg font-medium">
-            저장하기
-          </p>
-        </div>
-      </div>
+      )}
     </>
   );
 }

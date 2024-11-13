@@ -18,8 +18,8 @@ function RepoList() {
         throw new Error(result.error);
       }
 
-      // 응답이 배열인지 확인
       if (Array.isArray(result.response)) {
+        console.log(result.response);
         setData(result.response);
       } else {
         console.error("Expected an array, but got:", result.response);

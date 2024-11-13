@@ -7,21 +7,21 @@ import { projectEnrollRequest } from "../../api/projectApi";
 function RepoEnrollContainer() {
   const toggleComponent = useComponentStore((state) => state.toggleComponent);
   const handleSave = (data: FormValues) => {
-    console.log(data);
     //api 통신
-    // enrollApi(data);
-    toggleComponent(1);
+    enrollApi(data);
   };
-  const enrollApi = (data: FormValues) => {
+  const enrollApi = async (data: FormValues) => {
     try {
-      const request = async () => {
-        const result = await projectEnrollRequest(data);
-        if (!result.success) {
-          throw new Error("프로젝트 등록 중 서버 에러가 발생하였습니다.");
-        }
-      };
+      const result = await projectEnrollRequest(data);
+      if (!result.success) {
+        throw new Error("프로젝트 등록 중 서버 에러가 발생하였습니다.");
+      }
+
+      console.log(data);
     } catch (error) {
       alert(error);
+    } finally {
+      toggleComponent(1);
     }
   };
   return (

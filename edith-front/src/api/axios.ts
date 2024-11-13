@@ -26,11 +26,12 @@ axiosInstance.interceptors.response.use(
     // 토큰 만료 시 상태 코드와 헤더 확인
     if (
       error.response.status === 401 &&
-      error.response.headers["Token-Status"] === "expired" &&
+      error.response.data?.error === "JWT Token is missing" &&
       !originalRequest._retry
     ) {
       originalRequest._retry = true;
       try {
+        console.log("토큰 재발급 API 요청");
         const newToken = await refreshToken();
         return axiosInstance(originalRequest);
       } catch (refreshError) {
@@ -44,7 +45,7 @@ axiosInstance.interceptors.response.use(
 
 const refreshToken = async (): Promise<string> => {
   const response = await axiosInstance.post(
-    "/users/token/refresh",
+    "/api/v1/users/token/refresh",
     {},
     {
       withCredentials: true,
@@ -63,12 +64,13 @@ export const apiRequest = async <T>(
 }> => {
   try {
     const response = await requestFn();
-    return { success: true, response: response.data };
+    const extractedResponse = (response.data as any)?.response || response.data;
+
+    return { success: true, response: extractedResponse };
   } catch (error) {
     let errorMessage = "알 수 없는 오류가 발생했습니다.";
     let errorStatus: number | undefined = undefined;
     if (axios.isAxiosError(error)) {
-      // AxiosError 타입 확인 및 처리
       errorMessage = error.response?.data?.error?.message || error.message;
     }
     console.error(`User API Request: ${errorMessage} (Status: ${errorStatus})`);

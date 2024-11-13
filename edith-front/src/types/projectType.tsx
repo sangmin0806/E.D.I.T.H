@@ -1,7 +1,7 @@
 export type FormValues = {
-  projectId: number;
-  title: string;
-  description: string;
+  id: number;
+  name: string;
+  contents: string;
   branches: string[];
 };
 

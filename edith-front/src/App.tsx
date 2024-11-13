@@ -38,7 +38,7 @@ function App() {
               }
             />
             <Route
-              path="/dashboard" //나중에 dashboardID 파라미터로 추가하기
+              path="/dashboard/:projectID" //나중에 dashboardID 파라미터로 추가하기
               element={
                 <HeaderLayout>
                   <DashboardPage />
@@ -46,7 +46,7 @@ function App() {
               }
             />
             <Route
-              path="/portfolio" //나중에 portfolioID 파라미터로 추가하기
+              path="/portfolio/:projectID" //나중에 portfolioID 파라미터로 추가하기
               element={
                 <HeaderLayout>
                   <PortfolioPage />

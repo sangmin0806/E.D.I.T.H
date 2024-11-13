@@ -6,77 +6,116 @@ import {
 } from "@gitgraph/react";
 import { useEffect, useState } from "react";
 import { BranchData } from "../../types/gitGraphType";
-import { gitGraphData } from "../../assets/dummyData";
+import { useParams } from "react-router-dom";
+import { getGitGraphRequest } from "../../api/projectApi";
 
 const GitGraphComponent: React.FC = () => {
-  const [data, setData] = useState<BranchData[] | undefined>();
+  const { projectID } = useParams();
+  const numericUserId = Number(projectID);
+  const [data, setData] = useState<BranchData[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const smallFontTemplate = templateExtend(TemplateName.Metro, {
     branch: {
       lineWidth: 4,
-      spacing: 30,
+      spacing: 20,
       label: {
-        font: "14px Arial",
+        font: "12px Arial",
       },
     },
     commit: {
       spacing: 50,
       dot: {
-        size: 10, // 커밋 점 크기 (기본값은 12)
+        size: 10,
       },
       message: {
         display: true,
-        font: "14px Arial",
+        font: "12px Arial",
       },
     },
   });
 
+  // 메시지를 40자로 제한하는 함수
+  const truncateMessage = (message: string, maxLength: number = 100) => {
+    return message.length > maxLength
+      ? `${message.slice(0, maxLength)}...`
+      : message;
+  };
+
   useEffect(() => {
-    setData(gitGraphData); // 실제로는 API 호출 결과를 여기서 설정
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const result = await getGitGraphRequest(numericUserId);
+        if (!result.success) {
+          throw new Error(result.error);
+        }
+        setData(result.response || []);
+        console.log(result.response);
+      } catch (error) {
+        console.error("Error fetching graph data:", error);
+        alert("Failed to load data");
+      }
+    };
+
+    fetchData();
   }, []);
-  if (!data || data.length === 0) {
-    return null;
-  }
+
+  useEffect(() => {
+    if (data.length > 0 || loading) {
+      console.log("Fetched data:", data);
+      setLoading(false);
+    }
+  }, [data]);
 
   return (
-    <Gitgraph options={{ template: smallFontTemplate }}>
-      {(gitgraph) => {
-        const branches: { [key: string]: Branch } = {};
+    <>
+      {loading ? (
+        <p>Loading data...</p>
+      ) : data.length > 0 ? (
+        <Gitgraph options={{ template: smallFontTemplate }}>
+          {(gitgraph) => {
+            const branches: { [key: string]: Branch } = {};
 
-        // 초기 커밋을 추가하지 않고, 데이터에 따라 브랜치 및 커밋 생성
-        data.forEach((branchData) => {
-          const {
-            sourceBranch,
-            targetBranch,
-            mergeCommit,
-            sourceBranchCommits,
-          } = branchData;
+            data.forEach((branchData) => {
+              const {
+                sourceBranch,
+                targetBranch,
+                mergeCommit,
+                sourceBranchCommits,
+              } = branchData;
 
-          // sourceBranch가 존재하지 않으면 새 브랜치를 생성
-          if (!branches[sourceBranch]) {
-            branches[sourceBranch] = gitgraph.branch(sourceBranch);
-          }
+              if (!branches[sourceBranch]) {
+                branches[sourceBranch] = gitgraph.branch(sourceBranch);
+              }
 
-          // sourceBranch에 커밋 추가
-          sourceBranchCommits.forEach((commitData) => {
-            branches[sourceBranch].commit({
-              subject: commitData.message,
-              author: commitData.author_name,
+              sourceBranchCommits.forEach((commitData) => {
+                branches[sourceBranch].commit({
+                  subject: truncateMessage(commitData.message),
+                  author: commitData.author_name,
+                });
+              });
+
+              if (!branches[targetBranch]) {
+                branches[targetBranch] = gitgraph.branch(targetBranch);
+              }
+              branches[targetBranch]
+                .merge(
+                  branches[sourceBranch],
+                  truncateMessage(mergeCommit.message)
+                )
+                .commit({
+                  subject: truncateMessage(mergeCommit.message),
+                  author: mergeCommit.author_name,
+                });
             });
-          });
-
-          // 병합 커밋 처리
-          if (!branches[targetBranch]) {
-            branches[targetBranch] = gitgraph.branch(targetBranch);
-          }
-          branches[targetBranch]
-            .merge(branches[sourceBranch], mergeCommit.message)
-            .commit({
-              subject: mergeCommit.message,
-              author: mergeCommit.author_name,
-            });
-        });
-      }}
-    </Gitgraph>
+          }}
+        </Gitgraph>
+      ) : (
+        <p>No data available.</p>
+      )}
+    </>
   );
 };
+
 export default GitGraphComponent;
