@@ -7,7 +7,7 @@ import mainRight from "../../assets/main_right.png";
 import logo from "../../assets/logo.png";
 import { LoginInfo } from "../../types/userTypes";
 import { loginRequest } from "../../api/userApi";
-import { useRedirectIfLoggedIn } from "../../hooks/useAuth.";
+import { useRedirectIfLoggedIn } from "../../hooks/useAuth";
 
 function MainPage() {
   const [login, setLogin] = useState<LoginInfo>({ email: "", password: "" });
@@ -35,7 +35,10 @@ function MainPage() {
       if (!result.success) {
         throw new Error(result.error);
       }
-      alert("로그인이 완료되었습니다.");
+      sessionStorage.setItem(
+        "userInfo",
+        result.response ? JSON.stringify(result.response) : ""
+      );
       navigate("/project");
     } catch (error) {
       alert(error);

@@ -20,7 +20,7 @@ const RepoHeader = React.memo(
     };
 
     return (
-      <div className="flex justify-center ml-4 mr-4">
+      <div className="flex justify-center ml-4 mr-4 mt-14">
         <div className="w-full flex justify-between items-center">
           <div className="flex flex-col">
             <div className="flex gap-2 items-center">

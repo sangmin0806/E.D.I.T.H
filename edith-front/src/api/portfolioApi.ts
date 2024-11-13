@@ -38,5 +38,5 @@ export const getPortfolioItem = async (
 export const makePorfolio = async (
   id: number
 ): Promise<{ success: boolean; response?: PortfolioInfo; error?: string }> => {
-  return axiosInstance.put(`https://edith-ai.xyz:30443/api/v1/portfolio/${id}`);
+  return axiosInstance.put(`/api/v1/portfolio/${id}`);
 };

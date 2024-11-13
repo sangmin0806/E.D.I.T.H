@@ -9,27 +9,25 @@ interface ModifyProps {
 }
 function ProjectModifyContainer({ selectedProjectID }: ModifyProps) {
   const toggleComponent = useComponentStore((state) => state.toggleComponent);
-  const [initialData, setInitialData] = useState<FormValues | undefined>(
-    undefined
-  );
+  const data: FormValues = {
+    id: 0,
+    name: "",
+    contents: "",
+    branches: [],
+  };
+  const [initialData, setInitialData] = useState<FormValues>(data);
   const navigate = useNavigate();
   useEffect(() => {
-    //api 통신하기 !!!!!
-    const data: FormValues = {
-      id: 12345,
-      name: "기존 프로젝트 이름",
-      contents: "기존 설명",
-      branches: ["main", "dev"],
-    };
-    setInitialData(data);
+    // //api 통신하기 !!!!!
 
-    // getAPI();
+    // setInitialData(data);
+
+    getAPI();
   }, []);
 
   const handleSave = (data: FormValues) => {
     console.log("수정된 데이터:", data);
-    // // 수정 API 호출 !!!!!!!!!!
-    // modifyAPI(data);
+    modifyAPI(data);
     toggleComponent(1);
   };
 
