@@ -1,5 +1,6 @@
 package com.ssafy.edith.user.api.controller;
 
+import com.ssafy.edith.user.api.request.EmbeddingRequest;
 import com.ssafy.edith.user.api.request.SignInRequest;
 import com.ssafy.edith.user.api.request.SignUpRequest;
 import com.ssafy.edith.user.api.response.SignInResponse;
@@ -65,9 +66,9 @@ public class UserController {
     }
     @PostMapping("/face/register")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> registerFaceEmbedding(@RequestBody float[] embeddingVector,
+    public ApiResult<Void> registerFaceEmbedding(@RequestBody EmbeddingRequest embeddingRequest,
                                                    @CookieValue("accessToken") String accessToken) {
-        userService.registerFaceEmbedding(embeddingVector,accessToken);
+        userService.registerFaceEmbedding(embeddingRequest.embeddingVector(),accessToken);
         return success(null);
     }
 
