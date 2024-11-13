@@ -1,5 +1,6 @@
 package com.ssafy.edith.user.api.service;
 
+import com.ssafy.edith.user.api.request.EmbeddingRequest;
 import com.ssafy.edith.user.api.response.UserInfoResponse;
 import com.ssafy.edith.user.client.valueobject.FaceEmbeddingRegisterRequest;
 import com.ssafy.edith.user.api.request.SignInRequest;
@@ -89,9 +90,9 @@ public class UserService {
 
         return jwtUtil.createJwtToken(jwtPayload);
     }
-    public void registerFaceEmbedding(float[] embeddingVector, String accessToken) {
+    public void registerFaceEmbedding(EmbeddingRequest embeddingRequest, String accessToken) {
         Long userId = jwtUtil.extractUserId(accessToken);
-        FaceEmbeddingRegisterRequest faceEmbeddingRegisterRequest = new FaceEmbeddingRegisterRequest(userId, embeddingVector);
+        FaceEmbeddingRegisterRequest faceEmbeddingRegisterRequest = new FaceEmbeddingRegisterRequest(userId, embeddingRequest.embeddingVector());
         fastAPIClient.registerFaceEmbedding(faceEmbeddingRegisterRequest);
     }
     public UserInfoResponse getUserInfo(String accessToken) {

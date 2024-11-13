@@ -68,7 +68,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> registerFaceEmbedding(@RequestBody EmbeddingRequest embeddingRequest,
                                                    @CookieValue("accessToken") String accessToken) {
-        userService.registerFaceEmbedding(embeddingRequest.embeddingVector(),accessToken);
+        userService.registerFaceEmbedding(embeddingRequest,accessToken);
         return success(null);
     }
 
