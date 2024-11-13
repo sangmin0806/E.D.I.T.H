@@ -10,13 +10,15 @@ from app.services.llm_model import LLMModel
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 import uuid
+import time
 
 # 해당 MR 요약 반환 함수, -> Memory 에 저장만
 def get_summary(llm, memory, merge_requests, summaries_dict) -> None:
+    print(merge_requests)
     summary_prompt = ChatPromptTemplate.from_template("""
             너는 프로젝트 포트폴리오 제작 전문가야
             이는 MR의 파일별 git diff 야 
-            포트폴리오 제작시 참고할 요약본을 만들어줘
+            포트폴리오 제작할 요약본을 만들어줘 이때 개발자 별로 구현한 내용을 정리해줘
             
             개발자: {user_id}
             파일 경로: {file_path}
@@ -30,18 +32,20 @@ def get_summary(llm, memory, merge_requests, summaries_dict) -> None:
 
     summary_chain = summary_prompt | llm | StrOutputParser()
     for merge_request in merge_requests:
+        start_time = time.time()
         mr_id = merge_request['mrId']
         user_id = merge_request['userId']
         diff = merge_request['diff']
         file_path = merge_request['filePath']
 
         if summaries_dict and str(mr_id) in summaries_dict:
+            # 요약본 존재 시 
             memory.save_context(
                 {"input": f"{mr_id}_{user_id}"},
                 {"output": f"{summaries_dict.get(mr_id)}"},
             )
         else:
-            # LLM 에다가 내놔 시전
+            # LLM 에 요약
             result = summary_chain.invoke({
                 "user_id": user_id,
                 "file_path": file_path,
@@ -51,6 +55,8 @@ def get_summary(llm, memory, merge_requests, summaries_dict) -> None:
                 {"input": f"{mr_id}_{user_id}"},
                 {"output": result},
             )
+        end_time = time.time()
+        print(f"포폴 요약 1회 시간 {end_time - start_time}")
     return None
 
 # 최종 Portfolio 반환 함수
@@ -99,6 +105,7 @@ def make_portfolio(user_id, summaries, merge_requests) -> str:
     llm_model = LLMModel()
     llm = llm_model.llm
     try:
+        start_time = time.time()
         # 3. mr 반복 하며 portfolio 생성
         get_summary(llm, portfolio_memory, merge_requests, summaries_dict)
         # 4. 해당 기록 기반 최종 portfolio 생성

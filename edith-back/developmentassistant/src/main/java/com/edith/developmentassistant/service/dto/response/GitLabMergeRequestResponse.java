@@ -28,6 +28,7 @@ public class GitLabMergeRequestResponse {
 
     @Data
     static public class Change {
+        @JsonProperty("new_path")
         private String newPath;
         private String diff;
     }
