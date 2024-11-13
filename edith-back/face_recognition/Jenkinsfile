@@ -63,6 +63,22 @@ pipeline {
             }
         }
 
+        stage('Login to ECR') {
+            when {
+                changeset "${CHECKOUT_FOLDER}/${SERVER_NAME}/**"
+            }
+            steps {
+                script {
+                    sh """
+                    aws configure set aws_access_key_id ${AWS_ACCESS_KEYS_USR}
+                    aws configure set aws_secret_access_key ${AWS_ACCESS_KEYS_PSW}
+                    aws configure set region ${AWS_REGION}
+                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_URL}
+                    """
+                }
+            }
+        }
+
         stage('Build Docker Image') {
             when {
                 changeset "${CHECKOUT_FOLDER}/${SERVER_NAME}/**"
@@ -75,22 +91,6 @@ pipeline {
                     docker pull ${ECR_URL}/${ECR_REPO}:${PREVIOUS_IMG_TAG} || echo "No previous image found, building fresh image."
                     docker build --cache-from ${ECR_URL}/${ECR_REPO}:${PREVIOUS_IMG_TAG} -t ${SERVER_NAME}-${APP_TYPE}:latest .
                     docker tag ${SERVER_NAME}-${APP_TYPE}:latest ${ECR_URL}/${ECR_REPO}:${CURRENT_IMG_TAG}
-                    """
-                }
-            }
-        }
-
-        stage('Login to ECR') {
-            when {
-                changeset "${CHECKOUT_FOLDER}/${SERVER_NAME}/**"
-            }
-            steps {
-                script {
-                    sh """
-                    aws configure set aws_access_key_id ${AWS_ACCESS_KEYS_USR}
-                    aws configure set aws_secret_access_key ${AWS_ACCESS_KEYS_PSW}
-                    aws configure set region ${AWS_REGION}
-                    aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_URL}
                     """
                 }
             }
