@@ -8,7 +8,7 @@ import lombok.Getter;
 @Builder
 public class UserDto {
 
-    private Long id;
+    private Long userId;
     private String email;
     private String password;
     private String vcsBaseUrl;
