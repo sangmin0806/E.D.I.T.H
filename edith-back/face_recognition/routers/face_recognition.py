@@ -16,7 +16,7 @@ qdrant_client = QdrantClient(host=qdrant_host, port=int(qdrant_port))
 # 유사도 임계값 설정
 SIMILARITY_THRESHOLD = 0.8
 
-@app.websocket("/ws/users/face_recognition")
+@match_router.websocket("/ws/users/face_recognition")
 async def websocket_face_recognition(websocket: WebSocket):
     await websocket.accept()
     print("클라이언트 WebSocket 연결 성공")

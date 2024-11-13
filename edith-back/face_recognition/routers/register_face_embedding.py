@@ -34,7 +34,7 @@ class FaceEmbedding(BaseModel):
     user_id: str  # user_id 직접 전달받음
     embedding_vector: list[float]  # 클라이언트에서 전송한 벡터를 리스트로 받음
 
-@app.post("/register-face")
+@register_router.post("/register-face")
 async def register_face(data: FaceEmbedding):
     # 전달된 user_id와 벡터를 Qdrant에 저장
     try:
