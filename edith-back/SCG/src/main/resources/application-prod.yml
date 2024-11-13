@@ -40,6 +40,11 @@ spring:
           predicates:
             - Path=/api/v1/projects/**
 
+        - id: face-recognition-api
+          uri: http://face-recognition-fastapi-app:8184
+          predicates:
+            - Path=/api/v1/face-recognition/**
+
         - id: kubetest
           uri: http://kubetest:9190
           predicates:
