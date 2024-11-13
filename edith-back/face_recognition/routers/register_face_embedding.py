@@ -33,11 +33,11 @@ class FaceEmbedding(BaseModel):
 
 @register_router.post("/register-face")
 async def register_face(data: FaceEmbedding):
-    # 개별 임베딩 벡터를 Qdrant에 저장
+    # 여러 벡터를 같은 userId로 저장
     try:
         points = [
-            PointStruct(id=f"{data.userId}_{i}", vector=vec, payload={"user_id": data.userId})
-            for i, vec in enumerate(data.embeddingVectors)
+            PointStruct(id=data.userId, vector=vec, payload={"user_id": data.userId})
+            for vec in data.embeddingVectors
         ]
         qdrant_client.upsert(collection_name=collection_name, points=points)
         return {"message": "얼굴 임베딩이 등록되었습니다."}
