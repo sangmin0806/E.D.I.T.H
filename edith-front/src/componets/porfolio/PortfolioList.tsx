@@ -29,6 +29,7 @@ function PortfolioList() {
         {data &&
           data.map((d) => (
             <PortfolioListBox
+              key={d.projectId} // 고유한 key 추가
               id={d.projectId}
               portfolioName={d.name}
               repoName={d.content}

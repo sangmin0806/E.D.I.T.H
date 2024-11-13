@@ -5,7 +5,7 @@ export const axiosInstance = axios.create({
   //   "Content-Type": "application/json",
   // },
 
-  timeout: 30000, // 30초 이상 응답 없으면 요청 취소
+  timeout: 300000, // 30초 이상 응답 없으면 요청 취소
   withCredentials: true,
 });
 
