@@ -29,7 +29,7 @@ app:
     expiration: 3600
 
 fastapi:
-  url: http://fastapi:8000
+  url: http://face-recognition-fastapi-app:8184
 
 management:
   endpoint:
