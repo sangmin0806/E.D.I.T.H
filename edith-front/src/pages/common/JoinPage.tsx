@@ -5,7 +5,7 @@ import { JoinInfo } from "../../types/userTypes";
 import { useState } from "react";
 import { registerRequest } from "../../api/userApi";
 import { useNavigate } from "react-router-dom";
-import { useRedirectIfLoggedIn } from "../../hooks/useAuth.";
+import { useRedirectIfLoggedIn } from "../../hooks/useAuth";
 
 function JoinPage() {
   // 상태 정의

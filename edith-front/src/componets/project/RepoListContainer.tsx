@@ -23,7 +23,7 @@ function RepoListContainer() {
 
   return (
     <>
-      <div className="flex flex-col gap-[2.5rem]">
+      <div className="flex flex-col gap-[2.5rem] w-full">
         <ProjectCurrentState
           blueStateSubject={"총 프로젝트 수"}
           blueStateNum={data.projcetCnt}

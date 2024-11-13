@@ -4,7 +4,7 @@ interface UserProps {
 }
 const UserHeader = React.memo(({ userGitAccount }: UserProps) => {
   return (
-    <div className="flex justify-center ml-4 mr-4">
+    <div className="flex justify-center ml-4 mr-4 mt-14">
       <div className="w-full flex justify-between items-center">
         <p className="text-black text-[28px] font-semibold">
           @{userGitAccount} Projects 💻

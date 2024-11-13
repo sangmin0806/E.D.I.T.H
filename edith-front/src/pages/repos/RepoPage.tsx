@@ -5,10 +5,13 @@ import ProjectEnrollContainer from "../../componets/project/ProjectEnrollContain
 import ProjectModifyContainer from "../../componets/project/ProjectModifyContainer";
 import { useEffect, useState } from "react";
 import NotFoundErrorPage from "../common/NotFoundErrorPage";
-import { useRedirectIfNotLoggedIn } from "../../hooks/useAuth.";
+import { useRedirectIfNotLoggedIn } from "../../hooks/useAuth";
+import { userInfo } from "../../types/userTypes";
+import { tempUserInfo } from "../../assets/defaultData";
 function RepoPage() {
   useRedirectIfNotLoggedIn();
   const showProject = useComponentStore((state) => state.showProject);
+  const [userInfo, setUserInfo] = useState<userInfo>(tempUserInfo);
   const setShowListNum = useComponentStore(
     (state) => state.setShowComponentOne
   );
@@ -16,13 +19,15 @@ function RepoPage() {
     (state) => state.selectedProjectID
   );
   useEffect(() => {
+    const getUserInfo = sessionStorage.getItem("userInfo");
+
+    if (getUserInfo) {
+      setUserInfo(JSON.parse(getUserInfo));
+    }
+
     setShowListNum();
   }, []);
   //나중에 로그인 후 저장된 storage에서 가져올 데이터
-  const data = {
-    account: "ssafy",
-    accountImg: "https://imgur.com/t93p7DF",
-  };
 
   const renderComponent = () => {
     switch (showProject) {
@@ -41,10 +46,13 @@ function RepoPage() {
 
   return (
     <>
-      <div className="flex w-[100vw] min-h-screen bg-[#F5F6F6] gap-[1rem]">
-        <main className=" w-full flex flex-col mt-4 mb-4 ml-[148px] mr-12 gap-[3rem]">
-          <UserHeader userGitAccount={data.account} />
-          <div>{renderComponent()}</div>
+      <div className="flex w-full min-h-screen bg-[#F5F6F6] gap-[1rem] justify-center">
+        <main className=" w-[80%] flex flex-col mt-4 mb-4 gap-[3rem] items-center">
+          <div className="w-full items-start">
+            <UserHeader userGitAccount={userInfo.username} />
+          </div>
+
+          <div className="w-full">{renderComponent()}</div>
         </main>
       </div>
     </>

@@ -4,7 +4,7 @@ import logo from "../../assets/logo.png";
 
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useRedirectIfLoggedIn } from "../../hooks/useAuth.";
+import { useRedirectIfLoggedIn } from "../../hooks/useAuth";
 
 function FinishJoinPage() {
   const navigate = useNavigate();
