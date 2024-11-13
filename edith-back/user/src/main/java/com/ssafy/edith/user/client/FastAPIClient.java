@@ -16,7 +16,7 @@ public class FastAPIClient {
     private String fastApiUrl;
 
     public ResponseEntity<String> registerFaceEmbedding(FaceEmbeddingRegisterRequest faceEmbeddingRegisterRequest) {
-        String url = fastApiUrl + "/face-recognition/register-face";
+        String url = fastApiUrl + "api/v1/face-recognition/register-face";
 
         try {
             return restTemplate.postForEntity(url, faceEmbeddingRegisterRequest, String.class);
