@@ -1,13 +1,10 @@
-import { travelCommunityProject } from "../../assets/dummyData";
 import ReactMarkdown from "react-markdown";
 import edithLogo from "../../assets/edithLogo.png";
-import editLogo from "../../assets/edit.png";
 import copyLogo from "../../assets/copy.png";
-import gfm from "remark-gfm";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "../common/LoadingSpinner";
-import { makePorfolio } from "../../api/portfolioApi";
-import { useParams } from "react-router-dom";
+import { makePorfolio, savePortfolio } from "../../api/portfolioApi";
+import { useNavigate, useParams } from "react-router-dom";
 import { PortfolioInfo } from "../../types/portfolioType";
 
 interface portfolioProp {
@@ -18,7 +15,11 @@ function RepoPortfolio({ userGitAccount }: portfolioProp) {
   const numericProjectID = Number(projectID);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<PortfolioInfo | undefined>();
-  const handleSave = () => {};
+  const navigate = useNavigate();
+  const handleSave = () => {
+    console.log("저장 API 시도");
+    savePortfolioApi();
+  };
   const handleCopy = () => {
     if (!data) return;
     navigator.clipboard.writeText(data.content);
@@ -29,6 +30,7 @@ function RepoPortfolio({ userGitAccount }: portfolioProp) {
   const getPortfolioApi = async () => {
     try {
       const result = await makePorfolio(numericProjectID);
+      console.log(result);
       if (!result.success) {
         throw new Error(result.error);
       }
@@ -39,6 +41,23 @@ function RepoPortfolio({ userGitAccount }: portfolioProp) {
       setLoading(false);
     }
   };
+
+  const savePortfolioApi = async () => {
+    try {
+      if (!data) {
+        throw new Error("Data is undefined");
+      }
+      const result = await savePortfolio(data, numericProjectID);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      console.log(result);
+      navigate("/portfolio/my");
+    } catch (error) {
+      alert(error);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex w-full h-full items-center justify-center">
@@ -72,9 +91,7 @@ function RepoPortfolio({ userGitAccount }: portfolioProp) {
                     onClick={handleCopy}
                   />
                 </div>
-                <ReactMarkdown remarkPlugins={[gfm]}>
-                  {data.content}
-                </ReactMarkdown>
+                <div>{data.portfolio}</div>
               </div>
             </div>
           </div>

@@ -1,15 +1,12 @@
-import {
-  PortfolioInfo,
-  PortfolioListItem,
-  PortfolioRequestInfo,
-} from "../types/portfolioType";
+import { PortfolioInfo, PortfolioListItem } from "../types/portfolioType";
 import { apiRequest, axiosInstance } from "./axios";
 
 export const savePortfolio = async (
-  portfolio: PortfolioRequestInfo
+  portfolio: PortfolioInfo,
+  projectId: number
 ): Promise<{ success: boolean; error?: string }> => {
   const result = await apiRequest(() =>
-    axiosInstance.post("/api/v1/portfolio/{projectId}", portfolio)
+    axiosInstance.post(`/api/v1/portfolio/${projectId}`, portfolio)
   );
   return {
     success: result.success,
@@ -22,7 +19,7 @@ export const getPortfolioList = async (): Promise<{
   response?: PortfolioListItem[];
   error?: string;
 }> => {
-  return axiosInstance.get("/api/v1/portfolio");
+  return apiRequest(() => axiosInstance.get("/api/v1/portfolio"));
 };
 
 export const getPortfolioItem = async (
@@ -32,11 +29,11 @@ export const getPortfolioItem = async (
   response?: PortfolioInfo;
   error?: string;
 }> => {
-  return axiosInstance.get(`/api/v1/portfolio/${id}`);
+  return apiRequest(() => axiosInstance.get(`/api/v1/portfolio/${id}`));
 };
 
 export const makePorfolio = async (
   id: number
 ): Promise<{ success: boolean; response?: PortfolioInfo; error?: string }> => {
-  return axiosInstance.put(`/api/v1/portfolio/${id}`);
+  return apiRequest(() => axiosInstance.put(`/api/v1/portfolio/${id}`));
 };

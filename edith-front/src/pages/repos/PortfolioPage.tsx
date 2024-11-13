@@ -23,7 +23,7 @@ function PortfolioPage() {
             userGitAccount={userInfo?.username}
             showDashboard={false}
           />
-          userInfo && <RepoPortfolio userGitAccount={userInfo?.username} />
+          <RepoPortfolio userGitAccount={userInfo?.username} />
         </main>
       </div>
     </>

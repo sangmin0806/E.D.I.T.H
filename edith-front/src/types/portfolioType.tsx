@@ -1,10 +1,3 @@
-export type PortfolioRequestInfo = {
-  name: string;
-  content: string;
-  endDate: string;
-  portfolio: string;
-};
-
 export type PortfolioListItem = {
   name: string;
   content: string;

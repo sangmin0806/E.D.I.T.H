@@ -2,12 +2,14 @@ import { formatDate } from "../../types/dataType";
 import { useNavigate } from "react-router-dom";
 
 interface ElementProps {
+  key: number;
   id: number;
   portfolioName: string;
   repoName: string;
   savedDate: string;
 }
 function PortfolioListBox({
+  key,
   id,
   portfolioName,
   repoName,
