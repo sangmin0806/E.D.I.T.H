@@ -8,7 +8,7 @@ const Registration: React.FC = () => {
   const [status, setStatus] = useState("아래의 버튼을 눌러 사진 촬영을 시작합니다...");
   const [isRegistering, setIsRegistering] = useState(false);
   const [imageCount, setImageCount] = useState(0);
-  const [embeddings, setEmbeddings] = useState<Float32Array[]>([]);
+  const [embeddings, setEmbeddings] = useState<number[]>([]);
   const captureInterval = useRef<NodeJS.Timeout | null>(null);
 
   // 카메라 설정
@@ -43,7 +43,7 @@ const Registration: React.FC = () => {
         console.log("검출된 얼굴 수:", detections.length);
 
         if (detections.length === 1) {
-          const embedding = detections[0].descriptor;
+          const embedding = Array.from(detections[0].descriptor);
           console.log("추출된 임베딩:", embedding);
 
           if (embedding) {
@@ -61,7 +61,7 @@ const Registration: React.FC = () => {
               return newCount;
             });
 
-            setEmbeddings((prevEmbeddings) => [...prevEmbeddings, embedding]);
+            setEmbeddings((prev) => [...prev, ...embedding]); 
           }
         }
       }
@@ -81,6 +81,7 @@ const Registration: React.FC = () => {
   const sendEmbeddingsToServer = async () => {
     setStatus("임베딩 데이터를 서버에 전송 중...");
     try {
+        console.log(embeddings)
       const response = await faceRegisterRequest({
         embeddingVector: embeddings,
       });
