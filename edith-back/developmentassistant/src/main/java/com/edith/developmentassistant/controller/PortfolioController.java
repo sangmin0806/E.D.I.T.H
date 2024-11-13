@@ -54,4 +54,9 @@ public class PortfolioController {
         return success(portfolioService.getPortfolio(token, projectId));
     }
 
+    @GetMapping("/health-check")
+    public ApiUtils.ApiResult<String> healthCheck() {
+        return success("I'm alive");
+    }
+
 }
