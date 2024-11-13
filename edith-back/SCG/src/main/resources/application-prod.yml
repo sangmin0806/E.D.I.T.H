@@ -35,15 +35,22 @@ spring:
           predicates:
             - Path=/ws/users/face_recognition
 
-        - id: developmentassistant-api
+        - id: developmentassistant-projects-api
           uri: http://developmentassistant-spring-boot-service:8182
           predicates:
             - Path=/api/v1/projects/**
+
+        - id: developmentassistant-portfolio-api
+          uri: http://developmentassistant-spring-boot-service:8182
+          predicates:
+            - Path=/api/v1/portfolio/**
 
         - id: face-recognition-api
           uri: http://face-recognition-fastapi-app:8184
           predicates:
             - Path=/api/v1/face-recognition/**
+
+
 
         - id: kubetest
           uri: http://kubetest:9190
