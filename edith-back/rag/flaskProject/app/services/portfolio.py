@@ -82,7 +82,7 @@ def get_portfolio(llm, memory, user_id, memory_key) -> str:
     result = portfolio_chain.invoke({
         'user_id': user_id,
         'history': memory.load_memory_variables({})[f'{memory_key}']
-    })
+    }).replace('```markdown', '').replace('```', '')
 
     return result
 
