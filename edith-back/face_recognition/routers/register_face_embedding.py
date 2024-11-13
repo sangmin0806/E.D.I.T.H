@@ -28,7 +28,7 @@ except Exception:
 
 
 class FaceEmbedding(BaseModel):
-    user_id: str  # user_id 직접 전달받음
+    user_id: int   # user_id 직접 전달받음
     embedding_vector: list[float]  # 클라이언트에서 전송한 벡터를 리스트로 받음
 
 @register_router.post("/register-face")
