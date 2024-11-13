@@ -17,6 +17,7 @@ def portfolio_make():
     merge_request = data.get('mergeRequests')
 
     result = portfolio.make_portfolio(user_id, summaries, merge_request)
+    print(result)
     if result:
         return jsonify({'status': 'success', 'portfolio': result}), 200
     return jsonify({'status': 'fail'}), 400
