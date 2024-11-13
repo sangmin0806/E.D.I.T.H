@@ -26,10 +26,19 @@ public class CookieUtil {
         return null;
     }
     public void addAccessToken(HttpServletResponse response, String value) {
-        response.addHeader("Set-Cookie", "accessToken=" + value + "; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=" + cookieExpiration);
-
+        Cookie cookie = new Cookie("accessToken", value);
+        cookie.setMaxAge(cookieExpiration);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        response.addCookie(cookie);
     }
     public void addRefreshToken(HttpServletResponse response, String value) {
-        response.addHeader("Set-Cookie", "refreshToken=" + value + "; HttpOnly; Secure; SameSite=None; Path=/; Max-Age=" + cookieExpiration);
+        Cookie cookie = new Cookie("refreshToken", value);
+        cookie.setMaxAge(cookieExpiration);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        response.addCookie(cookie);
     }
 }
