@@ -45,11 +45,30 @@ class CodeEmbeddingProcessor:
 
     def cleanup(self):
         try:
-            # collection 삭제
-            self.db.delete_collection()
-            # db 인스턴스 정리
-            del self.db
+            # 시스템 캐시 정리
+            if hasattr(self.db, '_client'):
+                self.db._client.clear_system_cache()
+
+            # Collection 정리
+            if hasattr(self.db, '_collection'):
+                try:
+                    # 모든 문서의 ID를 가져와서 삭제
+                    all_ids = self.db._collection.get()['ids']
+                    if all_ids:
+                        self.db._collection.delete(ids=all_ids)
+                except Exception as collection_error:
+                    print(f"Warning during collection cleanup: {collection_error}")
+
+            # 전체 컬렉션 삭제
+            try:
+                self.db.delete_collection()
+            except Exception as delete_error:
+                print(f"Warning during delete_collection: {delete_error}")
+
+            # DB 객체 정리
+            self.db = None
+
             return True
         except Exception as e:
-            print(f"Error cleaning up vector DB: {e}")
+            print(f"Critical error during cleanup: {e}")
             return False

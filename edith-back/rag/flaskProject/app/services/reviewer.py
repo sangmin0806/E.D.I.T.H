@@ -12,6 +12,7 @@ from app.services.llm_model import LLMModel
 import uuid
 
 def getCodeReview(url, token, projectId, branch, changes):
+
     chunker = None
     vectorDB = None
     uuid = generate_uuid()
@@ -19,7 +20,6 @@ def getCodeReview(url, token, projectId, branch, changes):
     try:
         # 0. DB 초기화
         vectorDB = CodeEmbeddingProcessor(uuid)
-
         # 1. git Clone
         chunker = GitLabCodeChunker(
             gitlab_url=url,
@@ -34,8 +34,15 @@ def getCodeReview(url, token, projectId, branch, changes):
         if not project_path:
             return '', ''
 
+
         # 3. 리뷰 할 코드들 메서드 Chunking
         file_chunks = []
+
+        # changes 에 포함된 파일 확장자 정보 미리 저장
+        relevant_extensions = set()
+        for change in changes:
+            relevant_extensions.add(get_language_from_extension(change['path']))
+
         for root, _, files in os.walk(project_path):
             for file in files:
                 file_path = Path(root) / file
@@ -51,9 +58,11 @@ def getCodeReview(url, token, projectId, branch, changes):
                 if not language:
                     continue
 
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    chunks = chunker.chunk_file(str(file_path), language)
-                    file_chunks.extend(chunks)
+                # changes 의 path 필드에 존재하는 파일 확장자명만 임베딩
+                if language in relevant_extensions:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        chunks = chunker.chunk_file(str(file_path), language)
+                        file_chunks.extend(chunks)
 
         vectorDB.store_embeddings(file_chunks)
 
@@ -73,8 +82,10 @@ def getCodeReview(url, token, projectId, branch, changes):
                 code_chunks.extend(method)
             # 유사도 분석
             for code_chunk in code_chunks:
-                similar_codes.append(vectorDB.query_similar_code(code_chunk, 5)) # 여기여기==================
+                similar_codes.append(vectorDB.query_similar_code(code_chunk, 5))
             review_queries.append([change['path'], change['diff'], similar_codes])
+        
+
 
         # 5. 메서드 별 관련 코드 가져와 리트리버 생성, 질의
         llm_model = LLMModel()
@@ -83,6 +94,7 @@ def getCodeReview(url, token, projectId, branch, changes):
         # 6. LLM 에 질의해 결과 반환
         result = get_code_review(projectId, review_queries, llm)
         return result
+        
 
     except Exception as e:
         print(f"오류 발생: {e}")
@@ -210,6 +222,7 @@ def get_code_review(projectId, review_queries, llm):
 
     try:
         for file_path, code_chunk, similar_codes in review_queries:
+
             try:
                 review_result = chunked_review(projectId, llm, file_path, code_chunk, similar_codes, review_chain, code_review_memory)
 
@@ -217,7 +230,6 @@ def get_code_review(projectId, review_queries, llm):
                     {"input": f"Review for {file_path}"},
                     {"output": review_result}
                 )
-
             except Exception as e:
                 print(f"개별 리뷰 중 오류 발생: {e}")
                 continue
@@ -345,7 +357,7 @@ def chunked_review(project_id, llm, file_path: str, code_chunk: str, similar_cod
 
             return final_review
     except Exception as e:
-        print(f"오류발생: {e}")
+        print(f"코드리뷰 시 오류발생: {e}")
         return ''
     finally:
         file_codeReview_memory.clear()
