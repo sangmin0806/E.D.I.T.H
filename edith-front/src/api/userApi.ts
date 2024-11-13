@@ -43,7 +43,8 @@ export const faceRegisterRequest = async (embeddings: {
   error?: string;
 }> => {
   const result = await apiRequest(() =>
-    axiosInstance.post("/api/v1/users/face/register", { embeddingVectors: embeddings.embeddingVectors })
+    axiosInstance.post("/api/v1/users/face/register",
+       { embeddingVectors: embeddings.embeddingVectors })
   );
   return {
     success: result.success,
