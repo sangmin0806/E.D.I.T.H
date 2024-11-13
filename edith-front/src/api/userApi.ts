@@ -37,7 +37,7 @@ export const validAccessTokenRequest = async (): Promise<{
 };
 
 export const faceRegisterRequest = async (embeddings: {
-  embeddingVector: Float32Array[];
+  embeddingVector: number[];
 }): Promise<{
   success: boolean;
   error?: string;

@@ -21,7 +21,8 @@ distance = "Cosine"  # 유사도 계산 방식
 try:
     qdrant_client.get_collection(collection_name)
 except Exception:
-    qdrant_client.recreate_collection(
+    qdrant_client.delete_collection(collection_name)
+    qdrant_client.create_collection(
         collection_name=collection_name,
         vectors_config=VectorParams(size=vector_size, distance=distance)
     )
