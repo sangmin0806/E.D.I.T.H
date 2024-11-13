@@ -11,6 +11,9 @@ function FinishJoinPage() {
   const handleGoMain = () => {
     navigate("/");
   };
+  const handleRegisterFace = () => {
+    navigate("/register-face");
+  };
   useRedirectIfLoggedIn();
   return (
     <>
@@ -46,7 +49,7 @@ function FinishJoinPage() {
               </p>
             </div>
             <div className="flex gap-4">
-              <div className="p-2 bg-black rounded-2xl justify-center items-center gap-2.5 inline-flex">
+              <div onClick={handleRegisterFace} className="p-2 bg-black rounded-2xl justify-center items-center gap-2.5 inline-flex">
                 <p className="min-w-36 text-center text-white text-xl font-medium font-['Pretendard Variable']">
                   얼굴 등록 진행
                 </p>
