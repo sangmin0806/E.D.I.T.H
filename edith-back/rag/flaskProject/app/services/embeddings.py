@@ -52,25 +52,21 @@ class CodeEmbeddingProcessor:
             # Collection 정리
             if hasattr(self.db, '_collection'):
                 try:
-                    # 모든 데이터 삭제
-                    self.db._collection.delete(where={})
-                    # Collection 자체 삭제
-                    self.db._collection.delete()
+                    # 모든 문서의 ID를 가져와서 삭제
+                    all_ids = self.db._collection.get()['ids']
+                    if all_ids:
+                        self.db._collection.delete(ids=all_ids)
                 except Exception as collection_error:
                     print(f"Warning during collection cleanup: {collection_error}")
 
-            # Collection 삭제
+            # 전체 컬렉션 삭제
             try:
                 self.db.delete_collection()
             except Exception as delete_error:
                 print(f"Warning during delete_collection: {delete_error}")
 
-            # 메모리에서 객체 정리
+            # DB 객체 정리
             self.db = None
-
-            # 가비지 컬렉션 강제 실행 (선택적)
-            import gc
-            gc.collect()
 
             return True
         except Exception as e:

@@ -133,22 +133,6 @@ class GitLabCodeChunker:
                 # projectID 경로와 그 아래 모든 것을 삭제
                 if project_id_path.exists():
                     shutil.rmtree(project_id_path, onerror=remove_readonly)
-                    print(f"projectID 디렉토리 삭제 완료: {project_id_path}")
 
-                print(f"프로젝트 디렉토리 정리 완료")
         except Exception as e:
             print(f"디렉토리 정리 중 에러 발생: {e}")
-
-"""
-프로젝트 클론 
-    ↓
-파일 순회
-    ↓
-언어 감지
-    ↓
-파일 청크화
-    ↓
-JSON 저장
-    ↓
-임시 파일 정리
-"""
