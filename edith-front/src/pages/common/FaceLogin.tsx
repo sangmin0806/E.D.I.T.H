@@ -191,6 +191,13 @@ const App: React.FC = () => {
     if (webSocket) {
       startFaceDetection();
     }
+  
+    return () => {
+      if (faceDetectionInterval) {
+        clearInterval(faceDetectionInterval);
+        setFaceDetectionInterval(null);
+      }
+    };
   }, [webSocket]);
 
   useEffect(() => {
