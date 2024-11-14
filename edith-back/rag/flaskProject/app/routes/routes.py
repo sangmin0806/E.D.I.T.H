@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from app.services import portfolio
 from app.services import reviewer
+import time
 
 # Blueprint 생성
 routes_bp = Blueprint('routes', __name__)
@@ -15,8 +16,8 @@ def portfolio_make():
     user_id = data['userId']
     summaries = data.get('summaries')
     merge_request = data.get('mergeRequests')
-
-    result = portfolio.make_portfolio(user_id, summaries, merge_request)
+    description = data.get('description')
+    result = portfolio.make_portfolio(user_id, summaries, merge_request, description)
     print(result)
     if result:
         return jsonify({'status': 'success', 'portfolio': result}), 200
