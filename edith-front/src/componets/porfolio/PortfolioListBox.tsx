@@ -1,4 +1,3 @@
-import { formatDate } from "../../types/dataType";
 import { useNavigate } from "react-router-dom";
 
 interface ElementProps {
@@ -18,8 +17,7 @@ function PortfolioListBox({
   const navigate = useNavigate();
   const handleClick = () => {
     //string일수도 있으니까 한번 더 확인하깅
-    // navigate(`/repo/detail/${id}`);
-    navigate(`/portfolio`);
+    navigate(`/portfolio/my/${id}`);
   };
   return (
     <>

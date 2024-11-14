@@ -8,14 +8,14 @@ import { Branch, Contributor } from "../../types/projectType";
 interface listBoxProps {
   id: number;
   name: string;
-  contents: string;
+  content: string;
   updatedAt: string;
   contributors: Contributor[];
 }
 function RepoListBox({
   id,
   name,
-  contents,
+  content,
   updatedAt,
   contributors,
 }: listBoxProps) {
@@ -29,7 +29,7 @@ function RepoListBox({
       <div className="flex rounded-3xl shadow-custom justify-between w-full p-4 bg-white/30 ">
         <div className="flex flex-col " onClick={handleClick}>
           <p className="font-semibold text-xl">{name}</p>
-          <p className="font-normal text-base">{contents}</p>
+          <p className="font-normal text-base">{content}</p>
           <p className="font-normal text-base">Updated {updatedAt}</p>
         </div>
         <div className="flex flex-col items-end h-full justify-center gap-3">

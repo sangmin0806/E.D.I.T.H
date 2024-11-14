@@ -1,7 +1,7 @@
 export type FormValues = {
   id: number;
   name: string;
-  contents: string;
+  content: string;
   branches: string[];
 };
 
@@ -33,7 +33,7 @@ export type ProjectListItem = {
   url: string | null;
   name: string;
   token: string;
-  contents: string;
+  content: string;
   branches: Branch[];
   updatedAt: string;
   contributors: Contributor[];

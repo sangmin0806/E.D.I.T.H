@@ -58,10 +58,18 @@ function App() {
               }
             />
             <Route
-              path="/portfolio/my" //나중에 portfolioID 파라미터로 추가하기
+              path="/portfolio/my"
               element={
                 <HeaderLayout>
                   <MyPorfolioListPage />
+                </HeaderLayout>
+              }
+            />
+            <Route
+              path="/portfolio/my/:projectID" //나중에 portfolioID 파라미터로 추가하기
+              element={
+                <HeaderLayout>
+                  <PortfolioPage />
                 </HeaderLayout>
               }
             />
