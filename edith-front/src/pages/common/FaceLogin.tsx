@@ -8,8 +8,10 @@ const App: React.FC = () => {
   const [status, setStatus] = useState("Face login을 시작합니다.");
   const [webSocket, setWebSocket] = useState<WebSocket | null>(null);
   const [retryLogin, setRetryLogin] = useState(false);
+  const [faceDetectionInterval, setFaceDetectionInterval] = useState<number | null>(null);
   const navigate = useNavigate();
 
+  
   const EAR_THRESHOLD = 0.29;
   const MIN_DURATION = 100;
   let blinkStart: number | null = null;
@@ -39,6 +41,11 @@ const App: React.FC = () => {
         .getTracks()
         .forEach((track) => track.stop());
       videoRef.current.srcObject = null;
+    }
+
+    if (faceDetectionInterval) {
+      clearInterval(faceDetectionInterval);
+      setFaceDetectionInterval(null);
     }
   };
 
@@ -90,7 +97,7 @@ const App: React.FC = () => {
       canvas.width = videoRef.current.videoWidth;
       canvas.height = videoRef.current.videoHeight;
 
-      setInterval(async () => {
+      const intervalId = setInterval(async () => {
         const detections = await faceapi.detectAllFaces(videoRef.current!, new faceapi.TinyFaceDetectorOptions())
           .withFaceLandmarks()
           .withFaceDescriptors();
@@ -128,6 +135,8 @@ const App: React.FC = () => {
 
         drawFaceBox(context, detections[0].detection.box, isFrontal);
       }, 100);
+
+      setFaceDetectionInterval(intervalId as unknown as number);
     }
   };
 
@@ -145,10 +154,9 @@ const App: React.FC = () => {
       
       if (data.success) {
         setStatus(`로그인 성공! 사용자 ID: ${data.userId}, 유사도 점수: ${data.similarity_score}`);
-        stopCamera(); // 카메라 정지
+        stopCamera();
         sessionStorage.setItem("userInfo", data.response ? JSON.stringify(data.response) : "");
         ws.close();
-        setRetryLogin(false); 
         navigate("/project");
       } else {
         setStatus(`로그인 실패: 사용자 ID: ${data.userId}, 유사도 점수: ${data.similarity_score}`);
@@ -200,7 +208,7 @@ const App: React.FC = () => {
         />
         <canvas
           ref={canvasRef}
-          style={{ position: 'absolute', top: 0, left: 0}}
+          style={{ position: 'absolute', top: 0, left: 0 }}
         />
         <p style={{
           position: 'absolute',
