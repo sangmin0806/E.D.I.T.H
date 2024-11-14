@@ -64,6 +64,7 @@ public class ProjectController {
         return success(projectService.updateProject(projectDto, token));
     }
 
+
     @GetMapping("/gitgraph/{projectId}")
     public ApiResult<List<GitGraph>> getGitGraphData(
             @PathVariable Long projectId,
@@ -76,14 +77,6 @@ public class ProjectController {
     @GetMapping("/health-check")
     public String healthCheck() {
         return "health check";
-    }
-
-    @PostMapping("/test")
-    public void test() {
-        String review = """
-                리뷰입니다.
-                """;
-        gitlabServiceClient.addMergeRequestComment(824085L, 64L, "TWD9FX7P7Qc1bYqyo_cC", review);
     }
 
     @GetMapping("/embedded")
@@ -99,7 +92,7 @@ public class ProjectController {
         return success(projectService.getUsersProjectsStats(token));
     }
 
-    @GetMapping("/{projectId}/stats")
+    @GetMapping("/stats/{projectId}")
     public ApiResult<ProjectStats> getProjectStats(
             @CookieValue(value = "accessToken", required = false) String token
     ) {

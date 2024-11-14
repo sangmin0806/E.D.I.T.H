@@ -24,7 +24,7 @@ public class RagServiceClient {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-    @Value("${api.flask.code-review}")
+    @Value("${api.flask.rag}")
     private String URL;
 
     public RagServiceClient(@Qualifier("ragRestTemplate")
@@ -68,6 +68,7 @@ public class RagServiceClient {
 
     public String getHealthCheck() {
         String url = URL + "/health-check";
+        log.info("Sending GET request to URL: {}", url);
         return restTemplate.getForObject(url, String.class);
     }
 }
