@@ -4,10 +4,8 @@ import java.util.List;
 
 public record ProjectDto(
         Long id,
-        String url,
         String name,
         String token,
-        List<String> branchesName
+        List<String> branches
 ) {
-
 }

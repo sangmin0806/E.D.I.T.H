@@ -7,7 +7,6 @@ public record RegisterProjectRequest(
         Long id,
         String name,
         String contents,
-        Long userId,
         List<String> branches
 ) {
 

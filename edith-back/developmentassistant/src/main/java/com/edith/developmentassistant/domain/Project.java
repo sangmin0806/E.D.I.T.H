@@ -63,7 +63,6 @@ public class Project extends BaseEntity {
     }
 
     public void updateProject(ProjectDto projectDto) {
-        this.url = projectDto.url();
         this.name = projectDto.name();
         this.token = projectDto.token();
 
@@ -73,7 +72,7 @@ public class Project extends BaseEntity {
                 .collect(Collectors.toSet());
 
         // 업데이트할 브랜치 이름 집합
-        Set<String> newBranchNames = new HashSet<>(projectDto.branchesName());
+        Set<String> newBranchNames = new HashSet<>(projectDto.branches());
 
         // 추가할 브랜치 이름
         Set<String> branchesToAdd = new HashSet<>(newBranchNames);
