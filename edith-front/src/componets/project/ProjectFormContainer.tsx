@@ -12,7 +12,7 @@ function ProjectFormContainer({
   initialData = {
     id: 0,
     name: "",
-    contents: "",
+    content: "",
     branches: [],
   },
   onSave,
@@ -131,7 +131,7 @@ function ProjectFormContainer({
               <textarea
                 className="flex h-20 w-full max-w-[400px] bg-white rounded-2xl border border-zinc-300 p-4"
                 name="contents"
-                value={formValues.contents}
+                value={formValues.content}
                 onChange={handleInputChange}
               />
             </div>

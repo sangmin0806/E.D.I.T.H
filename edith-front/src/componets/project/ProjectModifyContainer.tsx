@@ -12,7 +12,7 @@ function ProjectModifyContainer({ selectedProjectID }: ModifyProps) {
   const data: FormValues = {
     id: 0,
     name: "",
-    contents: "",
+    content: "",
     branches: [],
   };
   const [initialData, setInitialData] = useState<FormValues>(data);
