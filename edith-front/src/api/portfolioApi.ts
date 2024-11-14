@@ -23,17 +23,17 @@ export const getPortfolioList = async (): Promise<{
 };
 
 export const getPortfolioItem = async (
-  id: number
+  projectId: number
 ): Promise<{
   success: boolean;
   response?: PortfolioInfo;
   error?: string;
 }> => {
-  return apiRequest(() => axiosInstance.get(`/api/v1/portfolio/${id}`));
+  return apiRequest(() => axiosInstance.get(`/api/v1/portfolio/${projectId}`));
 };
 
 export const makePorfolio = async (
-  id: number
+  projectId: number
 ): Promise<{ success: boolean; response?: PortfolioInfo; error?: string }> => {
-  return apiRequest(() => axiosInstance.put(`/api/v1/portfolio/${id}`));
+  return apiRequest(() => axiosInstance.put(`/api/v1/portfolio/${projectId}`));
 };

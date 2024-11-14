@@ -105,7 +105,7 @@ function MainPage() {
                 </div>
                 <p
                   onClick={handleJoinClick}
-                  className="text-right text-neutral-400 text-xl font-light underline"
+                  className="text-right text-neutral-400 text-xl font-light underline cursor-pointer"
                 >
                   회원가입
                 </p>

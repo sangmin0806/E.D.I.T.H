@@ -18,9 +18,12 @@ function Header({ userImgSrc }: any) {
 
     if (getUserInfo) {
       setUserInfo(JSON.parse(getUserInfo));
-      setImgSrc(userInfo.profileImageUrl);
     }
   }, []);
+  useEffect(() => {
+    console.log(userInfo.profileImageUrl);
+    setImgSrc(userInfo.profileImageUrl);
+  }, [userInfo]);
 
   // menuRef를 useRef로 선언
   const menuRef = useRef<HTMLDivElement>(null);

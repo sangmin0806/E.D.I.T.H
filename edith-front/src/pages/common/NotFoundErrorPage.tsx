@@ -53,7 +53,7 @@ function NotFoundErrorPage() {
               </div>
               <div className="flex gap-4">
                 <div
-                  className="p-2 bg-white border border-black justify-center items-center gap-2.5 inline-flex"
+                  className="p-2 bg-white border border-black justify-center items-center gap-2.5 inline-flex cursor-pointer"
                   onClick={handleGoPast}
                 >
                   <p className="text-center text-black text-xl font-medium font-['Pretendard Variable']">
@@ -64,7 +64,7 @@ function NotFoundErrorPage() {
                   className="p-2 bg-black justify-center items-center gap-2.5 inline-flex"
                   onClick={handleGoMain}
                 >
-                  <p className="min-w-12 text-center text-white text-xl font-medium font-['Pretendard Variable']">
+                  <p className="min-w-12 text-center text-white text-xl font-medium font-['Pretendard Variable'] cursor-pointer">
                     홈
                   </p>
                 </div>
