@@ -1,6 +1,11 @@
 import os
+import logging
 from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 from qdrant_client import QdrantClient
+
+# 로거 설정
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 match_router = APIRouter()
 
@@ -17,7 +22,7 @@ SIMILARITY_THRESHOLD = 0.7
 @match_router.websocket("/face-login")
 async def websocket_face_recognition(websocket: WebSocket):
     await websocket.accept()
-    print("클라이언트 WebSocket 연결 성공")
+    logger.info("클라이언트 WebSocket 연결 성공")
 
     try:
         # WebSocket 연결 동안 클라이언트로부터 벡터 데이터 수신 및 얼굴 인식 처리
@@ -25,7 +30,7 @@ async def websocket_face_recognition(websocket: WebSocket):
             # 클라이언트에서 얼굴 벡터 데이터 수신
             data = await websocket.receive_json()
             image_vector = data.get("vector")  # 클라이언트가 전송한 벡터 값
-            print(f"클라이언트로부터 받은 벡터 데이터: {image_vector}")
+            logger.info(f"클라이언트로부터 받은 벡터 데이터: {image_vector}")
 
             # Qdrant에서 가장 유사한 얼굴 벡터 찾기
             user_id, similarity_score = find_most_similar_face(image_vector)
@@ -37,7 +42,6 @@ async def websocket_face_recognition(websocket: WebSocket):
                     "similarity_score": similarity_score,
                     "message": "로그인 성공"
                 })
-                await websocket.close()  # WebSocket 연결 종료
                 break  # 유사한 얼굴이 발견되었으므로 while 루프 종료
             else:
                 # 실패 시에도 가장 유사한 userId와 similarity_score 반환
@@ -48,9 +52,9 @@ async def websocket_face_recognition(websocket: WebSocket):
                 })
 
     except WebSocketDisconnect:
-        print("클라이언트 WebSocket 연결이 끊어졌습니다.")
+        logger.info("클라이언트 WebSocket 연결이 끊어졌습니다.")
     except Exception as e:
-        print("WebSocket 연결 종료 또는 오류:", e)
+        logger.error("WebSocket 연결 종료 또는 오류:", exc_info=True)
     finally:
         await websocket.close()
 
