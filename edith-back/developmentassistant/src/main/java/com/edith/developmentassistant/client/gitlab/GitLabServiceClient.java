@@ -368,6 +368,13 @@ public class GitLabServiceClient {
                     }
             );
 
+            ResponseEntity<String> responseJson = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<String>() {
+                    }
+            );
+
+            log.info("responseJson : {}", responseJson);
+
             List<GitMerge> todayMerges = response.getBody();
             assert todayMerges != null;
 
