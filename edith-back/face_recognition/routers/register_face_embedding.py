@@ -26,11 +26,9 @@ except Exception:
         vectors_config=VectorParams(size=vector_size, distance=distance)
     )
 
-
 class FaceEmbedding(BaseModel):
     userId: int   # user_id 직접 전달받음
     embeddingVectors: list[list[float]]  # 클라이언트에서 전송한 벡터를 리스트로 받음
-
 
 @register_router.post("/register-face")
 async def register_face(data: FaceEmbedding):
