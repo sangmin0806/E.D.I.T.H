@@ -153,10 +153,9 @@ const App: React.FC = () => {
           setStatus(`로그인 성공! 사용자 ID: ${data.userId}, 유사도 점수: ${data.similarity_score}`);
           ws.close();
         } else {
-        
           setStatus(`로그인 실패: 사용자 ID: ${data.userId}, 유사도 점수: ${data.similarity_score}`);
         }
-      };
+    };
 
     ws.onclose = () => {
       console.log("웹소켓 연결 종료");
