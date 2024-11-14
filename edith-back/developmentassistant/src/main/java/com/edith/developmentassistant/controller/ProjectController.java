@@ -11,10 +11,8 @@ import com.edith.developmentassistant.controller.dto.request.RegisterProjectRequ
 import com.edith.developmentassistant.controller.dto.response.project.ProjectDto;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectResponse;
 import com.edith.developmentassistant.controller.dto.response.project.RegisterProjectResponse;
-import com.edith.developmentassistant.controller.dto.response.project.Stats;
+import com.edith.developmentassistant.controller.dto.response.project.UsersProjectsStats;
 import com.edith.developmentassistant.service.ProjectService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -92,23 +90,11 @@ public class ProjectController {
         return ragServiceClient.getHealthCheck();
     }
 
-    @GetMapping("/user")
-    public String getUserInfo(
+
+    @GetMapping("/users/stats")
+    public ApiResult<UsersProjectsStats> getStats(
             @CookieValue(value = "accessToken", required = false) String token
     ) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            return objectMapper.writeValueAsString(userServiceClient.getUserByToken(token));
-        } catch (JsonProcessingException e) {
-            return "Error while serializing UserDto to JSON string";
-        }
+        return success(projectService.getUsersProjectsStats(token));
     }
-
-    @GetMapping("/stats")
-    public ApiResult<Stats> getStats(
-            @CookieValue(value = "accessToken", required = false) String token
-    ) {
-        return success(projectService.getStats(token));
-    }
-
 }
