@@ -160,6 +160,7 @@ const App: React.FC = () => {
         console.log(data.response);
         sessionStorage.setItem("userInfo", data.response.response ? JSON.stringify(data.response.response) : "");
         ws.close();
+        setRetryLogin(false)
         navigate("/project");
       } else {
         setStatus(`로그인 실패: 사용자 ID: ${data.userId}, 유사도 점수: ${data.similarity_score}`);
