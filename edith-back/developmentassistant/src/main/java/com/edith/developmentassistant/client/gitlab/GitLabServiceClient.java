@@ -333,7 +333,9 @@ public class GitLabServiceClient {
 
             List<GitCommit> todayCommits = response.getBody();
             assert todayCommits != null;
+
             int todayCommitsCount = (int) todayCommits.stream()
+                    .filter(commit -> commit.getAuthor_email() != null) // Null 체크 추가
                     .filter(commit -> commit.getAuthor_email().equalsIgnoreCase(userEmail))
                     .count();
 
