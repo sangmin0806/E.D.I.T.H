@@ -49,12 +49,15 @@ function FinishJoinPage() {
               </p>
             </div>
             <div className="flex gap-4">
-              <div onClick={handleRegisterFace} className="p-2 bg-black rounded-2xl justify-center items-center gap-2.5 inline-flex">
+              <div
+                onClick={handleRegisterFace}
+                className="p-2 bg-black rounded-2xl justify-center items-center gap-2.5 inline-flex cursor-pointer"
+              >
                 <p className="min-w-36 text-center text-white text-xl font-medium font-['Pretendard Variable']">
                   얼굴 등록 진행
                 </p>
               </div>
-              <div className="p-2 bg-white rounded-2xl border border-black justify-center items-center gap-2.5 inline-flex">
+              <div className="p-2 bg-white rounded-2xl border border-black justify-center items-center gap-2.5 inline-flex cursor-pointer">
                 <p
                   className="text-center text-black text-xl font-medium font-['Pretendard Variable']"
                   onClick={handleGoMain}

@@ -71,7 +71,7 @@ public class UserService {
     public SignInResponse faceLogin(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
+        log.info("userId={}",userId);
         JwtPayload jwtPayload = JwtPayload.of(user.getId(), user.getEmail());
 
         String accessToken = jwtUtil.createJwtToken(jwtPayload);
@@ -82,7 +82,8 @@ public class UserService {
         String decryptedAccessToken = EncryptionUtil.decrypt(user.getVcsAccessToken());
 
         GitLabProfile profile = versionControlClient.fetchProfile(user.getVcsBaseUrl(), decryptedAccessToken);
-
+        log.info("accessToken={}",accessToken);
+        log.info("refreshToken={}",refreshToken);
         return SignInResponse.of(user.getId(), user.getEmail(), accessToken,refreshToken, profile.username(), profile.name(), profile.avatar_url());
     }
 

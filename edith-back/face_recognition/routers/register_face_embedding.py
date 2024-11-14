@@ -15,7 +15,7 @@ qdrant_client = QdrantClient(host=qdrant_host, port=int(qdrant_port))
 # 컬렉션 이름 및 설정
 collection_name = "user_embeddings"
 vector_size = 128  # 클라이언트에서 보낸 벡터 크기
-distance = "Cosine"  # 유사도 계산 방식
+distance = "Euclid"  # 유사도 계산 방식
 
 # 컬렉션 생성 (존재하지 않는 경우)
 try:
@@ -26,11 +26,9 @@ except Exception:
         vectors_config=VectorParams(size=vector_size, distance=distance)
     )
 
-
 class FaceEmbedding(BaseModel):
     userId: int   # user_id 직접 전달받음
     embeddingVectors: list[list[float]]  # 클라이언트에서 전송한 벡터를 리스트로 받음
-
 
 @register_router.post("/register-face")
 async def register_face(data: FaceEmbedding):

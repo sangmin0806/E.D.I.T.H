@@ -21,7 +21,9 @@ function MainPage() {
   };
 
   // 얼굴 인식 로그인 이벤트 발생
-  const handleFaceLoginClick = () => {};
+  const handleFaceLoginClick = () => {
+    navigate('/face-login');  // 경로 변경
+  };
 
   // 매개변수로 email과 pw를 받아 상태를 업데이트한 후 로그인 진행
   const handleEmailLoginClick = async () => {
@@ -105,7 +107,7 @@ function MainPage() {
                 </div>
                 <p
                   onClick={handleJoinClick}
-                  className="text-right text-neutral-400 text-xl font-light underline"
+                  className="text-right text-neutral-400 text-xl font-light underline cursor-pointer"
                 >
                   회원가입
                 </p>

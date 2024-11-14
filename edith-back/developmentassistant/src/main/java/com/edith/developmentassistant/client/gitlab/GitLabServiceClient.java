@@ -4,7 +4,6 @@ import com.edith.developmentassistant.client.dto.CommentRequest;
 import com.edith.developmentassistant.client.dto.ProjectAccessTokenRequest;
 import com.edith.developmentassistant.client.dto.RegisterWebhookRequest;
 
-import com.edith.developmentassistant.client.dto.gitlab.GitBranch;
 import com.edith.developmentassistant.client.dto.gitlab.GitMerge;
 
 import com.edith.developmentassistant.client.dto.gitlab.ContributorDto;
@@ -225,7 +224,8 @@ public class GitLabServiceClient {
 
             return response.getBody();
         } catch (RestClientException e) {
-            log.error("Error fetching commits for merge request {} in project {}: {}", mergeRequestIid, projectId, e.getMessage());
+            log.error("Error fetching commits for merge request {} in project {}: {}", mergeRequestIid, projectId,
+                    e.getMessage());
             throw e;
         }
     }
@@ -243,7 +243,8 @@ public class GitLabServiceClient {
 
             return response.getBody();
         } catch (RestClientException e) {
-            log.error("Error fetching GitLab commit details for commit {} in project {}: {}", commitSha, projectId, e.getMessage());
+            log.error("Error fetching GitLab commit details for commit {} in project {}: {}", commitSha, projectId,
+                    e.getMessage());
             throw e;
         }
     }
@@ -288,10 +289,10 @@ public class GitLabServiceClient {
         headers.set("PRIVATE-TOKEN", projectAccessToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
-
         try {
             ResponseEntity<List<GitMerge>> response = restTemplate.exchange(
-                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<GitMerge>>() {});
+                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<GitMerge>>() {
+                    });
             return response.getBody();
         } catch (RestClientException e) {
             log.error("Error fetching GitLab merge for project {}: {}", projectId, e.getMessage());
@@ -309,5 +310,87 @@ public class GitLabServiceClient {
                 .enableSslVerification(false)
                 .pushEventsBranchFilter(null)
                 .build();
+    }
+
+    public Integer fetchTodayCommitsCount(Long projectId, String projectAccessToken, String userEmail) {
+        // 오늘 날짜 구하기
+        String todayStart = LocalDate.now() + "T00:00:00Z";
+        String todayEnd = LocalDate.now() + "T23:59:59Z";
+
+        String url = GITLAB_API_URL + "/projects/" + projectId + "/repository/commits" +
+                "?since=" + todayStart + "&until=" + todayEnd;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("PRIVATE-TOKEN", projectAccessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            // API 요청하여 커밋 리스트 가져오기
+            ResponseEntity<List<GitCommit>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<GitCommit>>() {
+                    }
+            );
+
+            List<GitCommit> todayCommits = response.getBody();
+            assert todayCommits != null;
+
+            int todayCommitsCount = (int) todayCommits.stream()
+                    .filter(commit -> commit.getAuthor_email() != null) // Null 체크 추가
+                    .filter(commit -> commit.getAuthor_email().equalsIgnoreCase(userEmail))
+                    .count();
+
+            log.info("Today's commits count for user {} in project {}: {}", userEmail, projectId, todayCommitsCount);
+
+            return todayCommitsCount;
+        } catch (RestClientException e) {
+            log.error("Error fetching today's commits for user {} in project {}: {}", userEmail, projectId,
+                    e.getMessage());
+            throw e;
+        }
+    }
+
+    public Integer fetchTodayMergeRequestsCount(Long projectId, String projectAccessToken, String userEmail) {
+        // 오늘 날짜 구하기
+        String todayStart = LocalDate.now() + "T00:00:00Z";
+        String todayEnd = LocalDate.now() + "T23:59:59Z";
+
+        String url = GITLAB_API_URL + "/projects/" + projectId + "/merge_requests" +
+                "?created_after=" + todayStart + "&created_before=" + todayEnd;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("PRIVATE-TOKEN", projectAccessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            // API 요청하여 Merge Request 리스트 가져오기
+            ResponseEntity<List<GitMerge>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<GitMerge>>() {
+                    }
+            );
+
+            List<GitMerge> todayMerges = response.getBody();
+            assert todayMerges != null;
+
+            // todayMerges 리스트를 로깅
+            log.info("Today's merge requests for project {}: {}", projectId,
+                    objectMapper.writeValueAsString(todayMerges));
+
+            int todayMergeRequestsCount = (int) todayMerges.stream()
+                    .filter(mr -> mr.getAuthor() != null && mr.getAuthor().getEmail() != null) // Null 체크 추가
+                    .filter(mr -> mr.getAuthor().getEmail().equalsIgnoreCase(userEmail))
+                    .count();
+
+            log.info("Today's merge requests count for user {} in project {}: {}", userEmail, projectId,
+                    todayMergeRequestsCount);
+
+            return todayMergeRequestsCount;
+        } catch (RestClientException e) {
+            log.error("Error fetching today's merge requests for user {} in project {}: {}", userEmail, projectId,
+                    e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            log.error("Error serializing today's merge requests: {}", e.getMessage(), e);
+            throw new RuntimeException("Error serializing merge requests for logging", e);
+        }
     }
 }

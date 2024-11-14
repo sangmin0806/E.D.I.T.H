@@ -1,6 +1,7 @@
 package com.ssafy.edith.user.api.controller;
 
 import com.ssafy.edith.user.api.request.EmbeddingRequest;
+import com.ssafy.edith.user.api.request.FaceLoginRequest;
 import com.ssafy.edith.user.api.request.SignInRequest;
 import com.ssafy.edith.user.api.request.SignUpRequest;
 import com.ssafy.edith.user.api.response.SignInResponse;
@@ -50,8 +51,8 @@ public class UserController {
     }
     @PostMapping("/face-login")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResult<SignInResponse> faceLogin(@RequestBody Long userId, HttpServletResponse response) {
-        SignInResponse signInResponse = userService.faceLogin(userId);
+    public ApiResult<SignInResponse> faceLogin(@RequestBody FaceLoginRequest faceLoginRequest, HttpServletResponse response) {
+        SignInResponse signInResponse = userService.faceLogin(faceLoginRequest.userId());
 
         cookieUtil.addAccessToken(response, signInResponse.accessToken());
         cookieUtil.addRefreshToken(response, signInResponse.accessToken());

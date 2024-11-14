@@ -30,11 +30,6 @@ spring:
           predicates:
             - Path=/api/v1/users/**
 
-        - id: user-websocket
-          uri: ws://user-fastapi-service:8184
-          predicates:
-            - Path=/ws/users/face_recognition
-
         - id: developmentassistant-projects-api
           uri: http://developmentassistant-spring-boot-service:8182
           predicates:
@@ -49,6 +44,11 @@ spring:
           uri: http://face-recognition-fastapi-service:8184
           predicates:
             - Path=/api/v1/face-recognition/**
+
+        - id: face-recognition-websocket
+          uri: ws://face-recognition-fastapi-service:8184
+          predicates:
+            - Path=/ws/v1/face-recognition/face-login
 
         - id: kubetest
           uri: http://kubetest:9190

@@ -1,7 +1,7 @@
 export type FormValues = {
   id: number;
   name: string;
-  contents: string;
+  content: string;
   branches: string[];
 };
 
@@ -15,7 +15,7 @@ export type ProjectItem = {
   url: string;
   name: string;
   token: string;
-  branches: branchItem[];
+  branches: Branch[];
 };
 
 export type Branch = {
@@ -33,7 +33,7 @@ export type ProjectListItem = {
   url: string | null;
   name: string;
   token: string;
-  contents: string;
+  content: string;
   branches: Branch[];
   updatedAt: string;
   contributors: Contributor[];

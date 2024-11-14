@@ -3,7 +3,11 @@ import edithLogo from "../../assets/edithLogo.png";
 import copyLogo from "../../assets/copy.png";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "../common/LoadingSpinner";
-import { makePorfolio, savePortfolio } from "../../api/portfolioApi";
+import {
+  getPortfolioItem,
+  makePorfolio,
+  savePortfolio,
+} from "../../api/portfolioApi";
 import { useNavigate, useParams } from "react-router-dom";
 import { PortfolioInfo } from "../../types/portfolioType";
 
@@ -15,6 +19,7 @@ function RepoPortfolio({ userGitAccount }: portfolioProp) {
   const numericProjectID = Number(projectID);
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<PortfolioInfo | undefined>();
+  const [savedPortfolio, setSavedPortfolio] = useState(false);
   const navigate = useNavigate();
   const handleSave = () => {
     console.log("저장 API 시도");
@@ -25,8 +30,27 @@ function RepoPortfolio({ userGitAccount }: portfolioProp) {
     navigator.clipboard.writeText(data.content);
   };
   useEffect(() => {
-    getPortfolioApi();
+    if (location.pathname.includes("/portfolio/my")) {
+      setSavedPortfolio(true);
+      getSavedPortfolioApi();
+    } else if (location.pathname.includes("/portfolio")) {
+      getPortfolioApi();
+    }
   }, []);
+  const getSavedPortfolioApi = async () => {
+    try {
+      const result = await getPortfolioItem(numericProjectID);
+      console.log(result);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      setData(result.response);
+    } catch (error) {
+      alert(error);
+    } finally {
+      setLoading(false);
+    }
+  };
   const getPortfolioApi = async () => {
     try {
       const result = await makePorfolio(numericProjectID);
@@ -68,7 +92,7 @@ function RepoPortfolio({ userGitAccount }: portfolioProp) {
   return (
     <>
       {data && (
-        <div className="flex flex-col items-center gap-12 w-full">
+        <div className="flex flex-col items-center gap-12 w-full mb-12">
           <div className="flex flex-col mx-4 gap-8 w-full">
             <div className="flex gap-3">
               <img src={edithLogo} />
@@ -95,14 +119,16 @@ function RepoPortfolio({ userGitAccount }: portfolioProp) {
               </div>
             </div>
           </div>
-          <div
-            className="p-1.5 mb-8 bg-black rounded-2xl justify-center items-center inline-flex"
-            onClick={handleSave}
-          >
-            <p className="w-32 text-center text-white text-lg font-medium">
-              저장하기
-            </p>
-          </div>
+          {!savedPortfolio && (
+            <div
+              className="p-1.5 mb-8 bg-black rounded-2xl justify-center items-center inline-flex"
+              onClick={handleSave}
+            >
+              <p className="w-32 text-center text-white text-lg font-medium">
+                저장하기
+              </p>
+            </div>
+          )}
         </div>
       )}
     </>

@@ -1,6 +1,7 @@
 package com.edith.developmentassistant.controller.dto.response.project;
 
 import com.edith.developmentassistant.client.dto.gitlab.ContributorDto;
+import com.edith.developmentassistant.domain.Branch;
 import com.edith.developmentassistant.domain.Project;
 import com.edith.developmentassistant.service.dto.BranchDto;
 import com.edith.developmentassistant.service.dto.ContributorSimpleDto;
@@ -12,7 +13,7 @@ public record ProjectResponse(Long id,
                               String url,
                               String name,
                               String token,
-                              List<BranchDto> branches,
+                              List<String> branches,
                               @JsonFormat(pattern = "yyyy-MM-dd")
                               LocalDateTime updatedAt,
                               List<ContributorSimpleDto> contributors,
@@ -30,7 +31,7 @@ public record ProjectResponse(Long id,
                 project.getUrl(),
                 projectName,
                 project.getToken(),
-                project.getBranches().stream().map(BranchDto::from).toList(),
+                project.getBranches().stream().map(Branch::getName).toList(),
                 project.getLastModifiedDate(),
                 simpleContributors,
                 content

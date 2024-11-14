@@ -17,9 +17,8 @@ function RepoList() {
       if (!result.success || !result.response) {
         throw new Error(result.error);
       }
-
+      console.log(result);
       if (Array.isArray(result.response)) {
-        console.log(result.response);
         setData(result.response);
       } else {
         console.error("Expected an array, but got:", result.response);
@@ -38,7 +37,7 @@ function RepoList() {
           key={d.id}
           id={d.id}
           name={d.name}
-          contents={d.contents}
+          content={d.content}
           updatedAt={d.updatedAt}
           contributors={d.contributors}
         />
