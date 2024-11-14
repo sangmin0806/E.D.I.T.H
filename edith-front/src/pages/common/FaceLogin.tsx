@@ -146,12 +146,17 @@ const App: React.FC = () => {
     };
 
     ws.onmessage = (message) => {
-      const data = JSON.parse(message.data);
-      if (data.userId) {
-        setStatus(`로그인 성공! 사용자 ID: ${data.userId}, 유사도 점수: ${data.similarity_score}`);
-        ws.close();
-      }
-    };
+        const data = JSON.parse(message.data);
+        console.log("서버로부터 받은 데이터:", data); // 수신한 데이터 콘솔에 출력
+      
+        if (data.userId) {
+          setStatus(`로그인 성공! 사용자 ID: ${data.userId}, 유사도 점수: ${data.similarity_score}`);
+          ws.close();
+        } else {
+        
+          setStatus(`로그인 실패: 사용자 ID: ${data.userId}, 유사도 점수: ${data.similarity_score}`);
+        }
+      };
 
     ws.onclose = () => {
       console.log("웹소켓 연결 종료");
