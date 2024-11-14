@@ -36,6 +36,10 @@ function Header({ userImgSrc }: any) {
     setActiveTab("MyPortfolio");
     navigate("/portfolio/my");
   };
+  const handleToMoveToSetFaceId = () => {
+    setActiveTab("");
+    navigate("/register-face");
+  };
   const handleError = () => {
     setImgSrc(defaultImg);
   };
@@ -141,7 +145,19 @@ function Header({ userImgSrc }: any) {
                           alert("Signed out");
                         }}
                       >
-                        Sign out
+                        로그아웃
+                      </a>
+                      <a
+                        className="block px-4 py-2 text-sm text-gray-700 cursor-pointer"
+                        role="menuitem"
+                        tabIndex={-1}
+                        id="user-menu-item-2"
+                        onClick={() => {
+                          handleToMoveToSetFaceId();
+                          setIsMenuOpen(false);
+                        }}
+                      >
+                        Face Login 등록
                       </a>
                     </div>
                   )}
