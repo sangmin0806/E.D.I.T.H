@@ -83,6 +83,7 @@ async def send_login_request_to_user_service(user_id: int):
 
     async with httpx.AsyncClient() as client:
         try:
+            logger.info(f"User 서버에 로그인 요청 전: userId={user_id}")
             response = await client.post(url, json=payload)
             response.raise_for_status()
             logger.info(f"User 서버에 로그인 요청 성공: userId={user_id}")
