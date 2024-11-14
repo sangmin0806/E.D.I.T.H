@@ -76,7 +76,7 @@ export const projectList: ProjectListItem[] = [
     url: null,
     name: "Example Project",
     token: "GfQ_e1hqiiaovywByhyd",
-    contents:
+    content:
       "This is an example project description with detailed information.",
     branches: [
       {
