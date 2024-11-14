@@ -3,6 +3,7 @@ package com.edith.developmentassistant.service;
 import com.edith.developmentassistant.client.dto.UserDto;
 import com.edith.developmentassistant.client.user.UserServiceClient;
 import com.edith.developmentassistant.domain.Portfolio;
+import com.edith.developmentassistant.domain.Project;
 import com.edith.developmentassistant.domain.UserProject;
 import com.edith.developmentassistant.repository.MRSummaryRepository;
 import com.edith.developmentassistant.repository.PortfolioRepository;
@@ -74,7 +75,8 @@ public class PortfolioService {
             log.info("Merged MRs from {}", mergeRequestdateRange);
             // 4. Flask 에 포폴 생성 요청하기
             CreatePortfolioServiceRequest request = new CreatePortfolioServiceRequest(
-                    "doublehyun98@gmail.com",
+                    user.getEmail(),
+                    userProject.getDescription(),
                     summaries,
                     mergeRequestdateRange.getMergeRequests()
             );
@@ -221,10 +223,11 @@ public class PortfolioService {
                 .timeout(Duration.ofSeconds(10));
     }
 
+
 //    private UserDto createUserDto() {
 //        return UserDto.builder()
-//                .userId(1L)
-//                .email("doublehyun98")
+//                .userId(10L)
+//                .email("Lee-JoungHyun")
 //                .password("1234")
 //                .vcsBaseUrl("https://lab.ssafy.com/")
 //                .vcsAccessToken("ZH3_Ft1HJmHqwXYmgYHs")
@@ -237,17 +240,13 @@ public class PortfolioService {
 //                .projectId(824085L)
 //                .build();
 //
-//
 //        return UserProject.builder()
-//                .userId(1L)
-//                .name("E.D.I.T.H.")
-//                .description("asdfasdf")
+//                .userId(10L)
+//                .title("E.D.I.T.H.")
+//                .description("AI 기반 코드리뷰, 포트폴리오 프로젝트")
 //                .project(project)
 //                .build();
 //    }
-
-
-
 
 }
 

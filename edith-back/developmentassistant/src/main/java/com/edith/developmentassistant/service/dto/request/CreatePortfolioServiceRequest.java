@@ -7,6 +7,7 @@ import java.util.List;
 
 public record CreatePortfolioServiceRequest (
         String userId,
+        String description,
         List<Summary> summaries,
         List<MergeRequest> mergeRequests
 ){}
