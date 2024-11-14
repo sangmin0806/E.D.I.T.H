@@ -91,8 +91,11 @@ public class ProjectController {
 
     @GetMapping("/stats/{projectId}")
     public ApiResult<ProjectStats> getProjectStats(
-            @CookieValue(value = "accessToken", required = false) String token
+            @CookieValue(value = "accessToken", required = false) String token,
+            @PathVariable Long projectId
     ) {
-        return success(projectService.getProjectStats(token));
+        return success(projectService.getProjectStats(token, projectId));
     }
+
+
 }
