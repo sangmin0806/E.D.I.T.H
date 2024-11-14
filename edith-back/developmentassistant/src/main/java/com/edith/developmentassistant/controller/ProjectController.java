@@ -3,9 +3,7 @@ package com.edith.developmentassistant.controller;
 import static com.edith.developmentassistant.controller.ApiUtils.success;
 
 import com.edith.developmentassistant.client.dto.gitlab.GitGraph;
-import com.edith.developmentassistant.client.gitlab.GitLabServiceClient;
 import com.edith.developmentassistant.client.rag.RagServiceClient;
-import com.edith.developmentassistant.client.user.UserServiceClient;
 import com.edith.developmentassistant.controller.ApiUtils.ApiResult;
 import com.edith.developmentassistant.controller.dto.request.RegisterProjectRequest;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectDto;
@@ -31,9 +29,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProjectController {
 
     private final ProjectService projectService;
-    private final GitLabServiceClient gitlabServiceClient;
     private final RagServiceClient ragServiceClient;
-    private final UserServiceClient userServiceClient;
+
 
     @PostMapping
     public ApiResult<RegisterProjectResponse> registerProjects(
@@ -96,6 +93,6 @@ public class ProjectController {
     public ApiResult<ProjectStats> getProjectStats(
             @CookieValue(value = "accessToken", required = false) String token
     ) {
-        return success(null);
+        return success(projectService.getProjectStats(token));
     }
 }

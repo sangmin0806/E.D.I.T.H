@@ -2,8 +2,8 @@ spring:
   application:
     name: developmentassistant
 
-#  profiles:
-#    active: dev
+  profiles:
+    active: dev
 
   datasource:
     url: jdbc:h2:mem:testdb
@@ -25,3 +25,4 @@ api:
 #    portfolio: http://localhost:8083/rag/portfolio # 로컬
     code-review: http://k11c206.p.ssafy.io:8083/rag/code-review
     rag : http://k11c206.p.ssafy.io:8083/rag
+
