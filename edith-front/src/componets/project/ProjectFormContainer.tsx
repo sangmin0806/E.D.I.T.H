@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useComponentStore } from "../../store/repoPageStore";
 import { FormValues } from "../../types/projectType";
 interface FormContainerProps {
@@ -9,18 +9,24 @@ interface FormContainerProps {
 }
 function ProjectFormContainer({
   mode,
-  initialData = {
-    id: 0,
-    name: "",
-    content: "",
-    branches: [],
-  },
+  initialData,
   onSave,
   onCancel,
 }: FormContainerProps) {
-  const [formValues, setFormValues] = useState<FormValues>(initialData);
-  const [branches, setBranches] = useState<string[]>(initialData.branches);
+  const [formValues, setFormValues] = useState<FormValues>(
+    initialData || { id: 0, name: "", content: "", branches: [] }
+  );
+  const [branches, setBranches] = useState<string[]>(
+    initialData?.branches || []
+  );
   const [branch, setBranch] = useState("");
+
+  useEffect(() => {
+    if (mode == "enroll" || !initialData) return;
+    console.log(initialData);
+    setFormValues(initialData);
+    setBranches(initialData.branches);
+  }, [initialData]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -43,8 +49,9 @@ function ProjectFormContainer({
       handleAddBranch();
     }
   };
-  const handleRemoveBranch = (index: number) => {
-    setBranches(branches.filter((_, i) => i !== index));
+
+  const handleRemoveBranch = (name: string) => {
+    setBranches(branches.filter((branch) => branch !== name));
   };
   const handleSave = () => {
     onSave({ ...formValues, branches });
@@ -105,9 +112,9 @@ function ProjectFormContainer({
                           key={index}
                           className="flex justify-start text-gray-700 gap-1"
                         >
-                          <p>{b}</p>
+                          <p>{b}</p> {/* b 객체의 name 속성만 출력 */}
                           <p
-                            onClick={() => handleRemoveBranch(index)}
+                            onClick={() => handleRemoveBranch(b)}
                             className="text-gray-700"
                           >
                             x

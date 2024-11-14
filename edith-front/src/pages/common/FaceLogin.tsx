@@ -6,6 +6,7 @@ const App: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [status, setStatus] = useState("Face login을 시작합니다.");
   const [webSocket, setWebSocket] = useState<WebSocket | null>(null);
+  const [retryLogin, setRetryLogin] = useState(false); // 로그인 실패 시 재시도 여부 관리
 
   const EAR_THRESHOLD = 0.29;
   const MIN_DURATION = 100;
@@ -74,9 +75,13 @@ const App: React.FC = () => {
   // 서버에 임베딩 데이터 전송
   const sendEmbeddingToServer = (embedding: Float32Array) => {
     if (webSocket && webSocket.readyState === WebSocket.OPEN) {
+      console.log("전송로직 websocket 열림");
       webSocket.send(JSON.stringify({ vector: Array.from(embedding) }));
+    } else {
+      console.log("웹소켓이 열리지 않았습니다. 재시도...");
     }
   };
+  
 
   // 얼굴 인식 및 눈 깜빡임 감지 시작
   const startFaceDetection = () => {
@@ -93,17 +98,8 @@ const App: React.FC = () => {
 
         context.clearRect(0, 0, canvas.width, canvas.height);
 
-        // 얼굴이 여러 명 감지된 경우 처리
-        if (detections.length > 1) {
-          setStatus("한명만 카메라에 나와주세요.");
-          detections.forEach(detection => drawFaceBox(context, detection.detection.box, false));
-          blinkStart = null;
-          return;
-        }
-
-        // 얼굴이 감지되지 않은 경우
-        if (detections.length === 0) {
-          setStatus("얼굴이 감지되지 않았습니다.");
+        if (detections.length !== 1) {
+          setStatus(detections.length === 0 ? "얼굴이 감지되지 않았습니다." : "한명만 카메라에 나와주세요.");
           blinkStart = null;
           return;
         }
@@ -113,7 +109,7 @@ const App: React.FC = () => {
 
         if (!isFrontal) {
           setStatus("정면을 봐주세요~");
-          detections.forEach(detection => drawFaceBox(context, detection.detection.box, false));
+          drawFaceBox(context, detections[0].detection.box, false);
           blinkStart = null;
           return;
         }
@@ -154,6 +150,7 @@ const App: React.FC = () => {
           ws.close();
         } else {
           setStatus(`로그인 실패: 사용자 ID: ${data.userId}, 유사도 점수: ${data.similarity_score}`);
+          setRetryLogin(true); // 실패 시 재시도 상태 설정
         }
     };
 
@@ -172,24 +169,37 @@ const App: React.FC = () => {
       await loadModels();
       await setupCamera();
       connectWebSocket(); // 웹소켓 연결 시작
-      startFaceDetection();
     };
     initialize();
   }, []);
 
+  useEffect(() => {
+    if (webSocket) {
+      startFaceDetection();
+    }
+  }, [webSocket]);
+
+  // 로그인 실패 후 재시도
+  useEffect(() => {
+    if (retryLogin) {
+      startFaceDetection();
+      setRetryLogin(false); // 재시도 상태 초기화
+    }
+  }, [retryLogin]);
+  
   return (
     <div>
       <h1>Face Recognition Test</h1>
       <div style={{ position: 'relative', width: '600px' }}>
         <video
           ref={videoRef}
-          style={{ width: '100%', transform: 'scaleX(-1)' }} // 좌우 반전
+          style={{ width: '100%', transform: 'scaleX(-1)' }}
           autoPlay
           muted
         />
         <canvas
           ref={canvasRef}
-          style={{ position: 'absolute', top: 0, left: 0, transform: 'scaleX(-1)' }} // 좌우 반전
+          style={{ position: 'absolute', top: 0, left: 0, transform: 'scaleX(-1)' }}
         />
         <p style={{
           position: 'absolute',

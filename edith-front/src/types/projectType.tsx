@@ -15,7 +15,7 @@ export type ProjectItem = {
   url: string;
   name: string;
   token: string;
-  branches: branchItem[];
+  branches: Branch[];
 };
 
 export type Branch = {
