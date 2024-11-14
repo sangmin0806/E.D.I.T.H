@@ -11,6 +11,9 @@ const FinishJoinPage = React.lazy(
 const FaceRegistration = React.lazy(
   () => import("./pages/common/FaceRegistration")
 );
+const FaceLogin = React.lazy(
+  () => import("./pages/common/FaceLogin")
+);
 const RepoPage = React.lazy(() => import("./pages/repos/RepoPage"));
 const DashboardPage = React.lazy(() => import("./pages/repos/DashBoard"));
 const PortfolioPage = React.lazy(() => import("./pages/repos/PortfolioPage"));
@@ -31,7 +34,7 @@ function App() {
             <Route path="/join" element={<JoinPage />} />
             <Route path="/join/finish" element={<FinishJoinPage />} />
             <Route path="/register-face" element={<FaceRegistration />} />
-
+            <Route path="/face-login" element={<FaceLogin />} />
             {/* 헤더가 포함된 라우트 */}
             <Route
               path="/project"

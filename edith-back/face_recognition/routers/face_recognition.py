@@ -1,5 +1,5 @@
 import os
-from fastapi import  WebSocket, WebSocketDisconnect,APIRouter
+from fastapi import WebSocket, WebSocketDisconnect, APIRouter
 from qdrant_client import QdrantClient
 
 match_router = APIRouter()
@@ -12,9 +12,9 @@ qdrant_port = os.getenv("QDRANT_PORT", "6333")
 qdrant_client = QdrantClient(host=qdrant_host, port=int(qdrant_port))
 
 # 유사도 임계값 설정
-SIMILARITY_THRESHOLD = 0.8
+SIMILARITY_THRESHOLD = 0.7
 
-@match_router.websocket("/ws/users/face_recognition")
+@match_router.websocket("/face-login")
 async def websocket_face_recognition(websocket: WebSocket):
     await websocket.accept()
     print("클라이언트 WebSocket 연결 성공")
@@ -34,7 +34,8 @@ async def websocket_face_recognition(websocket: WebSocket):
             if user_id and similarity_score >= SIMILARITY_THRESHOLD:
                 await websocket.send_json({
                     "userId": user_id,
-                    "similarity_score": similarity_score
+                    "similarity_score": similarity_score,
+                    "message": "로그인 성공"
                 })
                 await websocket.close()  # WebSocket 연결 종료
                 break  # 유사한 얼굴이 발견되었으므로 while 루프 종료
@@ -52,6 +53,7 @@ def find_most_similar_face(image_vector):
     """
     Qdrant에서 가장 유사한 얼굴을 찾는 함수.
     """
+    # Qdrant에서 유사 벡터 검색
     search_result = qdrant_client.search(
         collection_name="user_embeddings",  # Qdrant에서 설정한 컬렉션 이름
         query_vector=image_vector,
