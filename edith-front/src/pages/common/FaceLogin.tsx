@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as faceapi from '@vladmandic/face-api';
 import { useNavigate } from 'react-router-dom';
+import { apiRequest } from '../../api/axios';
 
 const App: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -149,13 +150,14 @@ const App: React.FC = () => {
     };
 
     ws.onmessage = (message) => {
-      const data = JSON.parse(message.data);
+      const data = JSON.parse(message.data.respo);
       console.log("서버로부터 받은 데이터:", data);
       
       if (data.success) {
         setStatus(`로그인 성공! 사용자 ID: ${data.userId}, 유사도 점수: ${data.similarity_score}`);
         stopCamera();
-        sessionStorage.setItem("userInfo", data.response ? JSON.stringify(data.response) : "");
+        console.log(data.response);
+        sessionStorage.setItem("userInfo", data.response ? JSON.stringify(data.response.response) : "");
         ws.close();
         navigate("/project");
       } else {
