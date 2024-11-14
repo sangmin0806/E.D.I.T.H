@@ -192,6 +192,7 @@ public class ProjectService {
     }
 
     private UserProject createUserProject(RegisterProjectServiceRequest request, Project project, Long userId) {
+        log.info("Creating UserProject for userId: {}, projectId: {}, project-name: {}", userId, project.getId() , request.name());
         return UserProject.builder()
                 .userId(userId)
                 .description(request.contents())
