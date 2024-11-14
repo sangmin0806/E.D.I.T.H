@@ -60,10 +60,10 @@ public class PortfolioService {
 
         try {
             // 1. User, userProject 찾기
-            UserDto user = userServiceClient.getUserByToken(accessToken);
-//            UserDto user = createUserDto();
-            UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getUserId(), Long.parseLong(projectId));
-//            UserProject userProject = createUserProject();
+//            UserDto user = userServiceClient.getUserByToken(accessToken);
+            UserDto user = createUserDto();
+//            UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getUserId(), Long.parseLong(projectId));
+            UserProject userProject = createUserProject();
 
             // 2. project summery 찾기 -> id 로 찾기
             List<Summary> summaries = mrSummaryRepository.findByProjectId(Long.parseLong(projectId)).stream()
@@ -223,6 +223,7 @@ public class PortfolioService {
                 .timeout(Duration.ofSeconds(10));
     }
 
+<<<<<<< HEAD
 //    private UserDto createUserDto() {
 //        return UserDto.builder()
 //                .userId(10L)
@@ -246,6 +247,31 @@ public class PortfolioService {
 //                .project(project)
 //                .build();
 //    }
+=======
+    private UserDto createUserDto() {
+        return UserDto.builder()
+                .userId(10L)
+                .email("Lee-JoungHyun")
+                .password("1234")
+                .vcsBaseUrl("https://lab.ssafy.com/")
+                .vcsAccessToken("ZH3_Ft1HJmHqwXYmgYHs")
+                .build();
+    }
+
+    private UserProject createUserProject() {
+
+        Project project = Project.builder()
+                .projectId(824085L)
+                .build();
+
+        return UserProject.builder()
+                .userId(10L)
+                .title("E.D.I.T.H.")
+                .description("AI 기반 코드리뷰, 포트폴리오 프로젝트")
+                .project(project)
+                .build();
+    }
+>>>>>>> df0c4546e991e0b8165be5af4d3f4dd4ffba6483
 
 
 
