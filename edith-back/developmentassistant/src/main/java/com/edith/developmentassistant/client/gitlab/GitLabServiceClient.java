@@ -310,4 +310,18 @@ public class GitLabServiceClient {
                 .pushEventsBranchFilter(null)
                 .build();
     }
+
+    public Integer fetchCommitsCount(Long id, String token) {
+        return null;
+    }
+
+
+    public Integer fetchTodayCommitsCount(Long id, String token) {
+        return null;
+    }
+
+
+    public Integer fetchMergeRequestsCount(Long id, String token) {
+        return null;
+    }
 }

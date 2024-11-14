@@ -9,6 +9,7 @@ import com.edith.developmentassistant.client.gitlab.GitLabServiceClient;
 import com.edith.developmentassistant.client.user.UserServiceClient;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectDto;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectResponse;
+import com.edith.developmentassistant.controller.dto.response.project.Stats;
 import com.edith.developmentassistant.domain.Project;
 import com.edith.developmentassistant.domain.UserProject;
 import com.edith.developmentassistant.factory.ProjectFactory;
@@ -201,5 +202,28 @@ public class ProjectService {
                 .title(request.name())
                 .project(project)
                 .build();
+    }
+
+    public Stats getStats(String token) {
+        Long userId = getUserIdByToken(token);
+
+        List<UserProject> userProjects = getUserProjectsBy(userId);
+
+        Integer totalCommitsCount = userProjects.stream()
+                .map(userProject -> gitLabServiceClient.fetchCommitsCount(userProject.getProject().getId(),
+                        userProject.getProject().getToken()))
+                .reduce(0, Integer::sum);
+
+        Integer todayTotalCommitsCount = userProjects.stream()
+                .map(userProject -> gitLabServiceClient.fetchTodayCommitsCount(userProject.getProject().getId(),
+                        userProject.getProject().getToken()))
+                .reduce(0, Integer::sum);
+
+        Integer totalMergeRequestsCount = userProjects.stream()
+                .map(userProject -> gitLabServiceClient.fetchMergeRequestsCount(userProject.getProject().getId(),
+                        userProject.getProject().getToken()))
+                .reduce(0, Integer::sum);
+
+        return new Stats(totalCommitsCount, todayTotalCommitsCount, totalMergeRequestsCount);
     }
 }

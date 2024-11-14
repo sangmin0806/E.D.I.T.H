@@ -11,6 +11,7 @@ import com.edith.developmentassistant.controller.dto.request.RegisterProjectRequ
 import com.edith.developmentassistant.controller.dto.response.project.ProjectDto;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectResponse;
 import com.edith.developmentassistant.controller.dto.response.project.RegisterProjectResponse;
+import com.edith.developmentassistant.controller.dto.response.project.Stats;
 import com.edith.developmentassistant.service.ProjectService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -50,7 +51,7 @@ public class ProjectController {
     }
 
     @GetMapping("{projectId}")
-    public ApiResult<ProjectResponse> getProjects(
+    public ApiResult<ProjectResponse> getProject(
             @CookieValue(value = "accessToken", required = false) String token,
             @PathVariable Long projectId
     ) {
@@ -102,4 +103,12 @@ public class ProjectController {
             return "Error while serializing UserDto to JSON string";
         }
     }
+
+    @GetMapping("/stats")
+    public ApiResult<Stats> getStats(
+            @CookieValue(value = "accessToken", required = false) String token
+    ) {
+        return success(projectService.getStats(token));
+    }
+
 }
