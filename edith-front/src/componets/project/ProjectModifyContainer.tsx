@@ -18,10 +18,6 @@ function ProjectModifyContainer({ selectedProjectID }: ModifyProps) {
   const [initialData, setInitialData] = useState<FormValues>(data);
   const navigate = useNavigate();
   useEffect(() => {
-    // //api 통신하기 !!!!!
-
-    // setInitialData(data);
-
     getAPI();
   }, []);
 
@@ -31,31 +27,26 @@ function ProjectModifyContainer({ selectedProjectID }: ModifyProps) {
     toggleComponent(1);
   };
 
-  const modifyAPI = (data: FormValues) => {
+  const modifyAPI = async (data: FormValues) => {
     try {
-      const request = async () => {
-        const result = await projectModifyRequest(data);
-        if (!result.success) {
-          throw new Error("설정 수정 중 서버 에러가 발생하였습니다.");
-        }
-      };
-      request();
+      const result = await projectModifyRequest(data);
+      if (!result.success) {
+        throw new Error("설정 수정 중 서버 에러가 발생하였습니다.");
+      }
     } catch (error) {
       alert(error);
       navigate(0);
     }
   };
 
-  const getAPI = () => {
+  const getAPI = async () => {
     try {
-      const request = async () => {
-        const result = await projectGetRequest(selectedProjectID);
-        if (!result.success || !result.response) {
-          throw new Error(result.error);
-        }
-        setInitialData(result.response);
-      };
-      request();
+      const result = await projectGetRequest(selectedProjectID);
+      if (!result.success || !result.response) {
+        throw new Error(result.error);
+      }
+      console.log(result.response);
+      setInitialData(result.response);
     } catch (error) {
       alert("프로젝트 조회 중 에러가 발생하였습니다.");
       navigate(0);
