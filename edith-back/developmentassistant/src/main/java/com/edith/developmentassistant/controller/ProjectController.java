@@ -54,7 +54,7 @@ public class ProjectController {
             @CookieValue(value = "accessToken", required = false) String token,
             @PathVariable Long projectId
     ) {
-        return success(projectService.getProject(token, projectId));
+        return success(projectService.getProjectByTokenAndProjectId(token, projectId));
     }
 
     @PutMapping
