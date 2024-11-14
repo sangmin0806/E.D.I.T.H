@@ -39,7 +39,7 @@ public class GitLabServiceClient {
     private static final String REGISTER_HOOK_ENDPOINT = "/projects/";
     private static final String MR_DIFF_ENDPOINT = "/projects/%d/merge_requests/%d/changes"; // DIFF 엔드포인트
     private static final String TOKEN_NAME = "E.D.I.T.H";
-
+    private static final String WEBHOOK_URL = "https://edith-ai.xyz:30443/webhook";
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
@@ -166,7 +166,7 @@ public class GitLabServiceClient {
         log.info("Request Headers: {}", headers);
 
         ProjectAccessTokenRequest projectAccessTokenRequest = ProjectAccessTokenRequest.builder()
-                .name("E.D.I.T.H")
+                .name(TOKEN_NAME)
                 .scopes(Arrays.asList(
                         "api",
                         "read_api",
@@ -302,7 +302,7 @@ public class GitLabServiceClient {
 
     private RegisterWebhookRequest createRequestBody() {
         return RegisterWebhookRequest.builder()
-                .url("http://k11c206.p.ssafy.io:8082/webhook")
+                .url(WEBHOOK_URL)
                 .description("Development Assistant Webhook")
                 .pushEvents(true)
                 .tagPushEvents(true)
