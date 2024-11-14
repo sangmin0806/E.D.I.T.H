@@ -400,4 +400,42 @@ public class GitLabServiceClient {
             throw new RuntimeException("Error serializing merge requests for logging", e);
         }
     }
+
+    public Integer fetchMergeRequestsCount(Long id, String token) {
+        String url = GITLAB_API_URL + "/projects/" + id + "/merge_requests";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("PRIVATE-TOKEN", token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<List<GitMerge>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<GitMerge>>() {
+                    });
+
+            return response.getBody().size();
+        } catch (RestClientException e) {
+            log.error("Error fetching merge requests for project {}: {}", id, e.getMessage());
+            throw e;
+        }
+    }
+
+    public Integer fetchCommitsCount(Long id, String token) {
+        String url = GITLAB_API_URL + "/projects/" + id + "/repository/commits";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("PRIVATE-TOKEN", token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<List<GitCommit>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<GitCommit>>() {
+                    });
+
+            return response.getBody().size();
+        } catch (RestClientException e) {
+            log.error("Error fetching commits for project {}: {}", id, e.getMessage());
+            throw e;
+        }
+    }
 }
