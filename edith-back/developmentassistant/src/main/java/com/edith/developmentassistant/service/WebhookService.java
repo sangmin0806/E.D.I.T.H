@@ -59,7 +59,8 @@ public class WebhookService {
 
         log.info("MergeRequestDiffResponse: {}", MergeDiff.getChanges());
 
-        CodeReviewResponse codeReviewResponse = ragServiceClient.commentCodeReview(request);
+//        CodeReviewResponse codeReviewResponse = ragServiceClient.commentCodeReview(request);
+        CodeReviewResponse codeReviewResponse = createCodeReviewResponse();
 
         mrSummaryRepository.save(MRSummary.builder()
                 .mrId(mergeRequestIid.toString())
@@ -68,6 +69,15 @@ public class WebhookService {
                 .project(project)
                 .build());
 
-        gitLabServiceClient.addMergeRequestComment(projectId, mergeRequestIid, token, codeReviewResponse.getReview());
+
+        gitLabServiceClient.addMergeRequestComment(projectId, mergeRequestIid, token, codeReviewResponse.getReview() , codeReviewResponse.getSummary() );
+    }
+
+    private CodeReviewResponse createCodeReviewResponse() {
+        return CodeReviewResponse.builder()
+                .status("success")
+                .review("This is a review")
+                .summary("This is a summary")
+                .build();
     }
 }

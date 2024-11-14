@@ -125,9 +125,15 @@ public class GitLabServiceClient {
         }
     }
 
-    public void addMergeRequestComment(Long projectId, Long mergeRequestIid, String token, String review) {
+    public void addMergeRequestComment(Long projectId, Long mergeRequestIid, String token, String review,
+                                       String summary) {
         String url = GITLAB_API_URL + "/projects/" + projectId + "/merge_requests/" + mergeRequestIid + "/notes";
+        addCommnet(projectId, mergeRequestIid, token, summary, url);
+        addCommnet(projectId, mergeRequestIid, token, review, url);
 
+    }
+
+    private void addCommnet(Long projectId, Long mergeRequestIid, String token, String review, String url) {
         // 리뷰 내용 설정
         CommentRequest commentRequest = new CommentRequest(review);
 
