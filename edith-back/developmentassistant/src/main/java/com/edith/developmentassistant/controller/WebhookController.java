@@ -25,6 +25,4 @@ public class WebhookController {
         log.info("Received webhookEvent: {}", webhookEvent);
         webhookService.commentCodeReview(webhookEvent);
     }
-
-
 }
