@@ -150,14 +150,15 @@ const App: React.FC = () => {
     };
 
     ws.onmessage = (message) => {
-      const data = JSON.parse(message.data.respo);
+      const data = JSON.parse(message.data);
+
       console.log("서버로부터 받은 데이터:", data);
       
       if (data.success) {
         setStatus(`로그인 성공! 사용자 ID: ${data.userId}, 유사도 점수: ${data.similarity_score}`);
         stopCamera();
         console.log(data.response);
-        sessionStorage.setItem("userInfo", data.response ? JSON.stringify(data.response.response) : "");
+        sessionStorage.setItem("userInfo", data.response.response ? JSON.stringify(data.response.response) : "");
         ws.close();
         navigate("/project");
       } else {
