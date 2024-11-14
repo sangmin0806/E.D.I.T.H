@@ -1,4 +1,3 @@
-// Registration.tsx
 import React, { useEffect, useRef, useState } from "react";
 import * as faceapi from "@vladmandic/face-api";
 import { faceRegisterRequest } from "../../api/userApi";
@@ -8,8 +7,9 @@ const Registration: React.FC = () => {
   const [status, setStatus] = useState("아래의 버튼을 눌러 사진 촬영을 시작합니다...");
   const [isRegistering, setIsRegistering] = useState(false);
   const [imageCount, setImageCount] = useState(0);
-  const [embeddings, setEmbeddings] = useState<number[]>([]);
+  const [embeddings, setEmbeddings] = useState<number[][]>([]);
   const captureInterval = useRef<NodeJS.Timeout | null>(null);
+  const [isTakingPhoto, setIsTakingPhoto] = useState(false);
 
   // 카메라 설정
   const setupCamera = async () => {
@@ -53,9 +53,13 @@ const Registration: React.FC = () => {
               const newCount = prevCount + 1;
               setStatus(`사진 ${newCount}장 찍음`);
 
-              if (newCount >= 10) {
+              // 페이드 인/아웃 효과 설정
+              setIsTakingPhoto(true);
+              setTimeout(() => setIsTakingPhoto(false), 500);
+
+              if (newCount >= 5) { // 5장 촬영 후 중지
                 stopCapture();
-                setStatus("회원가입 완료! 10장의 사진을 저장했습니다.");
+                setStatus("회원가입 완료! 5장의 사진을 저장했습니다.");
                 sendEmbeddingsToServer(collectedEmbeddings); // 모든 사진 촬영 후 서버로 전송
               }
               return newCount;
@@ -81,7 +85,6 @@ const Registration: React.FC = () => {
   const sendEmbeddingsToServer = async (embeddings: number[][]) => {
     setStatus("임베딩 데이터를 서버에 전송 중...");
     try {
-        console.log(embeddings)
       const response = await faceRegisterRequest({
         embeddingVectors: embeddings,
       });
@@ -108,11 +111,38 @@ const Registration: React.FC = () => {
   return (
     <div>
       <h1>회원가입: 얼굴 등록</h1>
-      <video ref={videoRef} autoPlay muted style={{ width: "100%" }}></video>
-      <p>{status}</p>
-      <button onClick={() => !isRegistering && startRegistration()} disabled={isRegistering}>
-        {isRegistering ? "얼굴등록 진행 중..." : "얼굴등록 시작"}
-      </button>
+      <div style={{ position: "relative", width: "100%", maxWidth: "600px" }}>
+        <video ref={videoRef} autoPlay muted style={{ width: "100%" }}></video>
+
+        {/* 촬영 시 페이드 인/아웃 효과 */}
+        {isTakingPhoto && (
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            zIndex: 10,
+            animation: 'fadeEffect 0.5s ease-in-out'
+          }} />
+        )}
+
+        <p>{status}</p>
+        <button onClick={() => !isRegistering && startRegistration()} disabled={isRegistering}>
+          {isRegistering ? "얼굴등록 진행 중..." : "얼굴등록 시작"}
+        </button>
+      </div>
+
+      <style>
+        {`
+          @keyframes fadeEffect {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+          }
+        `}
+      </style>
     </div>
   );
 };
