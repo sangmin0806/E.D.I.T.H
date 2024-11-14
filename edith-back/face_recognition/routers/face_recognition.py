@@ -17,7 +17,7 @@ qdrant_port = os.getenv("QDRANT_PORT", "6333")
 qdrant_client = QdrantClient(host=qdrant_host, port=int(qdrant_port))
 
 # 유사도 임계값 설정
-SIMILARITY_THRESHOLD = 0.7
+SIMILARITY_THRESHOLD = 0.3
 
 @match_router.websocket("/face-login")
 async def websocket_face_recognition(websocket: WebSocket):
@@ -36,11 +36,11 @@ async def websocket_face_recognition(websocket: WebSocket):
             user_id, similarity_score = find_most_similar_face(image_vector)
 
             # 유사도 점수가 임계값 이상인 경우에만 성공으로 처리
-            if user_id and similarity_score >= SIMILARITY_THRESHOLD:
+            if user_id and similarity_score <= SIMILARITY_THRESHOLD:
                 await websocket.send_json({
                     "userId": user_id,
                     "similarity_score": similarity_score,
-                    "message": "로그인 성공"
+                    "success": True
                 })
                 break  # 유사한 얼굴이 발견되었으므로 while 루프 종료
             else:
@@ -48,7 +48,7 @@ async def websocket_face_recognition(websocket: WebSocket):
                 await websocket.send_json({
                     "userId": user_id,
                     "similarity_score": similarity_score,
-                    "message": "유사한 얼굴을 찾을 수 없습니다."
+                    "success": False 
                 })
 
     except WebSocketDisconnect:
