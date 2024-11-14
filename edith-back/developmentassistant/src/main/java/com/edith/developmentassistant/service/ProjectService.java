@@ -220,7 +220,7 @@ public class ProjectService {
 
         Integer todayCommitsCount = getTodayCommitsCount(userProjects, userEmail);
 
-        Integer todayMergeRequestsCount = getTodayMergeRequestsCount(userProjects , userEmail);
+        Integer todayMergeRequestsCount = getTodayMergeRequestsCount(userProjects, userEmail);
 
         return new UsersProjectsStats(totalProjectsCount, todayCommitsCount, todayMergeRequestsCount);
     }
@@ -240,19 +240,19 @@ public class ProjectService {
                 .reduce(0, Integer::sum);
     }
 
-    public ProjectStats getProjectStats(String token) {
-        
+    public ProjectStats getProjectStats(String token, Long projectId) {
+
         Long userId = getUserIdByToken(token);
 
-        List<UserProject> userProjects = getUserProjectsBy(userId);
+        Integer todayCommitsCount = gitLabServiceClient.fetchTodayCommitsCount(projectId, token,
+                getUserEmailByToken(token));
 
-        Integer totalProjectsCount = userProjects.size();
+        Integer totalMergeRequestsCount = getTotalMergeRequestsCount(getUserProjectsBy(userId));
 
-        Integer totalCommitsCount = getTotalCommitsCount(userProjects);
+        Integer todayMergeRequestsCount = gitLabServiceClient.fetchTodayMergeRequestsCount(projectId, token,
+                getUserEmailByToken(token));
 
-        Integer totalMergeRequestsCount = getTotalMergeRequestsCount(userProjects);
-
-        return new ProjectStats(totalProjectsCount, totalCommitsCount, totalMergeRequestsCount);
+        return new ProjectStats(todayCommitsCount, totalMergeRequestsCount, todayMergeRequestsCount);
     }
 
     private Integer getTotalMergeRequestsCount(List<UserProject> userProjects) {
@@ -262,10 +262,4 @@ public class ProjectService {
                 .reduce(0, Integer::sum);
     }
 
-    private Integer getTotalCommitsCount(List<UserProject> userProjects) {
-        return userProjects.stream()
-                .map(userProject -> gitLabServiceClient.fetchCommitsCount(userProject.getProject().getId(),
-                        userProject.getProject().getToken()))
-                .reduce(0, Integer::sum);
-    }
 }
