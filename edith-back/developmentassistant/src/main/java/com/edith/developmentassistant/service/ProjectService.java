@@ -45,6 +45,8 @@ public class ProjectService {
 
         updateBranchesIfNeeded(project, request);
 
+        log.info("request.name: {}", request.name());
+
         userProjectRepository.save(createUserProject(request, project, userId));
     }
 
