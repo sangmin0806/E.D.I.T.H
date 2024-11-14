@@ -187,18 +187,18 @@ const App: React.FC = () => {
     initialize();
   }, []);
 
-  useEffect(() => {
-    if (webSocket) {
-      startFaceDetection();
+useEffect(() => {
+  if (webSocket) {
+    startFaceDetection();
+  }
+
+  return () => {
+    if (faceDetectionInterval) {
+      clearInterval(faceDetectionInterval);
+      setFaceDetectionInterval(null);
     }
-  
-    return () => {
-      if (faceDetectionInterval) {
-        clearInterval(faceDetectionInterval);
-        setFaceDetectionInterval(null);
-      }
-    };
-  }, [webSocket]);
+  };
+}, [webSocket]);
 
   useEffect(() => {
     if (retryLogin) {
