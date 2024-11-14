@@ -10,6 +10,7 @@ import com.edith.developmentassistant.controller.ApiUtils.ApiResult;
 import com.edith.developmentassistant.controller.dto.request.RegisterProjectRequest;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectDto;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectResponse;
+import com.edith.developmentassistant.controller.dto.response.project.ProjectStats;
 import com.edith.developmentassistant.controller.dto.response.project.RegisterProjectResponse;
 import com.edith.developmentassistant.controller.dto.response.project.UsersProjectsStats;
 import com.edith.developmentassistant.service.ProjectService;
@@ -96,5 +97,12 @@ public class ProjectController {
             @CookieValue(value = "accessToken", required = false) String token
     ) {
         return success(projectService.getUsersProjectsStats(token));
+    }
+
+    @GetMapping("/{projectId}/stats")
+    public ApiResult<ProjectStats> getProjectStats(
+            @CookieValue(value = "accessToken", required = false) String token
+    ) {
+        return success(null);
     }
 }

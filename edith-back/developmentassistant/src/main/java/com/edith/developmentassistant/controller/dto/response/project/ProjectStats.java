@@ -1,8 +1,8 @@
 package com.edith.developmentassistant.controller.dto.response.project;
 
-public record Stats(
+public record ProjectStats(
         Integer totalCommitsCount,
         Integer todayTotalCommitsCount,
-        Integer totalMergeRequestsCount
+        Integer totalCodeReviewCount
 ) {
 }
