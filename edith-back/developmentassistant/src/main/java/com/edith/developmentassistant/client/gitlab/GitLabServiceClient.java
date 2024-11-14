@@ -349,7 +349,6 @@ public class GitLabServiceClient {
         }
     }
 
-
     public Integer fetchTodayMergeRequestsCount(Long projectId, String projectAccessToken, String userEmail) {
         // 오늘 날짜 구하기
         String todayStart = LocalDate.now() + "T00:00:00Z";
@@ -371,7 +370,13 @@ public class GitLabServiceClient {
 
             List<GitMerge> todayMerges = response.getBody();
             assert todayMerges != null;
+
+            // todayMerges 리스트를 로깅
+            log.info("Today's merge requests for project {}: {}", projectId,
+                    objectMapper.writeValueAsString(todayMerges));
+
             int todayMergeRequestsCount = (int) todayMerges.stream()
+                    .filter(mr -> mr.getAuthor() != null && mr.getAuthor().getEmail() != null) // Null 체크 추가
                     .filter(mr -> mr.getAuthor().getEmail().equalsIgnoreCase(userEmail))
                     .count();
 
@@ -383,7 +388,9 @@ public class GitLabServiceClient {
             log.error("Error fetching today's merge requests for user {} in project {}: {}", userEmail, projectId,
                     e.getMessage());
             throw e;
+        } catch (Exception e) {
+            log.error("Error serializing today's merge requests: {}", e.getMessage(), e);
+            throw new RuntimeException("Error serializing merge requests for logging", e);
         }
     }
-
 }
