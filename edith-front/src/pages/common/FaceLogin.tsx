@@ -124,7 +124,6 @@ const App: React.FC = () => {
           if (!blinkStart) blinkStart = Date.now();
         } else if (blinkStart && Date.now() - blinkStart >= MIN_DURATION) {
           const embedding = detections[0].descriptor;
-          console.log("임베딩 데이터:", embedding);
           setStatus("서버로 전송 중...");
           sendEmbeddingToServer(embedding); // 서버로 임베딩 데이터 전송
           blinkStart = null;
@@ -139,7 +138,7 @@ const App: React.FC = () => {
 
   // 웹소켓 연결 설정
   const connectWebSocket = () => {
-    const ws = new WebSocket("ws://edith-ai.xyz:30443/ws/v1/face-recognition/face-login");
+    const ws = new WebSocket("wss://edith-ai.xyz:30443/ws/v1/face-recognition/face-login");
 
     ws.onopen = () => {
       console.log("웹소켓 연결 성공");

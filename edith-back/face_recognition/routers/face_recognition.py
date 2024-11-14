@@ -40,7 +40,12 @@ async def websocket_face_recognition(websocket: WebSocket):
                 await websocket.close()  # WebSocket 연결 종료
                 break  # 유사한 얼굴이 발견되었으므로 while 루프 종료
             else:
-                await websocket.send_text("유사한 얼굴을 찾을 수 없습니다.")
+                # 실패 시에도 가장 유사한 userId와 similarity_score 반환
+                await websocket.send_json({
+                    "userId": user_id,
+                    "similarity_score": similarity_score,
+                    "message": "유사한 얼굴을 찾을 수 없습니다."
+                })
 
     except WebSocketDisconnect:
         print("클라이언트 WebSocket 연결이 끊어졌습니다.")
