@@ -15,7 +15,7 @@ qdrant_client = QdrantClient(host=qdrant_host, port=int(qdrant_port))
 # 컬렉션 이름 및 설정
 collection_name = "user_embeddings"
 vector_size = 128  # 클라이언트에서 보낸 벡터 크기
-distance = "Euclidean"  # 유사도 계산 방식
+distance = "Euclid"  # 유사도 계산 방식
 
 # 컬렉션 생성 (존재하지 않는 경우)
 try:
