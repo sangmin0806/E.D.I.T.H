@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class WebhookController {
 
     private final WebhookService webhookService;
-    private final GitLabServiceClient gitLabServiceClient;
 
 
     @PostMapping
