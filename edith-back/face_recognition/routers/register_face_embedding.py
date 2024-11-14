@@ -3,6 +3,11 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from qdrant_client import QdrantClient
 from qdrant_client.models import PointStruct, VectorParams
+from qdrant_client.http import exceptions
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 register_router = APIRouter()
 # Qdrant 서버 정보 가져오기
@@ -20,11 +25,18 @@ distance = "Cosine"  # 유사도 계산 방식
 # 컬렉션 생성 (존재하지 않는 경우)
 try:
     qdrant_client.get_collection(collection_name)
-except Exception:
+    logger.info(f"컬렉션 '{collection_name}'이 이미 존재합니다.")
+except exceptions.UuidNotFoundException:
+    # 컬렉션이 존재하지 않으면 생성
+    logger.info(f"컬렉션 '{collection_name}'이 존재하지 않습니다. 새로 생성합니다.")
     qdrant_client.create_collection(
         collection_name=collection_name,
         vectors_config=VectorParams(size=vector_size, distance=distance)
     )
+    logger.info(f"컬렉션 '{collection_name}'이 성공적으로 생성되었습니다.")
+except Exception as e:
+    logger.error(f"컬렉션 생성 중 오류 발생: {e}", exc_info=True)
+    raise
 
 
 class FaceEmbedding(BaseModel):

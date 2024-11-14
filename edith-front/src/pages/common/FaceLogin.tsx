@@ -74,9 +74,13 @@ const App: React.FC = () => {
   // 서버에 임베딩 데이터 전송
   const sendEmbeddingToServer = (embedding: Float32Array) => {
     if (webSocket && webSocket.readyState === WebSocket.OPEN) {
+      console.log("전송로직 websocket 열림");
       webSocket.send(JSON.stringify({ vector: Array.from(embedding) }));
+    } else {
+      console.log("웹소켓이 열리지 않았습니다. 재시도...");
     }
   };
+  
 
   // 얼굴 인식 및 눈 깜빡임 감지 시작
   const startFaceDetection = () => {
@@ -167,15 +171,23 @@ const App: React.FC = () => {
     };
   };
 
+
   useEffect(() => {
     const initialize = async () => {
       await loadModels();
       await setupCamera();
       connectWebSocket(); // 웹소켓 연결 시작
-      startFaceDetection();
     };
     initialize();
   }, []);
+  
+  useEffect(() => {
+    // 웹소켓이 열리면 얼굴 인식을 시작
+    if (webSocket) {
+      startFaceDetection();
+    }
+  }, [webSocket]);
+  
 
   return (
     <div>
