@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -89,13 +90,20 @@ public class ProjectController {
         return success(projectService.getUsersProjectsStats(token));
     }
 
-    @GetMapping("/stats/{projectId}")
+    @GetMapping("/stats")
     public ApiResult<ProjectStats> getProjectStats(
             @CookieValue(value = "accessToken", required = false) String token,
-            @PathVariable Long projectId
+            @RequestParam Long id
     ) {
-        return success(projectService.getProjectStats(token, projectId));
+        return success(projectService.getProjectStats(token, id));
     }
 
+    @GetMapping("/commits/recent")
+    public ApiResult<String> getRecentCommitMessage(
+            @CookieValue(value = "accessToken", required = false) String token,
+            @RequestParam Long projectId
+    ) {
+        return success(projectService.getRecentCommitMessage(token, projectId));
+    }
 
 }

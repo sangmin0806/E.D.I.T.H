@@ -427,7 +427,7 @@ public class GitLabServiceClient {
     }
 
     public Integer fetchCommitsCount(Long id, String token) {
-        String url = GITLAB_API_URL + "/projects/" + id + "/repository/commits";
+        String url = GITLAB_API_URL + "/projects/" + id + "/repository/commits?all=true";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("PRIVATE-TOKEN", token);
@@ -444,4 +444,32 @@ public class GitLabServiceClient {
             throw e;
         }
     }
+
+    public String fetchRecentCommitMessage(Long projectId, String token) {
+        String url = GITLAB_API_URL + "/projects/" + projectId + "/repository/commits";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("PRIVATE-TOKEN", token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<List<GitCommit>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<GitCommit>>() {
+                    });
+
+            List<GitCommit> commits = response.getBody();
+            assert commits != null;
+
+            if (commits.isEmpty()) {
+                return null;
+            }
+
+            return commits.get(0).getMessage();
+        } catch (RestClientException e) {
+            log.error("Error fetching recent commit message for project {}: {}", projectId, e.getMessage());
+            throw e;
+        }
+    }
+
+
 }

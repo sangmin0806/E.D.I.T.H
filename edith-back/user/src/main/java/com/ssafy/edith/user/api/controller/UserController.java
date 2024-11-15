@@ -38,6 +38,13 @@ public class UserController {
         userService.signUp(signUpRequest);
         return success(null);
     }
+    @PostMapping("/logout")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResult<Void> logout(HttpServletResponse response) {
+        cookieUtil.removeAccessToken(response);
+        cookieUtil.removeRefreshToken(response);
+        return success(null);
+    }
 
     @PostMapping("/sign-in")
     @ResponseStatus(HttpStatus.OK)

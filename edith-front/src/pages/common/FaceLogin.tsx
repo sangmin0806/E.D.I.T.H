@@ -197,10 +197,7 @@ const App: React.FC = () => {
         );
         stopCamera();
         console.log(data.response);
-        sessionStorage.setItem(
-          "userInfo",
-          data.response.response ? JSON.stringify(data.response.response) : ""
-        );
+        sessionStorage.setItem("userInfo", data.response ? JSON.stringify(data.response.response) : "");
         ws.close();
         setRetryLogin(false);
         navigate("/project");

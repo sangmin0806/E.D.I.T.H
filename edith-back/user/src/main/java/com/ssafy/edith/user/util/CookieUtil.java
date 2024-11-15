@@ -15,7 +15,21 @@ public class CookieUtil {
     public CookieUtil(@Value("${app.cookie.expiration}") int cookieExpiration) {
         this.cookieExpiration = cookieExpiration;
     }
+    public void removeAccessToken(HttpServletResponse response) {
+        Cookie accessTokenCookie = new Cookie("accessToken", null);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setMaxAge(0);
+        response.addCookie(accessTokenCookie);
+    }
 
+    public void removeRefreshToken(HttpServletResponse response) {
+        Cookie refreshTokenCookie = new Cookie("refreshToken", null);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setMaxAge(0);
+        response.addCookie(refreshTokenCookie);
+    }
     public String getJwtFromCookies(HttpServletRequest request) {
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {

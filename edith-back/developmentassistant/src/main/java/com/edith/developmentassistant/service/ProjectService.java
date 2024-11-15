@@ -244,7 +244,11 @@ public class ProjectService {
 
         Long userId = getUserIdByToken(token);
 
-        Integer todayCommitsCount = gitLabServiceClient.fetchTodayCommitsCount(projectId, token,
+        String projectAccessToken = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found"))
+                .getToken();
+
+        Integer todayCommitsCount = gitLabServiceClient.fetchTodayCommitsCount(projectId, projectAccessToken,
                 getUserEmailByToken(token));
 
         Integer totalMergeRequestsCount = getTotalMergeRequestsCount(getUserProjectsBy(userId));
@@ -262,4 +266,7 @@ public class ProjectService {
                 .reduce(0, Integer::sum);
     }
 
+    public String getRecentCommitMessage(String token, Long projectId) {
+        return gitLabServiceClient.fetchRecentCommitMessage(projectId, token);
+    }
 }
