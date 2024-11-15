@@ -4,7 +4,7 @@ import PlusSquareImg from "../../assets/plus_sqare.png";
 import { useComponentStore } from "../../store/repoPageStore";
 import { useEffect, useState } from "react";
 import LoadingSpinner from "../common/LoadingSpinner";
-import { getMyCommits } from "../../api/projectApi";
+import { getMyCommitsStats } from "../../api/projectApi";
 import { myCommitStat } from "../../types/projectType";
 
 function RepoListContainer() {
@@ -22,10 +22,11 @@ function RepoListContainer() {
   }, []);
   const getCommitStats = async () => {
     try {
-      const result = await getMyCommits();
+      const result = await getMyCommitsStats();
       if (!result.success) {
         throw new Error(result.error);
       }
+      console.log("stat : " + result.response);
       setStat(result.response);
     } catch (error) {
       alert(error);

@@ -5,10 +5,16 @@ import blueLogo from "../../assets/edithBlueLogo.png";
 import pinkLogo from "../../assets/edithPinkLogo.png";
 import { techIcons } from "../../types/gitLogo";
 import { Icon } from "@iconify/react";
+import { getCommitStats } from "../../api/projectApi";
+import { useParams } from "react-router-dom";
+import { commitStat } from "../../types/projectType";
 
 function RepoDashboard() {
-  const data = { projcetCnt: 24, totalCommits: 1923, codeReviewCnt: 3 };
+  const [stat, setStat] = useState<commitStat>();
+  const { projectID } = useParams();
+  const numericProjectID = Number(projectID);
   const [loading, setLoading] = useState(true);
+
   const text = `
   - 파일: 파일명.java (라인 25-40)
   - 리뷰 유형: 필수 수정
@@ -25,6 +31,11 @@ function RepoDashboard() {
     "fix: Update date format in user profile to match locale settings",
   ];
 
+  useEffect(() => {
+    getProjectStats();
+    setLoading(false);
+  }, []);
+
   const paragraphs = text
     .trim()
     .split("\n")
@@ -34,26 +45,29 @@ function RepoDashboard() {
       </p>
     ));
 
-  useEffect(() => {
-    // 이건 나중에 지우기 !!
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 3000);
+  const getProjectStats = async () => {
+    try {
+      const result = await getCommitStats(numericProjectID);
+      if (!result.success) {
+        throw new Error(result.error);
+      }
+      setStat(result.response);
+    } catch (error) {
+      alert(error);
+    }
+  };
 
-    // 컴포넌트가 언마운트될 때 타이머를 정리합니다.
-    return () => clearTimeout(timer);
-  }, []);
   return (
     <>
       <div>
         <div className="flex flex-col gap-[2.5rem]">
           <ProjectCurrentState
             blueStateSubject={"총 커밋 수"}
-            blueStateNum={data.projcetCnt}
+            blueStateNum={stat?.totalCommitsCount || 0}
             pinkStateSubject={"완료한 코드 리뷰"}
-            pinkStateNum={data.totalCommits}
+            pinkStateNum={stat?.totalCodeReviewCount || 0}
             yellowStateSubject={"오늘의 커밋 수"}
-            yellowStateNum={data.codeReviewCnt}
+            yellowStateNum={stat?.todayTotalCommitsCount || 0}
           />
           {/* 대시보드 첫번째 줄 */}
           <div className="py-8 pl-4 pr-4 bg-white/30 rounded-3xl flex-col justify-center items-center gap-6 inline-flex">
