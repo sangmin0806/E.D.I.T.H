@@ -1,40 +1,31 @@
 import { useNavigate } from "react-router-dom";
-import { validAccessTokenRequest } from "../api/userApi";
-import { useEffect } from "react";
+import { logoutRequest, validAccessTokenRequest } from "../api/userApi";
 
 export const useRedirectIfLoggedIn = async () => {
-  // const navigate = useNavigate();
-  // try {
-  //   const result = await validAccessTokenRequest();
-  //   useEffect(() => {
-  //     const checkLogin = async () => {
-  //       if (result) {
-  //         alert("잘못된 접근입니다.");
-  //         navigate(redirectTo);
-  //       }
-  //     };
-  //     checkLogin();
-  //   }, []);
-  // } catch {
-  //   alert("서버 에러가 발생하였습니다.");
-  //   navigate("/");
-  // }
+  const navigate = useNavigate();
+  const userInfo = sessionStorage.getItem("userInfo");
+  if (!userInfo) return;
+  logout();
+  navigate("/");
 };
 export const useRedirectIfNotLoggedIn = async (redirectTo: string = "/") => {
-  //   const navigate = useNavigate();
-  //   try {
-  //     const result = await validAccessTokenRequest();
-  //     useEffect(() => {
-  //       const checkLogin = async () => {
-  //         if (result) {
-  //           alert("잘못된 접근입니다.");
-  //           navigate(redirectTo);
-  //         }
-  //       };
-  //       checkLogin();
-  //     }, [navigate, redirectTo]);
-  //   } catch {
-  //     alert("서버 에러가 발생하였습니다.");
-  //     navigate("/");
-  //   }
+  const navigate = useNavigate();
+  const userInfo = sessionStorage.getItem("userInfo");
+  if (userInfo) {
+    return;
+  }
+  alert("잘못된 접근입니다.");
+  navigate(redirectTo);
+};
+
+export const logout = async () => {
+  try {
+    const result = await logoutRequest();
+    if (!result.success) {
+      throw new Error();
+    }
+    sessionStorage.removeItem("userInfo");
+  } catch (error) {
+    alert(error);
+  }
 };

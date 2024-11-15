@@ -3,9 +3,7 @@ package com.edith.developmentassistant.controller;
 import static com.edith.developmentassistant.controller.ApiUtils.success;
 
 import com.edith.developmentassistant.client.dto.gitlab.GitGraph;
-import com.edith.developmentassistant.client.gitlab.GitLabServiceClient;
 import com.edith.developmentassistant.client.rag.RagServiceClient;
-import com.edith.developmentassistant.client.user.UserServiceClient;
 import com.edith.developmentassistant.controller.ApiUtils.ApiResult;
 import com.edith.developmentassistant.controller.dto.request.RegisterProjectRequest;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectDto;
@@ -23,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -31,9 +30,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProjectController {
 
     private final ProjectService projectService;
-    private final GitLabServiceClient gitlabServiceClient;
     private final RagServiceClient ragServiceClient;
-    private final UserServiceClient userServiceClient;
+
 
     @PostMapping
     public ApiResult<RegisterProjectResponse> registerProjects(
@@ -64,6 +62,7 @@ public class ProjectController {
         return success(projectService.updateProject(projectDto, token));
     }
 
+
     @GetMapping("/gitgraph/{projectId}")
     public ApiResult<List<GitGraph>> getGitGraphData(
             @PathVariable Long projectId,
@@ -76,14 +75,6 @@ public class ProjectController {
     @GetMapping("/health-check")
     public String healthCheck() {
         return "health check";
-    }
-
-    @PostMapping("/test")
-    public void test() {
-        String review = """
-                리뷰입니다.
-                """;
-        gitlabServiceClient.addMergeRequestComment(824085L, 64L, "TWD9FX7P7Qc1bYqyo_cC", review);
     }
 
     @GetMapping("/embedded")
@@ -99,10 +90,20 @@ public class ProjectController {
         return success(projectService.getUsersProjectsStats(token));
     }
 
-    @GetMapping("/{projectId}/stats")
+    @GetMapping("/stats")
     public ApiResult<ProjectStats> getProjectStats(
-            @CookieValue(value = "accessToken", required = false) String token
+            @CookieValue(value = "accessToken", required = false) String token,
+            @RequestParam Long id
     ) {
-        return success(null);
+        return success(projectService.getProjectStats(token, id));
     }
+
+    @GetMapping("/commits/recent")
+    public ApiResult<String> getRecentCommitMessage(
+            @CookieValue(value = "accessToken", required = false) String token,
+            @RequestParam Long projectId
+    ) {
+        return success(projectService.getRecentCommitMessage(token, projectId));
+    }
+
 }

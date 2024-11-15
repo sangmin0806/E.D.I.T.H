@@ -1,6 +1,11 @@
 import { BranchData } from "../types/gitGraphType";
 import { PortfolioListItem } from "../types/portfolioType";
-import { FormValues, ProjectListItem } from "../types/projectType";
+import {
+  FormValues,
+  ProjectListItem,
+  commitStat,
+  myCommitStat,
+} from "../types/projectType";
 import { apiRequest, axiosInstance } from "./axios";
 
 export const projectEnrollRequest = async (
@@ -49,4 +54,24 @@ export const getGitGraphRequest = async (
   return apiRequest(() =>
     axiosInstance.get(`/api/v1/projects/gitgraph/${projectId}`)
   );
+};
+
+export const getCommitStats = async (
+  projectId: number
+): Promise<{
+  success: boolean;
+  response?: commitStat;
+  error?: string;
+}> => {
+  return apiRequest(() =>
+    axiosInstance.get(`/api/v1/projects/stats?id=${projectId}`)
+  );
+};
+
+export const getMyCommitsStats = async (): Promise<{
+  success: boolean;
+  response?: myCommitStat;
+  error?: string;
+}> => {
+  return apiRequest(() => axiosInstance.get(`/api/v1/projects/users/stats`));
 };

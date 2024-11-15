@@ -29,7 +29,7 @@ const RepoHeader = React.memo(
               </p>
               {showDashboard ? (
                 <div
-                  className="h-7 px-3 py-1 bg-black rounded-2xl justify-center items-center inline-flex"
+                  className="h-7 px-3 py-1 bg-black rounded-2xl justify-center items-center inline-flex cursor-pointer"
                   onClick={handleMoveToPortfolio}
                 >
                   <div className="text-white text-base font-medium">
@@ -38,7 +38,7 @@ const RepoHeader = React.memo(
                 </div>
               ) : (
                 <div
-                  className="h-7 px-3 py-1 bg-white border border-black rounded-2xl justify-center items-center inline-flex"
+                  className="h-7 px-3 py-1 bg-white border border-black rounded-2xl justify-center items-center inline-flex cursor-pointer"
                   onClick={handleMoveToDashboard}
                 >
                   <div className="text-black text-base font-medium">

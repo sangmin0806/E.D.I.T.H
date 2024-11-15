@@ -9,6 +9,7 @@ import com.edith.developmentassistant.client.gitlab.GitLabServiceClient;
 import com.edith.developmentassistant.client.user.UserServiceClient;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectDto;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectResponse;
+import com.edith.developmentassistant.controller.dto.response.project.ProjectStats;
 import com.edith.developmentassistant.controller.dto.response.project.UsersProjectsStats;
 import com.edith.developmentassistant.domain.Project;
 import com.edith.developmentassistant.domain.UserProject;
@@ -175,17 +176,17 @@ public class ProjectService {
         return userByToken.getEmail();
     }
 
-//    private List<ProjectResponse> getProjectsResponses(List<UserProject> userProjects) {
-//        return userProjects.stream()
-//                .map(userProject -> {
-//                    Project project = userProject.getProject();
-//                    List<ContributorDto> contributors = gitLabServiceClient.fetchContributors(project.getId(),
-//                            project.getToken());
-//                    return ProjectResponse.from(project, userProject.getTitle(), contributors,
-//                            userProject.getDescription());
-//                })
-//                .toList();
-//    }
+    private List<ProjectResponse> getProjectsResponses(List<UserProject> userProjects) {
+        return userProjects.stream()
+                .map(userProject -> {
+                    Project project = userProject.getProject();
+                    List<ContributorDto> contributors = gitLabServiceClient.fetchContributors(project.getId(),
+                            project.getToken());
+                    return ProjectResponse.from(project, userProject.getTitle(), contributors,
+                            userProject.getDescription());
+                })
+                .toList();
+    }
 
     private List<ProjectResponse> getProjectsResponsesV2(String token, List<Long> projectIds) {
         return projectIds.stream()
@@ -199,7 +200,7 @@ public class ProjectService {
     }
 
     private UserProject createUserProject(RegisterProjectServiceRequest request, Project project, Long userId) {
-        log.info("Creating UserProject for userId: {}, projectId: {}, project-name: {}", userId, project.getId(),
+        log.info("Creating UserProject for userId: {}, id: {}, project-name: {}", userId, project.getId(),
                 request.name());
         return UserProject.builder()
                 .userId(userId)
@@ -219,7 +220,7 @@ public class ProjectService {
 
         Integer todayCommitsCount = getTodayCommitsCount(userProjects, userEmail);
 
-        Integer todayMergeRequestsCount = getTodayMergeRequestsCount(userProjects , userEmail);
+        Integer todayMergeRequestsCount = getTodayMergeRequestsCount(userProjects, userEmail);
 
         return new UsersProjectsStats(totalProjectsCount, todayCommitsCount, todayMergeRequestsCount);
     }
@@ -237,5 +238,36 @@ public class ProjectService {
                 .map(userProject -> gitLabServiceClient.fetchTodayMergeRequestsCount(userProject.getProject().getId(),
                         userProject.getProject().getToken(), userEmail))
                 .reduce(0, Integer::sum);
+    }
+
+    public ProjectStats getProjectStats(String token, Long projectId) {
+
+        Long userId = getUserIdByToken(token);
+
+        String projectAccessToken = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found"))
+                .getToken();
+
+        Integer todayCommitsCount = gitLabServiceClient.fetchTodayCommitsCount(projectId, projectAccessToken,
+                getUserEmailByToken(token));
+
+        Integer totalMergeRequestsCount = getTotalMergeRequestsCount(getUserProjectsBy(userId));
+
+        Integer todayMergeRequestsCount = gitLabServiceClient.fetchTodayMergeRequestsCount(projectId,
+                projectAccessToken,
+                getUserEmailByToken(token));
+
+        return new ProjectStats(todayCommitsCount, totalMergeRequestsCount, todayMergeRequestsCount);
+    }
+
+    private Integer getTotalMergeRequestsCount(List<UserProject> userProjects) {
+        return userProjects.stream()
+                .map(userProject -> gitLabServiceClient.fetchMergeRequestsCount(userProject.getProject().getId(),
+                        userProject.getProject().getToken()))
+                .reduce(0, Integer::sum);
+    }
+
+    public String getRecentCommitMessage(String token, Long projectId) {
+        return gitLabServiceClient.fetchRecentCommitMessage(projectId, token);
     }
 }

@@ -24,7 +24,7 @@ public class RagServiceClient {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-    @Value("${api.flask.code-review}")
+    @Value("${api.flask.rag}")
     private String URL;
 
     public RagServiceClient(@Qualifier("ragRestTemplate")
@@ -36,7 +36,7 @@ public class RagServiceClient {
     }
 
     public CodeReviewResponse commentCodeReview(CodeReviewRequest request) {
-
+        String url = URL + "/code-review";
         log.info("Request to RAG: {}", request);
 
         try {
@@ -52,11 +52,11 @@ public class RagServiceClient {
         HttpEntity<CodeReviewRequest> requestEntity = new HttpEntity<>(request, headers);
 
         try {
-            log.info("Sending POST request to URL: {}", URL);
+            log.info("Sending POST request to URL: {}", url);
             log.info("Request Headers: {}", headers);
             log.info("Request Body: {}", requestEntity.getBody());
 
-            return restTemplate.postForObject(URL, requestEntity, CodeReviewResponse.class);
+            return restTemplate.postForObject(url, requestEntity, CodeReviewResponse.class);
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             log.error("HTTP Error: Status code {}, Response body {}", e.getStatusCode(), e.getResponseBodyAsString());
             throw e;
@@ -68,6 +68,7 @@ public class RagServiceClient {
 
     public String getHealthCheck() {
         String url = URL + "/health-check";
+        log.info("Sending GET request to URL: {}", url);
         return restTemplate.getForObject(url, String.class);
     }
 }
