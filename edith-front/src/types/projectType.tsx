@@ -50,3 +50,11 @@ export type myCommitStat = {
   todayCommitsCount: number;
   todayMergeRequestsCount: number;
 };
+
+export type projectDashboard = {
+  recentCommitMessage: string;
+  recentCodeReview: string;
+  advice: string;
+  fixLogs: string[];
+  techStack: string[];
+};
