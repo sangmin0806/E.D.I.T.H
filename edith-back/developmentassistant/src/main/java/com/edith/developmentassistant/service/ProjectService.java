@@ -7,6 +7,7 @@ import com.edith.developmentassistant.client.dto.gitlab.GitGraph;
 import com.edith.developmentassistant.client.dto.gitlab.GitMerge;
 import com.edith.developmentassistant.client.gitlab.GitLabServiceClient;
 import com.edith.developmentassistant.client.user.UserServiceClient;
+import com.edith.developmentassistant.controller.dto.response.project.ProjectDashboardDto;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectDto;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectResponse;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectStats;
@@ -270,5 +271,23 @@ public class ProjectService {
 
     public String getRecentCommitMessage(String token, Long projectId) {
         return gitLabServiceClient.fetchRecentCommitMessage(projectId, token);
+    }
+
+    public ProjectDashboardDto getProjectDashboard(String token, Long projectId) {
+
+        // TODO: Implement this business logic
+
+        return createProjectDashboardDto();
+    }
+
+    private ProjectDashboardDto createProjectDashboardDto() {
+
+        return ProjectDashboardDto.builder()
+                .recentCommitMessage("This is a recent commit message")
+                .recentCodeReview("This is a recent code review")
+                .advice("This is an advice")
+                .fixLogs(List.of("This is a fix log"))
+                .techStack(List.of("Java", "Spring Boot"))
+                .build();
     }
 }

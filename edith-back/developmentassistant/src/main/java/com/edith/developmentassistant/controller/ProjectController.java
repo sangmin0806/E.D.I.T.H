@@ -6,6 +6,7 @@ import com.edith.developmentassistant.client.dto.gitlab.GitGraph;
 import com.edith.developmentassistant.client.rag.RagServiceClient;
 import com.edith.developmentassistant.controller.ApiUtils.ApiResult;
 import com.edith.developmentassistant.controller.dto.request.RegisterProjectRequest;
+import com.edith.developmentassistant.controller.dto.response.project.ProjectDashboardDto;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectDto;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectResponse;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectStats;
@@ -98,12 +99,10 @@ public class ProjectController {
         return success(projectService.getProjectStats(token, id));
     }
 
-    @GetMapping("/commits/recent")
-    public ApiResult<String> getRecentCommitMessage(
-            @CookieValue(value = "accessToken", required = false) String token,
-            @RequestParam Long projectId
-    ) {
-        return success(projectService.getRecentCommitMessage(token, projectId));
+    @GetMapping("/dashboard")
+    public ApiResult<ProjectDashboardDto> getProjectDashboard(
+            @CookieValue(value = "accessToken") String token,
+            @RequestParam Long id) {
+        return success(projectService.getProjectDashboard(token, id));
     }
-
 }
