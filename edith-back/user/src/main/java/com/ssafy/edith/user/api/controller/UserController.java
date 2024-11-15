@@ -84,6 +84,7 @@ public class UserController {
 
     @GetMapping("/info")
     public ApiResult<UserInfoResponse> getUserInfo(@CookieValue("accessToken") String accessToken) {
+        log.info("User 서버에서 받은Received JWT Token: {}", accessToken);
         UserInfoResponse userInfoResponse = userService.getUserInfo(accessToken);
         return success(userInfoResponse);
     }
