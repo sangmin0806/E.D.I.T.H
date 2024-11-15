@@ -43,22 +43,16 @@ public class CookieUtil {
     public void addAccessToken(HttpServletResponse response, String value) {
         ResponseCookie cookie = ResponseCookie.from("accessToken",value)
                         .path("/")
-                        .sameSite("None")
-                        .httpOnly(true)
-                        .secure(true)
                         .maxAge(cookieExpiration)
                         .build();
-        response.addHeader("Set-Cookie", cookie.toString());
+        response.addHeader("Cookie", cookie.toString());
 
     }
     public void addRefreshToken(HttpServletResponse response, String value) {
         ResponseCookie cookie = ResponseCookie.from("refreshToken",value)
                 .path("/")
-                .sameSite("None")
-                .httpOnly(true)
-                .secure(true)
                 .maxAge(cookieExpiration)
                 .build();
-        response.addHeader("Set-Cookie", cookie.toString());
+        response.addHeader("Cookie", cookie.toString());
     }
 }
