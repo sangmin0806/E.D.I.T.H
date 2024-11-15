@@ -158,7 +158,7 @@ const App: React.FC = () => {
         setStatus(`로그인 성공! 사용자 ID: ${data.userId}, 유사도 점수: ${data.similarity_score}`);
         stopCamera();
         console.log(data.response);
-        sessionStorage.setItem("userInfo", data.response.response ? JSON.stringify(data.response.response) : "");
+        sessionStorage.setItem("userInfo", data.response ? JSON.stringify(data.response.response) : "");
         ws.close();
         setRetryLogin(false)
         navigate("/project");
