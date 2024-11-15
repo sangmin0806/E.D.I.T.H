@@ -59,8 +59,8 @@ public class WebhookService {
 
         log.info("MergeRequestDiffResponse: {}", MergeDiff.getChanges());
 
-//        CodeReviewResponse codeReviewResponse = ragServiceClient.commentCodeReview(request);
-        CodeReviewResponse codeReviewResponse = createCodeReviewResponse();
+        CodeReviewResponse codeReviewResponse = ragServiceClient.commentCodeReview(request);
+//        CodeReviewResponse codeReviewResponse = createCodeReviewResponse();
 
         mrSummaryRepository.save(MRSummary.builder()
                 .mrId(mergeRequestIid.toString())
