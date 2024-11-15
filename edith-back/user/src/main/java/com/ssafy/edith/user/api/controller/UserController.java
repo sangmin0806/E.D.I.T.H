@@ -43,11 +43,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> logout(HttpServletResponse response) {
         cookieUtil.removeAccessToken(response);
-        Cookie refreshTokenCookie = new Cookie("refreshToken", null);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setMaxAge(0);
-        response.addCookie(refreshTokenCookie);
+        cookieUtil.removeRefreshToken(response);
         return success(null);
     }
 
