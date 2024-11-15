@@ -38,3 +38,15 @@ export type ProjectListItem = {
   updatedAt: string;
   contributors: Contributor[];
 };
+
+export type commitStat = {
+  totalCommitsCount: number;
+  todayTotalCommitsCount: number;
+  totalCodeReviewCount: number;
+};
+
+export type myCommitStat = {
+  totalProjectsCount: number;
+  todayCommitsCount: number;
+  todayMergeRequestsCount: number;
+};
