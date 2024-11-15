@@ -366,7 +366,7 @@ public class GitLabServiceClient {
         HttpHeaders headers = new HttpHeaders();
         headers.set("PRIVATE-TOKEN", projectAccessToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
-
+        log.info("fetchTodayMergeRequestsCount entity : {}", entity);
         try {
             List<GitMerge> todayMerges = getGitMerges(url, entity);
 
