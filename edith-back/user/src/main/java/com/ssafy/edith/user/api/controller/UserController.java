@@ -43,21 +43,10 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> logout(HttpServletResponse response) {
         cookieUtil.removeAccessToken(response);
-        Cookie refreshTokenCookie = new Cookie("refreshToken", null);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setMaxAge(0);
-        response.addCookie(refreshTokenCookie);
-        return success(null);
-    }
-    @PostMapping("/snign-out")
-    @ResponseStatus(HttpStatus.OK)
-    public ApiResult<Void> signOUT(HttpServletResponse response) {
-        cookieUtil.removeAccessToken(response);
         cookieUtil.removeRefreshToken(response);
         return success(null);
     }
-    
+
     @PostMapping("/sign-in")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<SignInResponse> signIn(@RequestBody SignInRequest signInRequest, HttpServletResponse response) {
