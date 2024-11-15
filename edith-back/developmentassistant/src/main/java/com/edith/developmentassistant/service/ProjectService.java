@@ -276,10 +276,10 @@ public class ProjectService {
 
         // TODO: Implement this business logic
 
-        return createPrjectDashboardDto();
+        return createProjectDashboardDto();
     }
 
-    private ProjectDashboardDto createPrjectDashboardDto() {
+    private ProjectDashboardDto createProjectDashboardDto() {
 
         return ProjectDashboardDto.builder()
                 .recentCommitMessage("This is a recent commit message")
