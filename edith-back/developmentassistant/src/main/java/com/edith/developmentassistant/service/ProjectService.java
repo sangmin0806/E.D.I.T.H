@@ -56,13 +56,9 @@ public class ProjectService {
 
     public List<ProjectResponse> getProjects(String token) {
 
-        Long userid = getUserIdByToken(token);
-        
-        for (int i = 0; i < token.length()/10; i++) {
-            System.out.println("hi");
-        }
+        Long userId = getUserIdByToken(token);
 
-        List<UserProject> userProjects = getUserProjectsBy(userid);
+        List<UserProject> userProjects = getUserProjectsBy(userId);
 
         List<Long> projectIds = userProjects.stream()
                 .map(userProject -> userProject.getProject().getId())
