@@ -8,6 +8,7 @@ import com.ssafy.edith.user.api.response.SignInResponse;
 import com.ssafy.edith.user.api.response.UserInfoResponse;
 import com.ssafy.edith.user.api.service.UserService;
 import com.ssafy.edith.user.util.CookieUtil;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +43,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<Void> logout(HttpServletResponse response) {
         cookieUtil.removeAccessToken(response);
-        cookieUtil.removeRefreshToken(response);
+        
         return success(null);
     }
 
