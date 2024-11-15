@@ -213,6 +213,7 @@ public class ProjectService {
     }
 
     public UsersProjectsStats getUsersProjectsStats(String token) {
+        log.info("developmentassisstant service에서 보내는 JWT Token: {}", token);
         Long userId = getUserIdByToken(token);
         String userEmail = getUserEmailByToken(token);
 
