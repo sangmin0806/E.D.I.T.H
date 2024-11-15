@@ -50,7 +50,14 @@ public class UserController {
         response.addCookie(refreshTokenCookie);
         return success(null);
     }
-
+    @PostMapping("/snign-out")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResult<Void> signOUT(HttpServletResponse response) {
+        cookieUtil.removeAccessToken(response);
+        cookieUtil.removeRefreshToken(response);
+        return success(null);
+    }
+    
     @PostMapping("/sign-in")
     @ResponseStatus(HttpStatus.OK)
     public ApiResult<SignInResponse> signIn(@RequestBody SignInRequest signInRequest, HttpServletResponse response) {
