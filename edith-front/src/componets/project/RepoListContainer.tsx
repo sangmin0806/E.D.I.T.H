@@ -54,7 +54,7 @@ function RepoListContainer() {
                 새로운 프로젝트 추가
               </p>
               <img
-                className="w-9 h-9"
+                className="w-9 h-9 cursor-pointer"
                 src={PlusSquareImg}
                 onClick={handleMoveToAdd}
               />

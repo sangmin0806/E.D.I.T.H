@@ -22,7 +22,7 @@ function PortfolioListBox({
   return (
     <>
       <div
-        className="flex rounded-3xl shadow-custom justify-between w-full p-4 bg-white/30 "
+        className="flex rounded-3xl shadow-custom justify-between w-full p-4 bg-white/30 cursor-pointer"
         onClick={handleClick}
       >
         <div className="flex flex-col ">

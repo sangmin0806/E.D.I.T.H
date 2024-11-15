@@ -122,7 +122,7 @@ function RepoPortfolio({ userGitAccount }: portfolioProp) {
           </div>
           {!savedPortfolio && (
             <div
-              className="p-1.5 mb-8 bg-black rounded-2xl justify-center items-center inline-flex"
+              className="p-1.5 mb-8 bg-black rounded-2xl justify-center items-center inline-flex cursor-pointer"
               onClick={handleSave}
             >
               <p className="w-32 text-center text-white text-lg font-medium">
