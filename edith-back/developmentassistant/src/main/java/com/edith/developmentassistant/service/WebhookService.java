@@ -51,7 +51,7 @@ public class WebhookService {
                 .toList();
 
         CodeReviewRequest request = CodeReviewRequest.builder()
-                .branch(baseUrl)
+                .url(baseUrl)
                 .projectId(projectId.toString())
                 .branch(MergeDiff.getTargetBranch())
                 .token(token)
