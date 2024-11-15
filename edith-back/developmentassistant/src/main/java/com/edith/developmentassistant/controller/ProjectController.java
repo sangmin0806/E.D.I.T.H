@@ -15,6 +15,7 @@ import com.edith.developmentassistant.controller.dto.response.project.UsersProje
 import com.edith.developmentassistant.service.ProjectService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/projects")
 @RequiredArgsConstructor
@@ -45,6 +47,7 @@ public class ProjectController {
     @GetMapping
     public ApiResult<List<ProjectResponse>> getProjects(
             @CookieValue(value = "accessToken", required = false) String token) {
+        log.info("ProjectController getProjects token: {}", token);
         return success(projectService.getProjects(token));
     }
 
