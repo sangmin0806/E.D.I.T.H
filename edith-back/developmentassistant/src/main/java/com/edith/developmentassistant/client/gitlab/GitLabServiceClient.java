@@ -368,21 +368,7 @@ public class GitLabServiceClient {
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
-            // API 요청하여 Merge Request 리스트 가져오기
-            ResponseEntity<List<GitMerge>> response = restTemplate.exchange(
-                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<GitMerge>>() {
-                    }
-            );
-
-            ResponseEntity<String> responseJson = restTemplate.exchange(
-                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<String>() {
-                    }
-            );
-
-            log.info("responseJson : {}", responseJson);
-
-            List<GitMerge> todayMerges = response.getBody();
-            assert todayMerges != null;
+            List<GitMerge> todayMerges = getGitMerges(url, entity);
 
             // todayMerges 리스트를 로깅
             log.info("Today's merge requests for project {}: {}", projectId,
@@ -405,6 +391,25 @@ public class GitLabServiceClient {
             log.error("Error serializing today's merge requests: {}", e.getMessage(), e);
             throw new RuntimeException("Error serializing merge requests for logging", e);
         }
+    }
+
+    private List<GitMerge> getGitMerges(String url, HttpEntity<String> entity) {
+        // API 요청하여 Merge Request 리스트 가져오기
+        ResponseEntity<List<GitMerge>> response = restTemplate.exchange(
+                url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<GitMerge>>() {
+                }
+        );
+
+        ResponseEntity<String> responseJson = restTemplate.exchange(
+                url, HttpMethod.GET, entity, new ParameterizedTypeReference<String>() {
+                }
+        );
+
+        log.info("responseJson : {}", responseJson);
+
+        List<GitMerge> todayMerges = response.getBody();
+        assert todayMerges != null;
+        return todayMerges;
     }
 
     public Integer fetchMergeRequestsCount(Long id, String token) {

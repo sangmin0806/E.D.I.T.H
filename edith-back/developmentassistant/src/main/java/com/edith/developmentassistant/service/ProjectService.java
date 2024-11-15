@@ -253,7 +253,8 @@ public class ProjectService {
 
         Integer totalMergeRequestsCount = getTotalMergeRequestsCount(getUserProjectsBy(userId));
 
-        Integer todayMergeRequestsCount = gitLabServiceClient.fetchTodayMergeRequestsCount(projectId, token,
+        Integer todayMergeRequestsCount = gitLabServiceClient.fetchTodayMergeRequestsCount(projectId,
+                projectAccessToken,
                 getUserEmailByToken(token));
 
         return new ProjectStats(todayCommitsCount, totalMergeRequestsCount, todayMergeRequestsCount);
