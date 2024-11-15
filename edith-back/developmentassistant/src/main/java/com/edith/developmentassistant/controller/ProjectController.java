@@ -98,4 +98,12 @@ public class ProjectController {
         return success(projectService.getProjectStats(token, id));
     }
 
+    @GetMapping("/commits/recent")
+    public ApiResult<String> getRecentCommitMessage(
+            @CookieValue(value = "accessToken", required = false) String token,
+            @RequestParam Long projectId
+    ) {
+        return success(projectService.getRecentCommitMessage(token, projectId));
+    }
+
 }
