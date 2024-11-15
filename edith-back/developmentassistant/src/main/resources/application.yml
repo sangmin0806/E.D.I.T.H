@@ -21,8 +21,8 @@ server:
 
 api:
   flask:
-    portfolio: http://k11c206.p.ssafy.io:8083/rag/portfolio
+    portfolio: http://rag-flask-service:8183/rag/portfolio
 #    portfolio: http://localhost:8083/rag/portfolio # 로컬
-    code-review: http://k11c206.p.ssafy.io:8083/rag/code-review
-    rag : http://k11c206.p.ssafy.io:8083/rag
+    code-review: http://rag-flask-service:8183/rag/code-review
+    rag : http://rag-flask-service:8183/rag
 
