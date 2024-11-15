@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/webhook")
+@RequestMapping("/api/v1/webhook")
 @RequiredArgsConstructor
 public class WebhookController {
 
