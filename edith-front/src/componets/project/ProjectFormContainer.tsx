@@ -137,7 +137,7 @@ function ProjectFormContainer({
               <p className="w-48 text-black text-lg font-medium">설명 (선택)</p>
               <textarea
                 className="flex h-20 w-full max-w-[400px] bg-white rounded-2xl border border-zinc-300 p-4"
-                name="contents"
+                name="content"
                 value={formValues.content}
                 onChange={handleInputChange}
               />
