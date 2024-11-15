@@ -25,6 +25,7 @@ public class MRSummary extends BaseEntity {
     @JoinColumn(name = "project_id")
     private Project project;
 
+    @Lob
     private String content;
 
     @Builder
