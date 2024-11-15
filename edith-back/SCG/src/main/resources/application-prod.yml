@@ -10,6 +10,9 @@ spring:
     secret: ${SPRING_JWT_SECRET}
   cloud:
     gateway:
+      httpclient:
+        connect-timeout: 600000
+        response-timeout: 600000
       routes:
         - id: user-test
           uri: http://user-spring-boot-service:8181
