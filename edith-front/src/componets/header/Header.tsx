@@ -5,6 +5,7 @@ import defaultImg from "../../assets/defaultImg.jpg";
 import { useState, useEffect, useRef } from "react";
 import { userInfo } from "../../types/userTypes";
 import { tempUserInfo } from "../../assets/defaultData";
+import { logout } from "../../hooks/useAuth";
 
 function Header({ userImgSrc }: any) {
   const navigate = useNavigate();
@@ -43,7 +44,10 @@ function Header({ userImgSrc }: any) {
   const handleError = () => {
     setImgSrc(defaultImg);
   };
-  const handleLogout = () => {};
+  const handleLogout = () => {
+    logout();
+    navigate("/");
+  };
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
   // 메뉴 외부 클릭 시 메뉴 닫기
@@ -140,9 +144,8 @@ function Header({ userImgSrc }: any) {
                         tabIndex={-1}
                         id="user-menu-item-2"
                         onClick={() => {
-                          handleLogout;
+                          handleLogout();
                           setIsMenuOpen(false);
-                          alert("Signed out");
                         }}
                       >
                         로그아웃

@@ -37,6 +37,7 @@ function RepoPortfolio({ userGitAccount }: portfolioProp) {
       getPortfolioApi();
     }
   }, []);
+
   const getSavedPortfolioApi = async () => {
     try {
       const result = await getPortfolioItem(numericProjectID);

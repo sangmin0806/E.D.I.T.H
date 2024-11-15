@@ -64,14 +64,14 @@ export const getCommitStats = async (
   error?: string;
 }> => {
   return apiRequest(() =>
-    axiosInstance.get(`/api/v1/projects/${projectId}/stats`)
+    axiosInstance.get(`/api/v1/projects/stats?id=${projectId}`)
   );
 };
 
-export const getMyCommits = async (): Promise<{
+export const getMyCommitsStats = async (): Promise<{
   success: boolean;
   response?: myCommitStat;
   error?: string;
 }> => {
-  return apiRequest(() => axiosInstance.get(`/api/v1/projects/stats`));
+  return apiRequest(() => axiosInstance.get(`/api/v1/projects/users/stats`));
 };

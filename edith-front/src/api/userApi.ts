@@ -27,6 +27,15 @@ export const registerRequest = async (
   };
 };
 
+export const logoutRequest = async (): Promise<{
+  success: boolean;
+  error?: string;
+}> => {
+  const result = await apiRequest(() =>
+    axiosInstance.post("/api/v1/users/logout")
+  );
+  return { success: result.success, error: result.error };
+};
 export const validAccessTokenRequest = async (): Promise<{
   success: boolean;
 }> => {
@@ -43,8 +52,9 @@ export const faceRegisterRequest = async (embeddings: {
   error?: string;
 }> => {
   const result = await apiRequest(() =>
-    axiosInstance.post("/api/v1/users/face/register",
-       { embeddingVectors: embeddings.embeddingVectors })
+    axiosInstance.post("/api/v1/users/face/register", {
+      embeddingVectors: embeddings.embeddingVectors,
+    })
   );
   return {
     success: result.success,
