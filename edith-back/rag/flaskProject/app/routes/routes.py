@@ -33,8 +33,8 @@ def code_review():
     branch = data.get('branch')
     changes = data.get('changes')
 
-    review, portfolio = reviewer.getCodeReview(url, token, projectId, branch, changes)
+    review, portfolio, techStack = reviewer.getCodeReview(url, token, projectId, branch, changes)
     if review and portfolio:
-        return jsonify({'status': 'success', 'review': review, 'summary': portfolio})
+        return jsonify({'status': 'success', 'review': review, 'techStack': techStack, 'summary': portfolio})
     else:
         return jsonify({'status': 'fail', 'message': '코드 리뷰 생성 중 오류가 발생했습니다.'}), 500

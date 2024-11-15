@@ -10,6 +10,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain.text_splitter import TokenTextSplitter
 from app.services.llm_model import LLMModel
 import uuid
+import json
+
 
 def getCodeReview(url, token, projectId, branch, changes):
 
@@ -148,29 +150,41 @@ def get_code_review(projectId, review_queries, llm):
     )
 
     review_prompt = ChatPromptTemplate.from_template("""
-        아래 git diff의 핵심 내용만 간단히 요약해주세요.
+        아래 git diff 의 핵심 내용만 간단히 요약해주세요.
 
         파일: {file_path}
 
         ===git diff===
         {code_chunk}
 
-        ===참고 코드===
+        ==='이미 존재하는 참고 코드'===
         {similar_codes}
 
         다음 항목별로 핵심만 간단히 작성해주세요:
         1. 핵심 기능: [해당 코드의 핵심 기능]
         2. 변경사항: [주요 기능/로직 변경 1-2줄 요약]
-        3. 주의 필요: [잠재적 이슈나 개선필요 사항]
-        4. 수정해야할 사항: [반드시 수정해야 하는 부분을 중요도, 코드를 포함해 간략히]
+        3. 주의 필요: [잠재적 이슈나 개선필요 사항, Clean Code 지향]
+        4. 수정해야할 사항: [중복되거나 반드시 수정해야 하는 부분을 중요하게, 코드를 포함해 간략히]
         5. 개선 사항: [해결된 문제점 있는 경우만]
+        6. '이미 존재하는 참고 코드' 를 본 리뷰와, git diff 만 보고 작성한 리뷰의 차이점을 자세히 설명해줘
 
         * 중요: 꼭 필요한 내용만 간단히 작성해주세요.
     """)
 
     final_review_prompt = ChatPromptTemplate.from_template("""
         해당 MR의 전체 코드리뷰를 GitLab MR Comment 형식으로 작성해주세요.
-        * 중요: 응답은 HTML 형식으로 작성하되, 실제 복사-붙여넣기가 가능하도록 작성해줘
+        * 중요: 응답은 JSON 형식으로 다음 구조를 따라 작성해주세요:
+        * techStack 은 ["JavaScript", "TypeScript", "HTML5", "CSS3", "Sass", "Bootstrap", "TailwindCSS", "React", "Angular", 
+  "Vue", "Svelte", "jQuery", "Node", "Express", "NestJS", "NextJS", "NuxtJS", "Python", "Django", "Flask", 
+  "Java", "Spring", "PHP", "Laravel", "Ruby", "Rails", "CSharp", "DotNet", "Cplusplus", "Go", "Rust", 
+  "Swift", "Kotlin", "Docker", "Kubernetes", "AWS", "Firebase", "GoogleCloud", "Azure", "Heroku", 
+  "MySQL", "PostgreSQL", "MongoDB", "Redis", "Elasticsearch", "GraphQL", "Apollo", "Git", "GitHub", 
+  "GitLab", "Bitbucket", "Jenkins", "TravisCI", "CircleCI", "NGINX", "Vercel"] 해당 배열 안에서 골라줘
+  
+        {{
+            "review": "<코드리뷰 내용을 HTML 형식으로 작성>",
+            "techStack": ["사용된 기술스택 목록"]
+        }}
 
         ===파일별 주요 변경사항===
         {history}
@@ -183,8 +197,11 @@ def get_code_review(projectId, review_queries, llm):
         ## [클래스명/파일명]
         - 기능: [해당 파일 수정사항의 기능]
         - 변경: [핵심 로직 변경사항]
-        - 잘한점, 고려해야할 점: [구현시 잘한점과 고려해야할 점을 간략히]
+        - 잘한점, 고려해야할 점: [구현시 잘한점과 기존 코드와 중복되거나 고려해야할 점을 간략히]
         - 수정해야할 사항: [수정이 반드시 필요한 사항만 실제 코드를 포함해 작성]
+
+        응답은 반드시 위의 JSON 형식을 준수해야 하며, HTML 내용은 실제 복사-붙여넣기가 가능해야 합니다.
+        techStack 배열에는 코드에서 사용된 주요 기술들(SpringBoot, React 등)을 포함해주세요.
     """)
 
     portfolio_prompt = ChatPromptTemplate.from_template("""
@@ -225,7 +242,7 @@ def get_code_review(projectId, review_queries, llm):
 
             try:
                 review_result = chunked_review(projectId, llm, file_path, code_chunk, similar_codes, review_chain, code_review_memory)
-
+                print('similar_codes : ', similar_codes)
                 portfolio_memory.save_context(
                     {"input": f"Review for {file_path}"},
                     {"output": review_result}
@@ -242,9 +259,19 @@ def get_code_review(projectId, review_queries, llm):
         code_review_result = final_review_chain.invoke({
             "input": "Generate final review",
             "history": code_review_memory.load_memory_variables({})[f"{projectId}_code_review_{uuid}"]
-        }).replace('\n', '').replace('```html', '').replace('```', '')
+        }).replace('\n', '').replace('```html', '').replace('```', '').replace('json{', '{')
 
-        return re.sub(r'<title>.*?</title>', '', code_review_result), portfolio_result
+        print(code_review_result)
+        try:
+            # 2. 문자열을 JSON으로 파싱
+            jsonData = json.loads(code_review_result)
+            print(jsonData)
+            # 3. 파싱된 JSON 데이터 사용
+            print(jsonData['review'], "\n === \n", jsonData['techStack'])
+
+            return re.sub(r'<title>.*?</title>', '', jsonData['review'].replace('\n', 's')), portfolio_result, jsonData['techStack']
+        except json.JSONDecodeError as e:
+            print(f"JSON 파싱 에러: {e}")
 
     except Exception as e:
         print(f"리뷰 중 오류 발생: {e}")
