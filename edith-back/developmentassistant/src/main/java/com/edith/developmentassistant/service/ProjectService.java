@@ -71,6 +71,7 @@ public class ProjectService {
     public List<GitGraph> getGitGraphData(Long projectId, String accessToken) {
 
         UserDto userDto = userServiceClient.getUserByToken(accessToken);
+        
         String projectAccessToken = gitLabServiceClient.generateProjectAccessToken(projectId,
                 userDto.getVcsAccessToken());
 
