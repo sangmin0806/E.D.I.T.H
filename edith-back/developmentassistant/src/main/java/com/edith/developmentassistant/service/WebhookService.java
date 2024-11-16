@@ -77,7 +77,7 @@ public class WebhookService {
                 projectId.intValue(),
                 codeReviewResponse.getReview(),
                 recentCommitMessage,
-                codeReviewResponse.getSummary(),
+                "이디스의 조언입니다.",
                 codeReviewResponse.getTechStack(),
                 fixLogs
         );
