@@ -392,7 +392,7 @@ public class GitLabServiceClient {
 
             // 필터링: 작성자가 userEmail과 일치하는 Merge Request
             int todayMergeRequestsCount = (int) todayMerges.stream()
-                    .filter(mr -> mr.getAuthor() != null && mr.getAuthor().getEmail() != null)
+                    .filter(mr -> mr.getAuthor() != null && mr.getAuthor().getName() != null)
                     .filter(mr -> mr.getAuthor().getName().equalsIgnoreCase(username))
                     .count();
 
