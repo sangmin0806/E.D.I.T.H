@@ -256,25 +256,35 @@ public class ProjectService {
 
     public ProjectStats getProjectStats(String token, Long projectId) {
 
-        Long userId = getUserIdByToken(token);
+        String projectAccessToken = getProjectAccessToken(projectId);
 
-        String projectAccessToken = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("Project not found"))
-                .getToken();
+        Integer todayCommitsCount = getTodayCommitsCount(projectId, projectAccessToken);
 
-        String personalAccessToken = getVcsAccessToken(token);
+        Integer totalMergedRequestsCount = getTotalMergedRequestsCount(projectId, projectAccessToken);
 
-        Integer todayCommitsCount = gitLabServiceClient.fetchTodayUserCommitsCount(projectId, projectAccessToken,
-                getUserEmailByToken(token));
-
-        Integer totalMergedRequestsCount = gitLabServiceClient.fetchTotalMergeRequestsCount(projectId,
-                personalAccessToken);
-
-        Integer todayMergeRequestsCount = gitLabServiceClient.fetchTodayUserMergeRequestsCount(projectId,
-                personalAccessToken,
-                getUserEmailByToken(token));
+        Integer todayMergeRequestsCount = getTodayMergeRequestsCount(projectId, projectAccessToken);
 
         return new ProjectStats(todayCommitsCount, totalMergedRequestsCount, todayMergeRequestsCount);
+    }
+
+    private Integer getTodayMergeRequestsCount(Long projectId, String projectAccessToken) {
+        return gitLabServiceClient.fetchTodayMergeRequestsCount(projectId,
+                projectAccessToken);
+    }
+
+    private Integer getTotalMergedRequestsCount(Long projectId, String projectAccessToken) {
+        return gitLabServiceClient.fetchTotalMergeRequestsCount(projectId,
+                projectAccessToken);
+    }
+
+    private Integer getTodayCommitsCount(Long projectId, String projectAccessToken) {
+        return gitLabServiceClient.fetchTodayCommitsCount(projectId, projectAccessToken);
+    }
+
+    private String getProjectAccessToken(Long projectId) {
+        return projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found"))
+                .getToken();
     }
 
 
