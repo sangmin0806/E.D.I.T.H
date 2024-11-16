@@ -38,7 +38,7 @@ public class ProjectController {
 
     @PostMapping
     public ApiResult<RegisterProjectResponse> registerProjects(
-            @CookieValue(value = "accessToken", required = false) String token,
+            @CookieValue(value = "accessToken") String token,
             @RequestBody RegisterProjectRequest registerProjectRequest) {
         projectService.registerProject(registerProjectRequest.toServiceRequest(), token);
         return success(null);
@@ -46,14 +46,14 @@ public class ProjectController {
 
     @GetMapping
     public ApiResult<List<ProjectResponse>> getProjects(
-            @CookieValue(value = "accessToken", required = false) String token) {
+            @CookieValue(value = "accessToken") String token) {
         log.info("ProjectController getProjects token: {}", token);
         return success(projectService.getProjects(token));
     }
 
     @GetMapping("{projectId}")
     public ApiResult<ProjectResponse> getProject(
-            @CookieValue(value = "accessToken", required = false) String token,
+            @CookieValue(value = "accessToken") String token,
             @PathVariable Long projectId
     ) {
         return success(projectService.getProjectByTokenAndProjectId(token, projectId));
@@ -61,7 +61,7 @@ public class ProjectController {
 
     @PutMapping
     public ApiResult<ProjectResponse> updateProject(
-            @CookieValue(value = "accessToken", required = false) String token,
+            @CookieValue(value = "accessToken") String token,
             @RequestBody ProjectDto projectDto) {
         return success(projectService.updateProject(projectDto, token));
     }
@@ -70,7 +70,7 @@ public class ProjectController {
     @GetMapping("/gitgraph/{projectId}")
     public ApiResult<List<GitGraph>> getGitGraphData(
             @PathVariable Long projectId,
-            @CookieValue(value = "accessToken", required = false) String accessToken
+            @CookieValue(value = "accessToken") String accessToken
     ) {
         List<GitGraph> gitGraphDatas = projectService.getGitGraphData(projectId, accessToken);
         return success(gitGraphDatas);
@@ -89,14 +89,14 @@ public class ProjectController {
 
     @GetMapping("/users/stats")
     public ApiResult<UsersProjectsStats> getStats(
-            @CookieValue(value = "accessToken", required = false) String token
+            @CookieValue(value = "accessToken") String token
     ) {
         return success(projectService.getUsersProjectsStats(token));
     }
 
     @GetMapping("/stats")
     public ApiResult<ProjectStats> getProjectStats(
-            @CookieValue(value = "accessToken", required = false) String token,
+            @CookieValue(value = "accessToken") String token,
             @RequestParam Long id
     ) {
         return success(projectService.getProjectStats(token, id));
