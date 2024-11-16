@@ -54,6 +54,7 @@ public class WebhookService {
                 token);
 
         String recentCommitMessage = gitLabServiceClient.fetchRecentCommitMessage(projectId, token);
+        log.info("RecentCommitMessage: {}", recentCommitMessage);
         List<String> fixLogs = gitLabServiceClient.fetchFilteredCommitMessages(projectId, token);
         String baseUrl = "https://lab.ssafy.com";
         List<CodeReviewChanges> changes = MergeDiff.getChanges().stream().map(Change::toCodeReviewChanges)
@@ -72,15 +73,26 @@ public class WebhookService {
 
         saveMRSummary(webhookEvent, mergeRequestIid, codeReviewResponse, project);
 
-        saveDashboardDto(projectId.intValue(), codeReviewResponse.getReview(), recentCommitMessage,
-                codeReviewResponse.getSummary(), codeReviewResponse.getTechStack(), fixLogs);
+        saveDashboardDto(
+                projectId.intValue(),
+                codeReviewResponse.getReview(),
+                recentCommitMessage,
+                codeReviewResponse.getSummary(),
+                codeReviewResponse.getTechStack(),
+                fixLogs
+        );
 
         gitLabServiceClient.addMergeRequestComment(projectId, mergeRequestIid, token, codeReviewResponse.getReview(),
                 codeReviewResponse.getSummary());
     }
 
-    private void saveDashboardDto(Integer projectId, String recentCodeReview, String recentCommitMessage, String advice,
-                                  List<String> techStack, List<String> fixLogs) {
+    private void saveDashboardDto(Integer projectId,
+                                  String recentCodeReview,
+                                  String recentCommitMessage,
+                                  String advice,
+                                  List<String> techStack,
+                                  List<String> fixLogs
+    ) {
         String key = "dashboard:" + projectId;
 
         // Redis에서 기존 데이터를 가져오기
