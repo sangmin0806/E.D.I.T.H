@@ -320,7 +320,7 @@ public class GitLabServiceClient {
                 .build();
     }
 
-    public Integer fetchTodayCommitsCount(Long projectId, String projectAccessToken, String userEmail) {
+    public Integer fetchTodayUserCommitsCount(Long projectId, String projectAccessToken, String userEmail) {
         // 오늘 날짜 구하기
         String todayStart = LocalDate.now() + "T00:00:00Z";
         String todayEnd = LocalDate.now() + "T23:59:59Z";
@@ -357,7 +357,7 @@ public class GitLabServiceClient {
         }
     }
 
-    public Integer fetchTodayMergeRequestsCount(Long projectId, String projectAccessToken, String userEmail) {
+    public Integer fetchTodayUserMergeRequestsCount(Long projectId, String projectAccessToken, String userEmail) {
         // 오늘 날짜를 UTC 시간대로 설정
         String todayStart = LocalDate.now().atStartOfDay(ZoneOffset.UTC).toString();
         String todayEnd = LocalDate.now().atTime(23, 59, 59).atZone(ZoneOffset.UTC).toString();
@@ -543,4 +543,10 @@ public class GitLabServiceClient {
         }
     }
 
+    private HttpHeaders createHeaders(String token) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("PRIVATE-TOKEN", token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return headers;
+    }
 }
