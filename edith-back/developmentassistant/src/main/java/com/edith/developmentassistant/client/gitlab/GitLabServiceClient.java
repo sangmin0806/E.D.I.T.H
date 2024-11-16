@@ -14,6 +14,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
 
@@ -356,9 +357,9 @@ public class GitLabServiceClient {
     }
 
     public Integer fetchTodayMergeRequestsCount(Long projectId, String projectAccessToken, String userEmail) {
-        // 오늘 날짜 구하기
-        String todayStart = LocalDate.now() + "T00:00:00Z";
-        String todayEnd = LocalDate.now() + "T23:59:59Z";
+        // 오늘 날짜를 UTC 시간대로 설정
+        String todayStart = LocalDate.now().atStartOfDay(ZoneOffset.UTC).toString();
+        String todayEnd = LocalDate.now().atTime(23, 59, 59).atZone(ZoneOffset.UTC).toString();
 
         String url = GITLAB_API_URL + "/projects/" + projectId + "/merge_requests" +
                 "?created_after=" + todayStart + "&created_before=" + todayEnd;
@@ -366,17 +367,25 @@ public class GitLabServiceClient {
         HttpHeaders headers = new HttpHeaders();
         headers.set("PRIVATE-TOKEN", projectAccessToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
-        log.info("fetchTodayMergeRequestsCount entity : {}", entity);
+
+        log.info("Fetching today's merge requests from URL: {}", url);
+
         try {
             List<GitMerge> todayMerges = getGitMerges(url, entity);
+            log.info("Today {} Merges : {}", userEmail, todayMerges);
+            if (todayMerges == null || todayMerges.isEmpty()) {
+                log.warn("No merge requests found for project {} between {} and {}", projectId, todayStart, todayEnd);
+                return 0;
+            }
 
-            // todayMerges 리스트를 로깅
-            log.info("Today's merge requests for project {}: {}", projectId,
-                    objectMapper.writeValueAsString(todayMerges));
+            // 로그로 필터링 대상 확인
+            todayMerges.forEach(mr -> log.info("Merge Request: {}, Author Email: {}",
+                    mr, mr.getAuthor() != null ? mr.getAuthor().getEmail() : "null"));
 
+            // 필터링: 작성자가 userEmail과 일치하는 Merge Request
             int todayMergeRequestsCount = (int) todayMerges.stream()
-                    .filter(mr -> mr.getAuthor() != null && mr.getAuthor().getEmail() != null) // Null 체크 추가
-                    .filter(mr -> mr.getAuthor().getEmail().equalsIgnoreCase(userEmail))
+                    .filter(mr -> mr.getAuthor() != null && mr.getAuthor().getEmail() != null)
+                    .filter(mr -> mr.getAuthor().getEmail().trim().equalsIgnoreCase(userEmail.trim()))
                     .count();
 
             log.info("Today's merge requests count for user {} in project {}: {}", userEmail, projectId,
@@ -387,11 +396,9 @@ public class GitLabServiceClient {
             log.error("Error fetching today's merge requests for user {} in project {}: {}", userEmail, projectId,
                     e.getMessage());
             throw e;
-        } catch (Exception e) {
-            log.error("Error serializing today's merge requests: {}", e.getMessage(), e);
-            throw new RuntimeException("Error serializing merge requests for logging", e);
         }
     }
+
 
     private List<GitMerge> getGitMerges(String url, HttpEntity<String> entity) {
         // API 요청하여 Merge Request 리스트 가져오기
