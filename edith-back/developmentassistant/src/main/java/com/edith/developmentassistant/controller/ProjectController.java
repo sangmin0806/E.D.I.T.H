@@ -88,7 +88,7 @@ public class ProjectController {
 
 
     @GetMapping("/users/stats")
-    public ApiResult<UsersProjectsStats> getStats(
+    public ApiResult<UsersProjectsStats> getUsersProjectsStats(
             @CookieValue(value = "accessToken") String token
     ) {
         return success(projectService.getUsersProjectsStats(token));

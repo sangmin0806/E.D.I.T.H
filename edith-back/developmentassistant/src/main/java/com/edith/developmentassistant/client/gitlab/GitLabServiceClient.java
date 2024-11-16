@@ -13,6 +13,7 @@ import com.edith.developmentassistant.client.dto.gitlab.GitCommit;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.Arrays;
@@ -190,8 +191,7 @@ public class GitLabServiceClient {
                         "api",
                         "read_api",
                         "write_repository",
-                        "read_repository",
-                        "read_user"
+                        "read_repository"
                 ))
                 .expiresAt(LocalDate.now().plusYears(1)) // 현재 날짜로부터 1년 후
                 .accessLevel(40)
@@ -368,6 +368,7 @@ public class GitLabServiceClient {
         // 오늘 날짜를 UTC 시간대로 설정
         String todayStart = LocalDate.now().atStartOfDay(ZoneOffset.UTC).toString();
         String todayEnd = LocalDate.now().atTime(23, 59, 59).atZone(ZoneOffset.UTC).toString();
+        String username = getGitLabUserNameByToken(projectAccessToken);
 
         String url = GITLAB_API_URL + "/projects/" + projectId + "/merge_requests" +
                 "?created_after=" + todayStart + "&created_before=" + todayEnd;
@@ -387,12 +388,12 @@ public class GitLabServiceClient {
 
             // 로그로 필터링 대상 확인
             todayMerges.forEach(mr -> log.info("Merge Request: {}, Author Email: {}",
-                    mr, mr.getAuthor() != null ? mr.getAuthor().getEmail() : "null"));
+                    mr, mr.getAuthor() != null ? mr.getAuthor().getName() : "null"));
 
             // 필터링: 작성자가 userEmail과 일치하는 Merge Request
             int todayMergeRequestsCount = (int) todayMerges.stream()
                     .filter(mr -> mr.getAuthor() != null && mr.getAuthor().getEmail() != null)
-                    .filter(mr -> mr.getAuthor().getEmail().trim().equalsIgnoreCase(userEmail.trim()))
+                    .filter(mr -> mr.getAuthor().getName().equalsIgnoreCase(username))
                     .count();
 
             log.info("Today's merge requests count for user {} in project {}: {}", userEmail, projectId,
@@ -600,6 +601,29 @@ public class GitLabServiceClient {
         } catch (RestClientException e) {
             log.error("Error fetching today's merge requests for project {}: {}", projectId, e.getMessage());
             throw e;
+        }
+    }
+
+    private String getGitLabUserNameByToken(String personalAccessToken) {
+        String url = GITLAB_API_URL + "/user";
+
+        HttpHeaders headers = createHeader(personalAccessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, String.class
+            );
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                JsonNode rootNode = objectMapper.readTree(response.getBody());
+                return rootNode.path("name").asText();
+            } else {
+                throw new RestClientException("Unexpected response status: " + response.getStatusCode());
+            }
+        } catch (RestClientException | IOException e) {
+            log.error("Error fetching GitLab user name by token: {}", e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 }
