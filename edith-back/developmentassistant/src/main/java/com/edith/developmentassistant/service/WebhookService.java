@@ -57,6 +57,8 @@ public class WebhookService {
                 .token(token)
                 .changes(changes).build();
 
+        //TODO Redis 에 techStack 반영, 최근 코드리뷰 갱신
+
         log.info("MergeRequestDiffResponse: {}", MergeDiff.getChanges());
 
 //        CodeReviewResponse codeReviewResponse = ragServiceClient.commentCodeReview(request);

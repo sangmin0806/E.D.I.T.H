@@ -75,7 +75,17 @@ def getCodeReview(url, token, projectId, branch, changes):
             if (language == ''):
                 continue
             removed_lines, added_lines = parse_git_diff(change['diff'])
-            similar_codes = []
+            similar_codes = ["""def query_similar_code(self, code_snippet, n_results=5):
+        try:
+            results = self.db.similarity_search_with_score(
+                query=code_snippet,
+                k=n_results
+            )
+            related_codes = [doc.page_content for doc, score in results]
+            return related_codes
+        except Exception as e:
+            print(f"Error querying similar code: {e}")
+            return []"""]
             code_chunks = []
 
             # 코드 임베딩
@@ -146,7 +156,7 @@ def get_code_review(projectId, review_queries, llm):
         memory_key= f"{projectId}_code_review_{uuid}",
         max_token_limit=4000,
         return_messages=True,
-        prompt="""해당 요약본 으로 전체 코드리뷰를 작성하기 위해 중요한 기능, 에러 발생 원인, 트러블 슈팅을 요약해줘"""
+        prompt="""해당 요약본 으로 전체 코드리뷰를 작성하기 위해 중요한 기능, 수정 해야 할 사항, 에러 발생 원인, 트러블 슈팅을 요약해줘"""
     )
 
     review_prompt = ChatPromptTemplate.from_template("""
@@ -161,12 +171,13 @@ def get_code_review(projectId, review_queries, llm):
         {similar_codes}
 
         다음 항목별로 핵심만 간단히 작성해주세요:
+        *0. 기능적으로 유사한 코드가 존재하는 경우 : [유사한 코드, 함수 가 있다고 알려줘]
         1. 핵심 기능: [해당 코드의 핵심 기능]
         2. 변경사항: [주요 기능/로직 변경 1-2줄 요약]
         3. 주의 필요: [잠재적 이슈나 개선필요 사항, Clean Code 지향]
-        4. 수정해야할 사항: [중복되거나 반드시 수정해야 하는 부분을 중요하게, 코드를 포함해 간략히]
+        4. 수정 해야 할 사항: [기능적으로 중복되거나 반드시 수정해야 하는 부분을 중요하게, 코드를 포함해 간략히]
         5. 개선 사항: [해결된 문제점 있는 경우만]
-        6. '이미 존재하는 참고 코드' 를 본 리뷰와, git diff 만 보고 작성한 리뷰의 차이점을 자세히 설명해줘
+       
 
         * 중요: 꼭 필요한 내용만 간단히 작성해주세요.
     """)
@@ -261,7 +272,6 @@ def get_code_review(projectId, review_queries, llm):
             "history": code_review_memory.load_memory_variables({})[f"{projectId}_code_review_{uuid}"]
         }).replace('\n', '').replace('```html', '').replace('```', '').replace('json{', '{')
 
-        print(code_review_result)
         try:
             # 2. 문자열을 JSON으로 파싱
             jsonData = json.loads(code_review_result)
