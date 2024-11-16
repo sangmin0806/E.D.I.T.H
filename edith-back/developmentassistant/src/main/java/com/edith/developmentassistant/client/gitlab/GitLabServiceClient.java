@@ -177,7 +177,8 @@ public class GitLabServiceClient {
                         "api",
                         "read_api",
                         "write_repository",
-                        "read_repository"
+                        "read_repository",
+                        "read_user"
                 ))
                 .expiresAt(LocalDate.now().plusYears(1)) // 현재 날짜로부터 1년 후
                 .accessLevel(40)
