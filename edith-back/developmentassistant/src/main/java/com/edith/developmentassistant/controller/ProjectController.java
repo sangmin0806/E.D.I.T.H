@@ -106,6 +106,6 @@ public class ProjectController {
     public ApiResult<ProjectDashboardDto> getProjectDashboard(
             @CookieValue(value = "accessToken") String token,
             @RequestParam Long id) {
-        return success(projectService.getProjectDashboard(token, id));
+        return success(projectService.getProjectDashboard(id));
     }
 }

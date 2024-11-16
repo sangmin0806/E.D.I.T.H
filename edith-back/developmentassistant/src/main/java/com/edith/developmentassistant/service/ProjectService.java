@@ -287,8 +287,7 @@ public class ProjectService {
                 .getToken();
     }
 
-
-    public ProjectDashboardDto getProjectDashboard(String token, Long projectId) {
+    public ProjectDashboardDto getProjectDashboard(Long projectId) {
 
         DashboardDto dashboardDto = (DashboardDto) redisTemplate.opsForValue().get("dashboard:" + projectId);
 
