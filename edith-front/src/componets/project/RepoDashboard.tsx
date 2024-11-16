@@ -79,9 +79,9 @@ function RepoDashboard() {
                 <img src={pinkLogo} className="w-[60px] h-auto" />
                 <p className="font-semibold">최근 코드 리뷰 </p>
               </div>
-              <div className="columns-2 p-4 border border-gray-300 rounded-lg mb-4 space-y-2 text-sm"
-     dangerouslySetInnerHTML={{ __html: dashboard?.recentCodeReview }}>
-</div>
+              <div className="columns-2 p-4 border border-gray-300 rounded-lg mb-4 space-y-2 text-sm">
+                {dashboard?.recentCodeReview}
+              </div>
             </div>
 
             {/* git graph */}
