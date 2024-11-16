@@ -219,6 +219,7 @@ public class ProjectService {
         log.info("developmentassisstant service에서 보내는 JWT Token: {}", token);
         Long userId = getUserIdByToken(token);
         String userEmail = getUserEmailByToken(token);
+        String personalAccessToken = userServiceClient.getUserByToken(token).getVcsAccessToken();
 
         List<UserProject> userProjects = getUserProjectsBy(userId);
 
@@ -226,7 +227,7 @@ public class ProjectService {
 
         Integer todayCommitsCount = getTodayCommitsCount(userProjects, userEmail);
 
-        Integer todayMergeRequestsCount = getTodayMergeRequestsCount(userProjects, userEmail);
+        Integer todayMergeRequestsCount = getTodayMergeRequestsCount(userProjects, userEmail, personalAccessToken);
 
         return new UsersProjectsStats(totalProjectsCount, todayCommitsCount, todayMergeRequestsCount);
     }
@@ -239,10 +240,11 @@ public class ProjectService {
                 .reduce(0, Integer::sum);
     }
 
-    private Integer getTodayMergeRequestsCount(List<UserProject> userProjects, String userEmail) {
+    private Integer getTodayMergeRequestsCount(List<UserProject> userProjects, String userEmail,
+                                               String personalAccessToken) {
         return userProjects.stream()
                 .map(userProject -> gitLabServiceClient.fetchTodayMergeRequestsCount(userProject.getProject().getId(),
-                        userProject.getProject().getToken(), userEmail))
+                        personalAccessToken, userEmail))
                 .reduce(0, Integer::sum);
     }
 
