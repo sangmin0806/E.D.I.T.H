@@ -172,7 +172,7 @@ public class GitLabServiceClient {
         }
     }
 
-    public String generateProjectAccessToken(Long projectId, String personalAccessToken) {
+    public String generateProjectAccessToken(Long projectId, String token) {
         String url = GITLAB_API_URL + "/projects/" + projectId + "/access_tokens";
 
         // 헤더 설정
