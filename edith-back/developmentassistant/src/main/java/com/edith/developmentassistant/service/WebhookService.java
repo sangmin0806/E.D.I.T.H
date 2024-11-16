@@ -79,10 +79,63 @@ public class WebhookService {
     private void saveDashboardDto(Integer projectId, String recentCodeReview, String recentCommitMessage, String advice,
                                   List<String> techStack, List<String> fixLogs) {
         String key = "dashboard:" + projectId;
-        DashboardDto dashboardDto = createDashboardDto(projectId, recentCodeReview,
-                recentCommitMessage, advice, techStack, fixLogs);
 
+        // Redis에서 기존 데이터를 가져오기
+        DashboardDto existingDashboard = (DashboardDto) redisTemplate.opsForValue().get(key);
+
+        DashboardDto dashboardDto = getDashboardDto(
+                projectId,
+                recentCodeReview,
+                recentCommitMessage,
+                advice,
+                techStack,
+                fixLogs,
+                existingDashboard
+        );
+
+        // Redis에 업데이트된 데이터 저장
         redisTemplate.opsForValue().set(key, dashboardDto);
+    }
+
+    private DashboardDto getDashboardDto(Integer projectId,
+                                         String recentCodeReview,
+                                         String recentCommitMessage,
+                                         String advice,
+                                         List<String> techStack,
+                                         List<String> fixLogs,
+                                         DashboardDto existingDashboard) {
+        DashboardDto dashboardDto;
+        if (existingDashboard != null) {
+            // 기존 데이터를 가져오고 techStack만 유지
+            dashboardDto = updateAndOverwriteDashboardDto(
+                    projectId,
+                    recentCodeReview,
+                    recentCommitMessage,
+                    advice,
+                    existingDashboard.techStack(),
+                    fixLogs);
+        } else {
+            // 기존 데이터가 없으면 새로 생성
+            dashboardDto = createDashboardDto(projectId, recentCodeReview, recentCommitMessage, advice, techStack,
+                    fixLogs);
+        }
+        return dashboardDto;
+    }
+
+    private DashboardDto updateAndOverwriteDashboardDto(Integer projectId,
+                                                        String recentCodeReview,
+                                                        String recentCommitMessage,
+                                                        String advice,
+                                                        List<String> techStack,
+                                                        List<String> fixLogs) {
+        return DashboardDto.builder()
+                .projectId(projectId)
+                .recentCodeReview(defaultIfNullOrEmpty(recentCodeReview, "No recent code review available"))
+                .recentCommitMessage(defaultIfNullOrEmpty(recentCommitMessage, "No recent commit message available"))
+                .advice(defaultIfNullOrEmpty(advice, "No advice provided"))
+                .techStack(techStack) // 기존 techStack 유지
+                .fixLogs(defaultIfNullOrEmpty(fixLogs, List.of("No fix logs available")))
+                .build();
     }
 
     private DashboardDto createDashboardDto(Integer projectId, String recentCodeReview, String recentCommitMessage,
