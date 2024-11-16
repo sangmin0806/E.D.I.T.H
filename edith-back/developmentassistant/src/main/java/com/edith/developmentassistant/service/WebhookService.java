@@ -16,7 +16,10 @@ import com.edith.developmentassistant.repository.MRSummaryRepository;
 import com.edith.developmentassistant.repository.ProjectRepository;
 import com.edith.developmentassistant.service.dto.DashboardDto;
 import com.edith.developmentassistant.service.dto.request.RegisterProjectServiceRequest;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -97,6 +100,7 @@ public class WebhookService {
         redisTemplate.opsForValue().set(key, dashboardDto);
     }
 
+
     private DashboardDto getDashboardDto(Integer projectId,
                                          String recentCodeReview,
                                          String recentCommitMessage,
@@ -106,14 +110,15 @@ public class WebhookService {
                                          DashboardDto existingDashboard) {
         DashboardDto dashboardDto;
         if (existingDashboard != null) {
-            // 기존 데이터를 가져오고 techStack만 유지
+            // 기존 데이터가 있으면 병합
             dashboardDto = updateAndOverwriteDashboardDto(
                     projectId,
                     recentCodeReview,
                     recentCommitMessage,
                     advice,
-                    existingDashboard.techStack(),
-                    fixLogs);
+                    mergeTechStacks(existingDashboard.techStack(), techStack),
+                    fixLogs
+            );
         } else {
             // 기존 데이터가 없으면 새로 생성
             dashboardDto = createDashboardDto(projectId, recentCodeReview, recentCommitMessage, advice, techStack,
@@ -121,6 +126,19 @@ public class WebhookService {
         }
         return dashboardDto;
     }
+
+    private List<String> mergeTechStacks(List<String> existingTechStack, List<String> newTechStack) {
+        // 기존과 새로운 리스트를 병합한 뒤 중복 제거
+        Set<String> mergedSet = new HashSet<>();
+        if (existingTechStack != null) {
+            mergedSet.addAll(existingTechStack);
+        }
+        if (newTechStack != null) {
+            mergedSet.addAll(newTechStack);
+        }
+        return new ArrayList<>(mergedSet); // Set을 다시 List로 변환
+    }
+
 
     private DashboardDto updateAndOverwriteDashboardDto(Integer projectId,
                                                         String recentCodeReview,
@@ -133,10 +151,11 @@ public class WebhookService {
                 .recentCodeReview(defaultIfNullOrEmpty(recentCodeReview, "No recent code review available"))
                 .recentCommitMessage(defaultIfNullOrEmpty(recentCommitMessage, "No recent commit message available"))
                 .advice(defaultIfNullOrEmpty(advice, "No advice provided"))
-                .techStack(techStack) // 기존 techStack 유지
+                .techStack(defaultIfNullOrEmpty(techStack, List.of("Default Tech Stack")))
                 .fixLogs(defaultIfNullOrEmpty(fixLogs, List.of("No fix logs available")))
                 .build();
     }
+
 
     private DashboardDto createDashboardDto(Integer projectId, String recentCodeReview, String recentCommitMessage,
                                             String advice, List<String> techStack, List<String> fixLogs) {
