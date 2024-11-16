@@ -176,7 +176,7 @@ public class GitLabServiceClient {
         String url = GITLAB_API_URL + "/projects/" + projectId + "/access_tokens";
 
         // 헤더 설정
-        HttpHeaders headers = createHeader(personalAccessToken);
+        HttpHeaders headers = createHeader(token);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // 요청 본문 생성 (이름 및 모든 권한 설정 포함)
