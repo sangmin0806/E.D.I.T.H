@@ -513,4 +513,34 @@ public class GitLabServiceClient {
         }
     }
 
+    public Integer fetchTotalMergeRequestsCount(Long projectId, String token) {
+        String url = GITLAB_API_URL + "/projects/" + projectId + "/merge_requests?state=merged";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("PRIVATE-TOKEN", token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            log.info("Fetching total merged merge requests count for project ID: {}", projectId);
+
+            // API 요청
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+
+            // 헤더에서 'X-Total' 값 추출
+            String totalCountHeader = response.getHeaders().getFirst("X-Total");
+
+            if (totalCountHeader != null) {
+                int totalCount = Integer.parseInt(totalCountHeader);
+                log.info("Total merged merge requests count: {}", totalCount);
+                return totalCount;
+            } else {
+                log.warn("X-Total header not found in response for project ID: {}", projectId);
+                return 0;
+            }
+        } catch (RestClientException e) {
+            log.error("Error fetching total merged merge requests count for project {}: {}", projectId, e.getMessage());
+            throw e;
+        }
+    }
+
 }

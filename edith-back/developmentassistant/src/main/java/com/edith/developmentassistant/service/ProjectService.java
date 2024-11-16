@@ -257,21 +257,16 @@ public class ProjectService {
         Integer todayCommitsCount = gitLabServiceClient.fetchTodayCommitsCount(projectId, projectAccessToken,
                 getUserEmailByToken(token));
 
-        Integer totalMergeRequestsCount = getTotalMergeRequestsCount(getUserProjectsBy(userId));
+        Integer totalMergedRequestsCount = gitLabServiceClient.fetchTotalMergeRequestsCount(projectId,
+                projectAccessToken);
 
         Integer todayMergeRequestsCount = gitLabServiceClient.fetchTodayMergeRequestsCount(projectId,
                 projectAccessToken,
                 getUserEmailByToken(token));
 
-        return new ProjectStats(todayCommitsCount, totalMergeRequestsCount, todayMergeRequestsCount);
+        return new ProjectStats(todayCommitsCount, totalMergedRequestsCount, todayMergeRequestsCount);
     }
 
-    private Integer getTotalMergeRequestsCount(List<UserProject> userProjects) {
-        return userProjects.stream()
-                .map(userProject -> gitLabServiceClient.fetchMergeRequestsCount(userProject.getProject().getId(),
-                        userProject.getProject().getToken()))
-                .reduce(0, Integer::sum);
-    }
 
     public ProjectDashboardDto getProjectDashboard(String token, Long projectId) {
 
