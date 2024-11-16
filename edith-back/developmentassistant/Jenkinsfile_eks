@@ -127,7 +127,7 @@ pipeline {
                     }
                 }
             }
-
+        }
 
         stage('Push Docker Image to ECR') {
             when {
