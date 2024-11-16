@@ -17,11 +17,13 @@ import com.edith.developmentassistant.domain.UserProject;
 import com.edith.developmentassistant.factory.ProjectFactory;
 import com.edith.developmentassistant.repository.ProjectRepository;
 import com.edith.developmentassistant.repository.UserProjectRepository;
+import com.edith.developmentassistant.service.dto.DashboardDto;
 import com.edith.developmentassistant.service.dto.request.RegisterProjectServiceRequest;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -35,6 +37,7 @@ public class ProjectService {
     private final WebhookService webhookService;
     private final UserServiceClient userServiceClient;
     private final GitLabServiceClient gitLabServiceClient;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public void registerProject(RegisterProjectServiceRequest request, String token) {
 
@@ -54,7 +57,6 @@ public class ProjectService {
     }
 
 
-
     public List<ProjectResponse> getProjects(String token) {
 
         Long userId = getUserIdByToken(token);
@@ -71,7 +73,7 @@ public class ProjectService {
     public List<GitGraph> getGitGraphData(Long projectId, String accessToken) {
 
         UserDto userDto = userServiceClient.getUserByToken(accessToken);
-        
+
         String projectAccessToken = gitLabServiceClient.generateProjectAccessToken(projectId,
                 userDto.getVcsAccessToken());
 
@@ -271,25 +273,11 @@ public class ProjectService {
                 .reduce(0, Integer::sum);
     }
 
-    public String getRecentCommitMessage(String token, Long projectId) {
-        return gitLabServiceClient.fetchRecentCommitMessage(projectId, token);
-    }
-
     public ProjectDashboardDto getProjectDashboard(String token, Long projectId) {
 
         // TODO: Implement this business logic
-
-        return createProjectDashboardDto();
+        DashboardDto dashboardDto = (DashboardDto) redisTemplate.opsForValue().get("dashboard:" + projectId);
+        return ProjectDashboardDto.from(dashboardDto);
     }
 
-    private ProjectDashboardDto createProjectDashboardDto() {
-
-        return ProjectDashboardDto.builder()
-                .recentCommitMessage("This is a recent commit message")
-                .recentCodeReview("This is a recent code review")
-                .advice("This is an advice")
-                .fixLogs(List.of("This is a fix log"))
-                .techStack(List.of("Java", "Spring Boot"))
-                .build();
-    }
 }

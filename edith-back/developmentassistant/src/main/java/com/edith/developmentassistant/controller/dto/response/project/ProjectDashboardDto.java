@@ -1,5 +1,6 @@
 package com.edith.developmentassistant.controller.dto.response.project;
 
+import com.edith.developmentassistant.service.dto.DashboardDto;
 import java.util.List;
 import lombok.Builder;
 
@@ -12,4 +13,13 @@ public record ProjectDashboardDto(
         List<String> techStack
 ) {
 
+    public static ProjectDashboardDto from(DashboardDto dashboardDto) {
+        return ProjectDashboardDto.builder()
+                .recentCommitMessage(dashboardDto.recentCommitMessage())
+                .recentCodeReview(dashboardDto.recentCodeReview())
+                .advice(dashboardDto.advice())
+                .fixLogs(dashboardDto.fixLogs())
+                .techStack(dashboardDto.techStack())
+                .build();
+    }
 }
