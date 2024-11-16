@@ -34,6 +34,7 @@ pipeline {
         // CI INFO
         PREVIOUS_BUILD_NUMBER = "${Integer.parseInt(env.BUILD_NUMBER) - 1}"
         CURRENT_BUILD_NUMBER = "${env.BUILD_NUMBER}"
+        DELETE_IMG_TAG = "${SERVER_NAME}-${APP_TYPE}"
         PREVIOUS_IMG_TAG = "${SERVER_NAME}-${APP_TYPE}-${PREVIOUS_BUILD_NUMBER}"
         CURRENT_IMG_TAG = "${SERVER_NAME}-${APP_TYPE}-${CURRENT_BUILD_NUMBER}"
         YAML_PATH = "${SERVER_NAME}.yaml"
@@ -98,6 +99,37 @@ pipeline {
             }
         }
 
+        stage('Delete Previous Docker Image from ECR') {
+            when {
+                changeset "${CHECKOUT_FOLDER}/${SERVER_NAME}/**"
+            }
+            steps {
+                script {
+                    // 1. AWS 명령어를 통해 이미지 태그들을 가져옴
+                    def tags = sh(
+                        script: "aws ecr list-images --repository-name ${ECR_REPO} --query 'imageIds[*].imageTag' --output text",
+                        returnStdout: true
+                    ).trim()
+
+                    // 2. 가져온 태그들에서 특정 접두사로 시작하는 태그들만 필터링
+                    def filteredTags = tags.tokenize().findAll { it.startsWith(DELETE_IMG_TAG) }
+
+                    // 필터링된 태그 출력
+                    echo "Filtered tags: ${filteredTags}"
+
+                    // 3. 필터링된 태그가 있을 경우 삭제 진행
+                    if (filteredTags) {
+                        filteredTags.each { tag ->
+                            echo "Deleting image with tag: ${tag}"
+                            sh "aws ecr batch-delete-image --repository-name ${ECR_REPO} --image-ids imageTag=${tag}"
+                        }
+                    } else {
+                        echo "No images found with prefix '${DELETE_IMG_TAG}', skipping deletion."
+                    }
+                }
+            }
+        }
+
         stage('Push Docker Image to ECR') {
             when {
                 changeset "${CHECKOUT_FOLDER}/${SERVER_NAME}/**"
@@ -105,7 +137,6 @@ pipeline {
             steps {
                 script {
                     sh """
-                    aws ecr batch-delete-image --repository-name ${ECR_REPO} --image-ids imageTag=${PREVIOUS_IMG_TAG} || echo "Image not found, skipping deletion."
                     docker push ${ECR_URL}/${ECR_REPO}:${CURRENT_IMG_TAG}
                     docker rmi ${SERVER_NAME}-${APP_TYPE}:latest || true
                     docker rmi ${ECR_URL}/${ECR_REPO}:${CURRENT_IMG_TAG}
