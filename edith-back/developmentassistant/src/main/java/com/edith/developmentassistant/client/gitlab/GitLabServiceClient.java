@@ -13,6 +13,7 @@ import com.edith.developmentassistant.client.dto.gitlab.GitCommit;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.Arrays;
@@ -59,23 +60,20 @@ public class GitLabServiceClient {
         RegisterWebhookRequest requestBody = createRequestBody();
 
         // 헤더 설정
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("PRIVATE-TOKEN", personalAccessToken);
-
+        HttpHeaders headers = createHeader(personalAccessToken);
         HttpEntity<RegisterWebhookRequest> requestEntity = new HttpEntity<>(requestBody, headers);
 
+        registerWebhook(projectId, url, requestBody, headers, requestEntity);
+    }
+
+    private void registerWebhook(Long projectId, String url, RegisterWebhookRequest requestBody, HttpHeaders headers,
+                                 HttpEntity<RegisterWebhookRequest> requestEntity) {
         try {
             log.info("Registering webhook for project ID: {}", projectId);
             log.info("Request URL: {}", url);
             log.info("Request Body: {}", requestBody);
             log.info("Request Headers: {}", headers);
-            ResponseEntity<Void> response = restTemplate.exchange(
-                    url,
-                    HttpMethod.POST,
-                    requestEntity,
-                    Void.class,
-                    projectId
-            );
+            ResponseEntity<Void> response = getVoidResponseEntity(projectId, url, requestEntity);
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 log.info("Webhook registered successfully.");
@@ -90,13 +88,30 @@ public class GitLabServiceClient {
         }
     }
 
+    private ResponseEntity<Void> getVoidResponseEntity(Long projectId, String url,
+                                                       HttpEntity<RegisterWebhookRequest> requestEntity) {
+        ResponseEntity<Void> response = restTemplate.exchange(
+                url,
+                HttpMethod.POST,
+                requestEntity,
+                Void.class,
+                projectId
+        );
+        return response;
+    }
+
+    private static HttpHeaders createHeader(String personalAccessToken) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("PRIVATE-TOKEN", personalAccessToken);
+        return headers;
+    }
+
     public MergeRequestDiffResponse fetchMergeRequestDiff(Long projectId, Long mergeRequestIid,
                                                           String personalAccessToken) {
         String url = String.format(GITLAB_API_URL + MR_DIFF_ENDPOINT, projectId, mergeRequestIid);
 
         // 헤더 설정
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("PRIVATE-TOKEN", personalAccessToken);
+        HttpHeaders headers = createHeader(personalAccessToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
@@ -139,8 +154,7 @@ public class GitLabServiceClient {
         CommentRequest commentRequest = new CommentRequest(review);
 
         // 헤더 설정
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("PRIVATE-TOKEN", token);
+        HttpHeaders headers = createHeader(token);
 
         HttpEntity<CommentRequest> requestEntity = new HttpEntity<>(commentRequest, headers);
 
@@ -162,8 +176,7 @@ public class GitLabServiceClient {
         String url = GITLAB_API_URL + "/projects/" + projectId + "/access_tokens";
 
         // 헤더 설정
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("PRIVATE-TOKEN", token);
+        HttpHeaders headers = createHeader(token);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // 요청 본문 생성 (이름 및 모든 권한 설정 포함)
@@ -220,8 +233,7 @@ public class GitLabServiceClient {
     public List<GitCommit> fetchCommitsInMergeRequest(Long projectId, Long mergeRequestIid, String projectAccessToken) {
         String url = GITLAB_API_URL + "/projects/" + projectId + "/merge_requests/" + mergeRequestIid + "/commits";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("PRIVATE-TOKEN", projectAccessToken);
+        HttpHeaders headers = createHeader(projectAccessToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
@@ -239,8 +251,7 @@ public class GitLabServiceClient {
 
     public GitCommit fetchCommitDetails(Long projectId, String commitSha, String projectAccessToken) {
         String url = GITLAB_API_URL + "/projects/" + projectId + "/repository/commits/" + commitSha;
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("PRIVATE-TOKEN", projectAccessToken);
+        HttpHeaders headers = createHeader(projectAccessToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
@@ -259,8 +270,7 @@ public class GitLabServiceClient {
     public List<ContributorDto> fetchContributors(Long projectId, String personalAccessToken) {
         String url = GITLAB_API_URL + "/projects/" + projectId + "/members";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("PRIVATE-TOKEN", personalAccessToken);
+        HttpHeaders headers = createHeader(personalAccessToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
@@ -292,8 +302,7 @@ public class GitLabServiceClient {
     public List<GitMerge> fetchGitLabMergeRequests(Long projectId, String projectAccessToken) {
         String url = GITLAB_API_URL + "/projects/" + projectId + "/merge_requests?state=merged&per_page=2";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("PRIVATE-TOKEN", projectAccessToken);
+        HttpHeaders headers = createHeader(projectAccessToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
@@ -319,7 +328,7 @@ public class GitLabServiceClient {
                 .build();
     }
 
-    public Integer fetchTodayCommitsCount(Long projectId, String projectAccessToken, String userEmail) {
+    public Integer fetchTodayUserCommitsCount(Long projectId, String projectAccessToken, String userEmail) {
         // 오늘 날짜 구하기
         String todayStart = LocalDate.now() + "T00:00:00Z";
         String todayEnd = LocalDate.now() + "T23:59:59Z";
@@ -327,8 +336,7 @@ public class GitLabServiceClient {
         String url = GITLAB_API_URL + "/projects/" + projectId + "/repository/commits" +
                 "?since=" + todayStart + "&until=" + todayEnd;
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("PRIVATE-TOKEN", projectAccessToken);
+        HttpHeaders headers = createHeader(projectAccessToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
@@ -356,16 +364,16 @@ public class GitLabServiceClient {
         }
     }
 
-    public Integer fetchTodayMergeRequestsCount(Long projectId, String projectAccessToken, String userEmail) {
+    public Integer fetchTodayUserMergeRequestsCount(Long projectId, String projectAccessToken, String userEmail) {
         // 오늘 날짜를 UTC 시간대로 설정
         String todayStart = LocalDate.now().atStartOfDay(ZoneOffset.UTC).toString();
         String todayEnd = LocalDate.now().atTime(23, 59, 59).atZone(ZoneOffset.UTC).toString();
+        String username = getGitLabUserNameByToken(projectAccessToken);
 
         String url = GITLAB_API_URL + "/projects/" + projectId + "/merge_requests" +
                 "?created_after=" + todayStart + "&created_before=" + todayEnd;
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("PRIVATE-TOKEN", projectAccessToken);
+        HttpHeaders headers = createHeader(projectAccessToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         log.info("Fetching today's merge requests from URL: {}", url);
@@ -380,12 +388,12 @@ public class GitLabServiceClient {
 
             // 로그로 필터링 대상 확인
             todayMerges.forEach(mr -> log.info("Merge Request: {}, Author Email: {}",
-                    mr, mr.getAuthor() != null ? mr.getAuthor().getEmail() : "null"));
+                    mr, mr.getAuthor() != null ? mr.getAuthor().getName() : "null"));
 
             // 필터링: 작성자가 userEmail과 일치하는 Merge Request
             int todayMergeRequestsCount = (int) todayMerges.stream()
                     .filter(mr -> mr.getAuthor() != null && mr.getAuthor().getEmail() != null)
-                    .filter(mr -> mr.getAuthor().getEmail().trim().equalsIgnoreCase(userEmail.trim()))
+                    .filter(mr -> mr.getAuthor().getName().equalsIgnoreCase(username))
                     .count();
 
             log.info("Today's merge requests count for user {} in project {}: {}", userEmail, projectId,
@@ -422,8 +430,7 @@ public class GitLabServiceClient {
     public Integer fetchMergeRequestsCount(Long id, String token) {
         String url = GITLAB_API_URL + "/projects/" + id + "/merge_requests";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("PRIVATE-TOKEN", token);
+        HttpHeaders headers = createHeader(token);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
@@ -441,8 +448,7 @@ public class GitLabServiceClient {
     public Integer fetchCommitsCount(Long id, String token) {
         String url = GITLAB_API_URL + "/projects/" + id + "/repository/commits?all=true";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("PRIVATE-TOKEN", token);
+        HttpHeaders headers = createHeader(token);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
@@ -460,8 +466,7 @@ public class GitLabServiceClient {
     public String fetchRecentCommitMessage(Long projectId, String token) {
         String url = GITLAB_API_URL + "/projects/" + projectId + "/repository/commits";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("PRIVATE-TOKEN", token);
+        HttpHeaders headers = createHeader(token);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
@@ -486,8 +491,7 @@ public class GitLabServiceClient {
     public List<String> fetchFilteredCommitMessages(Long projectId, String token) {
         String url = GITLAB_API_URL + "/projects/" + projectId + "/repository/commits";
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("PRIVATE-TOKEN", token);
+        HttpHeaders headers = createHeader(token);
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         try {
@@ -512,4 +516,114 @@ public class GitLabServiceClient {
         }
     }
 
+    public Integer fetchTotalMergeRequestsCount(Long projectId, String token) {
+        String url = GITLAB_API_URL + "/projects/" + projectId + "/merge_requests?state=merged";
+
+        HttpHeaders headers = createHeader(token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            log.info("Fetching total merged merge requests count for project ID: {}", projectId);
+
+            // API 요청
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+
+            // 헤더에서 'X-Total' 값 추출
+            String totalCountHeader = response.getHeaders().getFirst("X-Total");
+
+            if (totalCountHeader != null) {
+                int totalCount = Integer.parseInt(totalCountHeader);
+                log.info("Total merged merge requests count: {}", totalCount);
+                return totalCount;
+            } else {
+                log.warn("X-Total header not found in response for project ID: {}", projectId);
+                return 0;
+            }
+        } catch (RestClientException e) {
+            log.error("Error fetching total merged merge requests count for project {}: {}", projectId, e.getMessage());
+            throw e;
+        }
+    }
+
+
+    public Integer fetchTodayCommitsCount(Long projectId, String projectAccessToken) {
+        String todayStart = LocalDate.now().atStartOfDay(ZoneOffset.UTC).toString();
+        String todayEnd = LocalDate.now().atTime(23, 59, 59).atZone(ZoneOffset.UTC).toString();
+
+        String url = GITLAB_API_URL + "/projects/" + projectId + "/repository/commits" +
+                "?since=" + todayStart + "&until=" + todayEnd;
+
+        HttpHeaders headers = createHeader(projectAccessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<List<GitCommit>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<GitCommit>>() {
+                    }
+            );
+
+            List<GitCommit> todayCommits = response.getBody();
+            assert todayCommits != null;
+
+            int todayCommitsCount = todayCommits.size();
+            log.info("Today's commits count for project {}: {}", projectId, todayCommitsCount);
+
+            return todayCommitsCount;
+        } catch (RestClientException e) {
+            log.error("Error fetching today's commits for project {}: {}", projectId, e.getMessage());
+            throw e;
+        }
+    }
+
+    public Integer fetchTodayMergeRequestsCount(Long projectId, String personalAccessToken) {
+        String todayStart = LocalDate.now().atStartOfDay(ZoneOffset.UTC).toString();
+        String todayEnd = LocalDate.now().atTime(23, 59, 59).atZone(ZoneOffset.UTC).toString();
+
+        String url = GITLAB_API_URL + "/projects/" + projectId + "/merge_requests" +
+                "?created_after=" + todayStart + "&created_before=" + todayEnd;
+
+        HttpHeaders headers = createHeader(personalAccessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<List<GitMerge>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<GitMerge>>() {
+                    }
+            );
+
+            List<GitMerge> todayMergeRequests = response.getBody();
+            assert todayMergeRequests != null;
+
+            int todayMergeRequestsCount = todayMergeRequests.size();
+            log.info("Today's merge requests count for project {}: {}", projectId, todayMergeRequestsCount);
+
+            return todayMergeRequestsCount;
+        } catch (RestClientException e) {
+            log.error("Error fetching today's merge requests for project {}: {}", projectId, e.getMessage());
+            throw e;
+        }
+    }
+
+    private String getGitLabUserNameByToken(String personalAccessToken) {
+        String url = GITLAB_API_URL + "/user";
+
+        HttpHeaders headers = createHeader(personalAccessToken);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, String.class
+            );
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                JsonNode rootNode = objectMapper.readTree(response.getBody());
+                return rootNode.path("name").asText();
+            } else {
+                throw new RestClientException("Unexpected response status: " + response.getStatusCode());
+            }
+        } catch (RestClientException | IOException e) {
+            log.error("Error fetching GitLab user name by token: {}", e.getMessage());
+            throw new RuntimeException(e);
+        }
+    }
 }
