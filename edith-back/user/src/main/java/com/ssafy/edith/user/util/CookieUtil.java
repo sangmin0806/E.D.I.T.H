@@ -48,7 +48,7 @@ public class CookieUtil {
                         .secure(true)
                         .maxAge(cookieExpiration)
                         .build();
-        response.addHeader("Cookie", cookie.toString());
+        response.setHeader("Set-Cookie", cookie.toString());
 
     }
     public void addRefreshToken(HttpServletResponse response, String value) {
@@ -59,6 +59,6 @@ public class CookieUtil {
                 .secure(true)
                 .maxAge(cookieExpiration)
                 .build();
-        response.addHeader("Cookie", cookie.toString());
+        response.setHeader("Set-Cookie", cookie.toString());
     }
 }
