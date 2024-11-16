@@ -157,12 +157,12 @@ public class GitLabServiceClient {
         }
     }
 
-    public String generateProjectAccessToken(Long projectId, String personalAccessToken) {
+    public String generateProjectAccessToken(Long projectId, String token) {
         String url = GITLAB_API_URL + "/projects/" + projectId + "/access_tokens";
 
         // 헤더 설정
         HttpHeaders headers = new HttpHeaders();
-        headers.set("PRIVATE-TOKEN", personalAccessToken);
+        headers.set("PRIVATE-TOKEN", token);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         // 요청 본문 생성 (이름 및 모든 권한 설정 포함)
@@ -177,8 +177,7 @@ public class GitLabServiceClient {
                         "api",
                         "read_api",
                         "write_repository",
-                        "read_repository",
-                        "read_user"
+                        "read_repository"
                 ))
                 .expiresAt(LocalDate.now().plusYears(1)) // 현재 날짜로부터 1년 후
                 .accessLevel(40)
