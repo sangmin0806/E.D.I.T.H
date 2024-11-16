@@ -476,5 +476,33 @@ public class GitLabServiceClient {
         }
     }
 
+    public List<String> fetchFilteredCommitMessages(Long projectId, String token) {
+        String url = GITLAB_API_URL + "/projects/" + projectId + "/repository/commits";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("PRIVATE-TOKEN", token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+
+        try {
+            ResponseEntity<List<GitCommit>> response = restTemplate.exchange(
+                    url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<GitCommit>>() {
+                    });
+
+            List<GitCommit> commits = response.getBody();
+            assert commits != null;
+
+            // 필터링: 메시지가 fix, !HOTFIX, refactor로 시작하는 커밋만 반환
+            return commits.stream()
+                    .map(GitCommit::getMessage)
+                    .filter(message -> message.startsWith("fix")
+                            || message.startsWith("!HOTFIX")
+                            || message.startsWith("refactor"))
+                    .toList();
+
+        } catch (RestClientException e) {
+            log.error("Error fetching filtered commit messages for project {}: {}", projectId, e.getMessage());
+            throw e;
+        }
+    }
 
 }
