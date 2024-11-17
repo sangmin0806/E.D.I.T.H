@@ -65,7 +65,7 @@ public class RagServiceClient {
     }
 
     public String getHealthCheck() {
-        String url = URL + "/rag/health-check";
+        String url = URL + "/health-check";
         log.info("Sending GET request to URL: {}", url);
         return restTemplate.getForObject(url, String.class);
     }
