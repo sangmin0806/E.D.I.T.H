@@ -264,6 +264,10 @@ public class ProjectService {
 
         Integer todayMergeRequestsCount = getTodayMergeRequestsCount(projectId, projectAccessToken);
 
+        log.info("projectService todayCommitsCount: {}", todayCommitsCount);
+        log.info("projectService totalMergedRequestsCount: {}", totalMergedRequestsCount);
+        log.info("projectService todayMergeRequestsCount: {}", todayMergeRequestsCount);
+
         return new ProjectStats(todayCommitsCount, totalMergedRequestsCount, todayMergeRequestsCount);
     }
 
@@ -290,6 +294,11 @@ public class ProjectService {
     public ProjectDashboardDto getProjectDashboard(Long projectId) {
 
         DashboardDto dashboardDto = (DashboardDto) redisTemplate.opsForValue().get("dashboard:" + projectId);
+        log.info("dashboardDto advice : {}", dashboardDto.advice());
+        log.info("dashboardDto recentCodeReview : {}", dashboardDto.recentCodeReview());
+        log.info("dashboardDto recentCommitMessage : {}", dashboardDto.recentCommitMessage());
+        log.info("dashboardDto fixLogs : {}", dashboardDto.fixLogs());
+        log.info("dashboardDto techStack : {}", dashboardDto.techStack());
 
         return getProjectDashboardDto(dashboardDto);
     }
@@ -307,7 +316,6 @@ public class ProjectService {
 
         return ProjectDashboardDto.from(dashboardDto);
     }
-
 
 
 }
