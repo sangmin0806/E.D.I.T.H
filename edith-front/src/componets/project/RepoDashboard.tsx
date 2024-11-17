@@ -52,7 +52,7 @@ function RepoDashboard() {
         <div className="flex flex-col gap-[2.5rem]">
           <ProjectCurrentState
             blueStateSubject={"총 MR 수"}
-            blueStateNum={stat?.totalMergeRequestCount || 0}
+            blueStateNum={stat?.totalMergeRequestsCount || 0}
             pinkStateSubject={"오늘의 MR 수"}
             pinkStateNum={stat?.todayMergeRequestsCount || 0}
             yellowStateSubject={"오늘의 커밋 수"}
