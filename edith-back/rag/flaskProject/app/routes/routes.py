@@ -7,6 +7,7 @@ import time
 
 # Blueprint 생성
 routes_bp = Blueprint('routes', __name__)
+log = logging.__get_logger()
 
 # 로거 설정
 logger = logging.getLogger(__name__)
@@ -14,6 +15,7 @@ logger = logging.getLogger(__name__)
 
 @routes_bp.route('/rag/health-check', methods=['GET'])
 def health_check():
+    log.info('health check')
     return "I'm Alive!!!"
 
 
@@ -69,10 +71,12 @@ def code_review():
     projectId = data.get('projectId')
     branch = data.get('branch')
     changes = data.get('changes')
+    log.info(f'code review make = {projectId}')
 
-    review, portfolio = reviewer.getCodeReview(url, token, projectId, branch, changes)
+
+    review, portfolio, techStack = reviewer.getCodeReview(url, token, projectId, branch, changes)
     if review and portfolio:
-        return jsonify({'status': 'success', 'review': review, 'summary': portfolio})
+        return jsonify({'status': 'success', 'review': review, 'techStacks': techStack, 'summary': portfolio})
     else:
         return jsonify({'status': 'fail', 'message': '코드 리뷰 생성 중 오류가 발생했습니다.'}), 500
 

@@ -12,4 +12,5 @@ public class CodeReviewRequest {
     String projectId;
     String branch;
     List<CodeReviewChanges> changes;
+    List<String> techStacks;
 }
