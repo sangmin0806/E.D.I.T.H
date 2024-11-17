@@ -19,6 +19,7 @@ import com.edith.developmentassistant.service.dto.response.GitLabMergeRequestRes
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -62,10 +63,11 @@ public class PortfolioService {
             // 1. User, userProject 찾기
             UserDto user = userServiceClient.getUserByToken(accessToken);
 //            UserDto user = createUserDto();
-            UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getUserId(), Long.parseLong(projectId));
+            UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getUserId(),
+                    Long.parseLong(projectId));
 //            UserProject userProject = createUserProject();
 
-            if(userProject == null) {
+            if (userProject == null) {
                 log.error("PortfolioService -> UserProject not found");
                 throw new RuntimeException("PortfolioService -> UserProject not found");
             }
@@ -85,13 +87,21 @@ public class PortfolioService {
                     summaries,
                     mergeRequestdateRange.getMergeRequests()
             );
-//            log.info("Create portfolio request: {}", request);
+
+            log.info("Flask URL: {}", FLASK_PORTFOLIO_URL);
+            log.info("Request data: {}", request);
+
             // 5. 포트폴리오 받아 반환하기
             ResponseEntity<FlaskPortfolioResponse> response = portfolioRestTemplate.postForEntity(
                     FLASK_PORTFOLIO_URL,
                     request,
                     FlaskPortfolioResponse.class // 응답 타입
             );
+
+            if (response.getStatusCode() != HttpStatus.OK) {
+                log.error("Flask 서버 오류: 상태코드 {}", response.getStatusCode());
+                throw new RuntimeException("Flask 서버 응답 오류");
+            }
 
             return PortfolioDto.builder()
                     .portfolio(response.getBody().getPortfolio())
@@ -162,7 +172,8 @@ public class PortfolioService {
     public PortfolioDto savePortfolio(String accessToken, PortfolioDto portfolio) {
 
         UserDto user = userServiceClient.getUserByToken(accessToken);
-        UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getUserId(), portfolio.getProjectId());
+        UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getUserId(),
+                portfolio.getProjectId());
 
         Optional<Portfolio> existingPortfolio = portfolioRepository.findByUserProject(userProject);
         PortfolioDto savedPortfolio;
@@ -197,7 +208,8 @@ public class PortfolioService {
     public PortfolioDto getPortfolio(String accessToken, String portfolioId) {
 
         UserDto user = userServiceClient.getUserByToken(accessToken);
-        UserProject userProject = userProjectRepository.findByUserIdAndProjectId(user.getUserId(), Long.parseLong(portfolioId))
+        UserProject userProject = userProjectRepository.findByUserIdAndProjectId(user.getUserId(),
+                        Long.parseLong(portfolioId))
                 .orElse(null);
 
         Portfolio portfolio = portfolioRepository.findByUserProject(userProject)
@@ -227,7 +239,6 @@ public class PortfolioService {
                 })
                 .timeout(Duration.ofSeconds(10));
     }
-
 
 //    private UserDto createUserDto() {
 //        return UserDto.builder()
