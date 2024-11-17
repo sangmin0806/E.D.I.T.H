@@ -285,7 +285,7 @@ def get_code_review(projectId, review_queries, llm):
             jsonData = json.loads(code_review_result)
             logger.info(jsonData)
             # 3. 파싱된 JSON 데이터 사용
-            logger.info(jsonData['review'], "\n === \n", jsonData['techStack'])
+            logger.info(f"{jsonData['review']}\n === \n{jsonData['techStack']}")
 
             return re.sub(r'<title>.*?</title>', '', jsonData['review'].replace('\n', '')), portfolio_result, jsonData[
                 'techStack']
