@@ -454,9 +454,9 @@ def generate_advice(mr_summaries):
 
         # LLM 호출 - 올바른 타입(str) 전달
         response = llm(prompt)
-
-        # 결과 반환
-        return response["text"]
+        logger.info(f"조언 생성 결과: {response.content}")
+        # 결과 반환 AIMessage
+        return response.content
 
     except Exception as e:
         logger.info(f"LLM을 사용한 조언 생성 중 오류 발생: {e}")
