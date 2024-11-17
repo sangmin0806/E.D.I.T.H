@@ -73,33 +73,39 @@ public class RagServiceClient {
     }
 
     public String sendAdviceRequest(Long projectId, String token, List<String> mrSummaries) {
-    String url = URL + "/advice";
+        String url = URL + "/advice";
 
-    log.info("Sending POST request to URL: {}", url);
-    log.info("mrSummaries: {}", mrSummaries);
+        log.info("Sending POST request to URL: {}", url);
+        log.info("mrSummaries: {}", mrSummaries);
 
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
 
-    HttpEntity<List<String>> requestEntity = new HttpEntity<>(mrSummaries, headers);
+        HttpEntity<List<String>> requestEntity = new HttpEntity<>(mrSummaries, headers);
 
-    try {
-        // JSON 응답 자동 디코딩
-        String response = restTemplate.postForObject(url, requestEntity, String.class);
-        log.info("Received response: {}", response);
+        try {
+            // JSON 응답을 문자열로 수신
+            String response = restTemplate.postForObject(url, requestEntity, String.class);
+            log.info("Received response: {}", response);
 
-        // 추가로 JSON 데이터를 파싱해 처리 가능
-        ObjectMapper mapper = new ObjectMapper();
-        Map<String, Object> responseData = mapper.readValue(response, Map.class);
-        log.info("Decoded advice: {}", responseData.get("advice"));
+            // JSON 데이터 파싱
+            Map<String, Object> responseData = objectMapper.readValue(response, Map.class);
 
-        return response;
-    } catch (HttpClientErrorException | HttpServerErrorException e) {
-        log.error("HTTP Error: Status code {}, Response body {}", e.getStatusCode(), e.getResponseBodyAsString());
-        throw e;
-    } catch (Exception ex) {
-        log.error("Error during advice request: {}", ex.getMessage(), ex);
-        throw new RuntimeException("Error during advice request", ex);
+            // "advice" 필드 추출
+            if (responseData.containsKey("advice")) {
+                String advice = (String) responseData.get("advice");
+                log.info("Decoded advice: {}", advice);
+                return advice; // "advice" 필드 값 반환
+            } else {
+                throw new RuntimeException("Response does not contain 'advice' field.");
+            }
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            log.error("HTTP Error: Status code {}, Response body {}", e.getStatusCode(), e.getResponseBodyAsString());
+            throw e;
+        } catch (Exception ex) {
+            log.error("Error during advice request: {}", ex.getMessage(), ex);
+            throw new RuntimeException("Error during advice request", ex);
+        }
     }
-}
+
 }
