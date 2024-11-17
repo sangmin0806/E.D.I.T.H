@@ -65,6 +65,11 @@ public class PortfolioService {
             UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getUserId(), Long.parseLong(projectId));
 //            UserProject userProject = createUserProject();
 
+            if(userProject == null) {
+                log.error("PortfolioService -> UserProject not found");
+                throw new RuntimeException("PortfolioService -> UserProject not found");
+            }
+
             // 2. project summery 찾기 -> id 로 찾기
             List<Summary> summaries = mrSummaryRepository.findByProjectId(Long.parseLong(projectId)).stream()
                     .map(Summary::from)
