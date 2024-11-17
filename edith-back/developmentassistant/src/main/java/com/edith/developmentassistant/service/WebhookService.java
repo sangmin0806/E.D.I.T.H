@@ -55,7 +55,11 @@ public class WebhookService {
             List<CodeReviewChanges> changes = mapChanges(mergeDiff.getChanges());
             List<String> mrSummaries = fetchRecentMRSummaries(projectId);
 
+            log.info("Advice start");
+
             String advice = fetchAdvice(projectId, project.getToken(), mrSummaries);
+
+            log.info("Advice: {}", advice);
 
             CodeReviewResponse response = requestCodeReview(projectId, project.getToken(), mergeDiff, changes);
 
