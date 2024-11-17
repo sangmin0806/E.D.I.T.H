@@ -279,7 +279,7 @@ def get_code_review(projectId, review_queries, llm):
         try:
             # 2. 문자열을 JSON으로 파싱
             jsonData = json.loads(code_review_result)
-            logger(jsonData)
+            logger.info(jsonData)
             # 3. 파싱된 JSON 데이터 사용
             logger.info(jsonData['review'], "\n === \n", jsonData['techStack'])
 
@@ -452,8 +452,8 @@ def generate_advice(mr_summaries):
         5. 간결하고 명확하게 작성
         """
 
-        # LLM 호출
-        response = llm({"text": prompt})
+        # LLM 호출 - 올바른 타입(str) 전달
+        response = llm(prompt)
 
         # 결과 반환
         return response["text"]
