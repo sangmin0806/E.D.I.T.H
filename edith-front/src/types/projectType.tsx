@@ -40,9 +40,9 @@ export type ProjectListItem = {
 };
 
 export type commitStat = {
-  totalCommitsCount: number;
-  todayTotalCommitsCount: number;
-  totalCodeReviewCount: number;
+  todayCommitsCount: number;
+  totalMergeRequestCount: number;
+  todayMergeRequestsCount: number;
 };
 
 export type myCommitStat = {
