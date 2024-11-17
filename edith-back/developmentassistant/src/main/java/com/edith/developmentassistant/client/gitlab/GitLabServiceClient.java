@@ -473,13 +473,15 @@ public class GitLabServiceClient {
             ResponseEntity<List<GitCommit>> response = restTemplate.exchange(
                     url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<GitCommit>>() {
                     });
-
+            log.info("Fetching recent commit message for project ID: {}", projectId);
             List<GitCommit> commits = response.getBody();
             assert commits != null;
 
             if (commits.isEmpty()) {
                 return null;
             }
+
+            log.info("Recent commit message: {}", commits.get(0).getMessage());
 
             return commits.get(0).getMessage();
         } catch (RestClientException e) {
