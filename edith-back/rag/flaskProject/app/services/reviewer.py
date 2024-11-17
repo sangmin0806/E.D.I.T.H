@@ -279,7 +279,7 @@ def get_code_review(projectId, review_queries, llm):
         try:
             # 2. 문자열을 JSON으로 파싱
             jsonData = json.loads(code_review_result)
-            log(jsonData)
+            logger(jsonData)
             # 3. 파싱된 JSON 데이터 사용
             logger.info(jsonData['review'], "\n === \n", jsonData['techStack'])
 
