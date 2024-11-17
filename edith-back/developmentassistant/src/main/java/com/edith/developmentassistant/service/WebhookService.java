@@ -36,6 +36,7 @@ public class WebhookService {
     private final MRSummaryRepository mrSummaryRepository;
     private final RedisTemplate<String, Object> redisTemplate;
 
+    private final String ADVICE = "이디스의 조언입니다.";
 
     public void registerWebhook(RegisterProjectServiceRequest request, String token) {
         gitLabServiceClient.registerWebhook(request.id(), token);
@@ -56,7 +57,7 @@ public class WebhookService {
             List<String> mrSummaries = fetchRecentMRSummaries(projectId);
 
 //            String advice = fetchAdvice(projectId, project.getToken(), mrSummaries);
-            String advice = "이디스의 조언입니다.";
+            String advice = ADVICE;
 
             CodeReviewResponse response = requestCodeReview(projectId, project.getToken(), mergeDiff, changes);
 

@@ -11,7 +11,9 @@ from langchain.text_splitter import TokenTextSplitter
 from app.services.llm_model import LLMModel
 import uuid
 import json
+import logging
 
+logger = logging.getLogger(__name__)
 
 
 def getCodeReview(url, token, projectId, branch, changes):
@@ -83,7 +85,7 @@ def getCodeReview(url, token, projectId, branch, changes):
             related_codes = [doc.page_content for doc, score in results]
             return related_codes
         except Exception as e:
-            print(f"Error querying similar code: {e}")
+            logger.info(f"Error querying similar code: {e}")
             return []"""]
             code_chunks = []
 
@@ -106,7 +108,7 @@ def getCodeReview(url, token, projectId, branch, changes):
 
 
     except Exception as e:
-        print(f"오류 발생: {e}")
+        logger.info(f"오류 발생: {e}")
         return '', ''
 
     finally:
@@ -115,12 +117,12 @@ def getCodeReview(url, token, projectId, branch, changes):
             try:
                 vectorDB.cleanup()
             except Exception as e:
-                print(f"Error cleaning up vectorDB: {e}")
+                logger.info(f"Error cleaning up vectorDB: {e}")
         if chunker:
             try:
                 chunker.cleanup_project_directory()
             except Exception as e:
-                print(f"Error cleaning up project directory: {e}")
+                logger.info(f"Error cleaning up project directory: {e}")
 
 
 def get_language_from_extension(file_name: str) -> str:
@@ -261,7 +263,7 @@ def get_code_review(projectId, review_queries, llm):
                     {"output": review_result}
                 )
             except Exception as e:
-                print(f"개별 리뷰 중 오류 발생: {e}")
+                logger.info(f"개별 리뷰 중 오류 발생: {e}")
                 continue
 
         portfolio_result = portfolio_chain.invoke({
@@ -277,16 +279,17 @@ def get_code_review(projectId, review_queries, llm):
         try:
             # 2. 문자열을 JSON으로 파싱
             jsonData = json.loads(code_review_result)
-            print(jsonData)
+            log(jsonData)
             # 3. 파싱된 JSON 데이터 사용
-            print(jsonData['review'], "\n === \n", jsonData['techStack'])
+            logger.info(jsonData['review'], "\n === \n", jsonData['techStack'])
 
-            return re.sub(r'<title>.*?</title>', '', jsonData['review'].replace('\n', '')), portfolio_result, jsonData['techStack']
+            return re.sub(r'<title>.*?</title>', '', jsonData['review'].replace('\n', '')), portfolio_result, jsonData[
+                'techStack']
         except json.JSONDecodeError as e:
-            print(f"JSON 파싱 에러: {e}")
+            logger.info(f"JSON 파싱 에러: {e}")
 
     except Exception as e:
-        print(f"리뷰 중 오류 발생: {e}")
+        logger.info(f"리뷰 중 오류 발생: {e}")
         return str(e)
 
     finally:
@@ -370,7 +373,7 @@ def chunked_review(project_id, llm, file_path: str, code_chunk: str, similar_cod
                 )
 
             except Exception as e:
-                print(f"청크 {i + 1} 처리 중 오류: {e}")
+                logger.info(f"청크 {i + 1} 처리 중 오류: {e}")
                 continue
 
         # 리뷰 결과 통합
@@ -399,7 +402,7 @@ def chunked_review(project_id, llm, file_path: str, code_chunk: str, similar_cod
 
             return final_review
     except Exception as e:
-        print(f"코드리뷰 시 오류발생: {e}")
+        logger.info(f"코드리뷰 시 오류발생: {e}")
         return ''
     finally:
         file_codeReview_memory.clear()
@@ -456,5 +459,5 @@ def generate_advice(mr_summaries):
         return response["text"]
 
     except Exception as e:
-        print(f"LLM을 사용한 조언 생성 중 오류 발생: {e}")
+        logger.info(f"LLM을 사용한 조언 생성 중 오류 발생: {e}")
         raise RuntimeError("조언 생성 실패") from e
