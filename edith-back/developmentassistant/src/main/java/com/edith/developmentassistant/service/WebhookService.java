@@ -76,7 +76,7 @@ public class WebhookService {
         saveDashboardDto(
                 projectId.intValue(),
                 codeReviewResponse.getReview(),
-                "fix: fix bug RepoDashboard Line 84",
+                recentCommitMessage,
                 "이디스의 조언입니다.",
                 codeReviewResponse.getTechStack(),
                 fixLogs
