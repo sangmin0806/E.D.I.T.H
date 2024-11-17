@@ -36,123 +36,116 @@ public class WebhookService {
     private final MRSummaryRepository mrSummaryRepository;
     private final RedisTemplate<String, Object> redisTemplate;
 
+
     public void registerWebhook(RegisterProjectServiceRequest request, String token) {
-        Long projectId = request.id();
-        gitLabServiceClient.registerWebhook(projectId, token);
+        gitLabServiceClient.registerWebhook(request.id(), token);
     }
 
     public void commentCodeReview(WebhookEvent webhookEvent) {
         Long projectId = (long) webhookEvent.getProject().getId();
         Long mergeRequestIid = (long) webhookEvent.getObjectAttributes().getIid();
 
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("Project not found"));
+        Project project = findProjectById(projectId);
 
-        String token = project.getToken();
+        MergeRequestDiffResponse mergeDiff = fetchMergeRequestDiff(projectId, mergeRequestIid, project.getToken());
+        List<String> fixLogs = fetchFixLogs(projectId, project.getToken());
+        String recentCommitMessage = fetchRecentCommitMessage(projectId, project.getToken());
 
-        MergeRequestDiffResponse MergeDiff = gitLabServiceClient.fetchMergeRequestDiff(projectId, mergeRequestIid,
-                token);
+        List<CodeReviewChanges> changes = mapChanges(mergeDiff.getChanges());
+        List<String> mrSummaries = fetchRecentMRSummaries(projectId);
 
-        String recentCommitMessage = gitLabServiceClient.fetchRecentCommitMessage(projectId, token);
-        log.info("RecentCommitMessage: {}", recentCommitMessage);
-        List<String> fixLogs = gitLabServiceClient.fetchFilteredCommitMessages(projectId, token);
-        String baseUrl = "https://lab.ssafy.com";
-        List<CodeReviewChanges> changes = MergeDiff.getChanges().stream().map(Change::toCodeReviewChanges)
-                .toList();
+        String advice = fetchAdvice(projectId, project.getToken(), mrSummaries);
 
-        List<MRSummary> MRSummaries = mrSummaryRepository.findTop10ByProjectIdOrderByCreatedDateDesc(projectId);
+        CodeReviewResponse response = requestCodeReview(projectId, project.getToken(), mergeDiff, changes);
 
-        List<String> MRSummariesContent = new ArrayList<>();
+        saveMRSummary(webhookEvent, mergeRequestIid, response, project);
 
-        for (MRSummary mrSummary : MRSummaries) {
-            MRSummariesContent.add(mrSummary.getContent());
-        }
+        updateDashboard(projectId.intValue(), response, recentCommitMessage, advice, fixLogs);
 
-        String advice = ragServiceClient.getAdvice(projectId, token, MRSummariesContent);
-
-        CodeReviewRequest request = CodeReviewRequest.builder()
-                .url(baseUrl)
-                .projectId(projectId.toString())
-                .branch(MergeDiff.getTargetBranch())
-                .token(token)
-                .changes(changes).build();
-
-        //TODO Redis 에 techStack 반영, 최근 코드리뷰 갱신
-
-        log.info("MergeRequestDiffResponse: {}", MergeDiff.getChanges());
-
-        CodeReviewResponse codeReviewResponse = ragServiceClient.commentCodeReview(request);
-
-        saveMRSummary(webhookEvent, mergeRequestIid, codeReviewResponse, project);
-
-        saveDashboardDto(
-                projectId.intValue(),
-                codeReviewResponse.getReview(),
-                recentCommitMessage,
-                advice,
-                codeReviewResponse.getTechStack(),
-                fixLogs
-        );
-
-        gitLabServiceClient.addMergeRequestComment(projectId, mergeRequestIid, token, codeReviewResponse.getReview(),
-                codeReviewResponse.getSummary());
+        postMergeRequestComment(projectId, mergeRequestIid, project.getToken(), response);
     }
 
-    private void saveDashboardDto(Integer projectId,
-                                  String recentCodeReview,
-                                  String recentCommitMessage,
-                                  String advice,
-                                  List<String> techStack,
-                                  List<String> fixLogs
-    ) {
-        String key = "dashboard:" + projectId;
+    private Project findProjectById(Long projectId) {
+        return projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Project not found"));
+    }
 
-        // Redis에서 기존 데이터를 가져오기
+    private MergeRequestDiffResponse fetchMergeRequestDiff(Long projectId, Long mergeRequestIid, String token) {
+        return gitLabServiceClient.fetchMergeRequestDiff(projectId, mergeRequestIid, token);
+    }
+
+    private List<String> fetchFixLogs(Long projectId, String token) {
+        return gitLabServiceClient.fetchFilteredCommitMessages(projectId, token);
+    }
+
+    private String fetchRecentCommitMessage(Long projectId, String token) {
+        return gitLabServiceClient.fetchRecentCommitMessage(projectId, token);
+    }
+
+    private List<CodeReviewChanges> mapChanges(List<Change> changes) {
+        return changes.stream()
+                .map(Change::toCodeReviewChanges)
+                .toList();
+    }
+
+    private List<String> fetchRecentMRSummaries(Long projectId) {
+        return mrSummaryRepository.findTop10ByProjectIdOrderByCreatedDateDesc(projectId).stream()
+                .map(MRSummary::getContent)
+                .toList();
+    }
+
+    private String fetchAdvice(Long projectId, String token, List<String> mrSummaries) {
+        return ragServiceClient.getAdvice(projectId, token, mrSummaries);
+    }
+
+    private CodeReviewResponse requestCodeReview(Long projectId, String token, MergeRequestDiffResponse mergeDiff,
+                                                 List<CodeReviewChanges> changes) {
+        CodeReviewRequest request = CodeReviewRequest.builder()
+                .url("https://lab.ssafy.com")
+                .projectId(projectId.toString())
+                .branch(mergeDiff.getTargetBranch())
+                .token(token)
+                .changes(changes)
+                .build();
+        return ragServiceClient.commentCodeReview(request);
+    }
+
+    private void saveMRSummary(WebhookEvent webhookEvent, Long mergeRequestIid, CodeReviewResponse response,
+                               Project project) {
+        mrSummaryRepository.save(MRSummary.builder()
+                .mrId(mergeRequestIid.toString())
+                .gitlabEmail(webhookEvent.getUser().getEmail())
+                .content(response.getReview())
+                .project(project)
+                .build());
+    }
+
+    private void updateDashboard(Integer projectId, CodeReviewResponse response, String recentCommitMessage,
+                                 String advice, List<String> fixLogs) {
+        String key = "dashboard:" + projectId;
         DashboardDto existingDashboard = (DashboardDto) redisTemplate.opsForValue().get(key);
 
-        DashboardDto dashboardDto = getDashboardDto(
-                projectId,
-                recentCodeReview,
-                recentCommitMessage,
-                advice,
-                techStack,
-                fixLogs,
-                existingDashboard
-        );
+        DashboardDto updatedDashboard = createOrUpdateDashboard(projectId, response, recentCommitMessage, advice,
+                fixLogs, existingDashboard);
 
-        // Redis에 업데이트된 데이터 저장
-        redisTemplate.opsForValue().set(key, dashboardDto);
+        redisTemplate.opsForValue().set(key, updatedDashboard);
     }
 
-
-    private DashboardDto getDashboardDto(Integer projectId,
-                                         String recentCodeReview,
-                                         String recentCommitMessage,
-                                         String advice,
-                                         List<String> techStack,
-                                         List<String> fixLogs,
-                                         DashboardDto existingDashboard) {
-        DashboardDto dashboardDto;
-        if (existingDashboard != null) {
-            // 기존 데이터가 있으면 병합
-            dashboardDto = updateAndOverwriteDashboardDto(
-                    projectId,
-                    recentCodeReview,
-                    recentCommitMessage,
-                    advice,
-                    mergeTechStacks(existingDashboard.techStack(), techStack),
-                    fixLogs
-            );
-        } else {
-            // 기존 데이터가 없으면 새로 생성
-            dashboardDto = createDashboardDto(projectId, recentCodeReview, recentCommitMessage, advice, techStack,
-                    fixLogs);
-        }
-        return dashboardDto;
+    private DashboardDto createOrUpdateDashboard(Integer projectId, CodeReviewResponse response,
+                                                 String recentCommitMessage, String advice, List<String> fixLogs,
+                                                 DashboardDto existingDashboard) {
+        return DashboardDto.builder()
+                .projectId(projectId)
+                .recentCodeReview(defaultIfNullOrEmpty(response.getReview(), "No recent code review available"))
+                .recentCommitMessage(defaultIfNullOrEmpty(recentCommitMessage, "No recent commit message available"))
+                .advice(defaultIfNullOrEmpty(advice, "No advice provided"))
+                .techStack(mergeTechStacks(existingDashboard == null ? List.of() : existingDashboard.techStack(),
+                        response.getTechStack()))
+                .fixLogs(defaultIfNullOrEmpty(fixLogs, List.of("No fix logs available")))
+                .build();
     }
 
     private List<String> mergeTechStacks(List<String> existingTechStack, List<String> newTechStack) {
-        // 기존과 새로운 리스트를 병합한 뒤 중복 제거
         Set<String> mergedSet = new HashSet<>();
         if (existingTechStack != null) {
             mergedSet.addAll(existingTechStack);
@@ -160,46 +153,12 @@ public class WebhookService {
         if (newTechStack != null) {
             mergedSet.addAll(newTechStack);
         }
-        return new ArrayList<>(mergedSet); // Set을 다시 List로 변환
+        return new ArrayList<>(mergedSet);
     }
 
-
-    private DashboardDto updateAndOverwriteDashboardDto(Integer projectId,
-                                                        String recentCodeReview,
-                                                        String recentCommitMessage,
-                                                        String advice,
-                                                        List<String> techStack,
-                                                        List<String> fixLogs) {
-        return DashboardDto.builder()
-                .projectId(projectId)
-                .recentCodeReview(defaultIfNullOrEmpty(recentCodeReview, "No recent code review available"))
-                .recentCommitMessage(defaultIfNullOrEmpty(recentCommitMessage, "No recent commit message available"))
-                .advice(defaultIfNullOrEmpty(advice, "No advice provided"))
-                .techStack(defaultIfNullOrEmpty(techStack, List.of("Default Tech Stack")))
-                .fixLogs(defaultIfNullOrEmpty(fixLogs, List.of("No fix logs available")))
-                .build();
-    }
-
-
-    private DashboardDto createDashboardDto(Integer projectId, String recentCodeReview, String recentCommitMessage,
-                                            String advice, List<String> techStack, List<String> fixLogs) {
-        return DashboardDto.builder()
-                .projectId(projectId)
-                .recentCodeReview(defaultIfNullOrEmpty(recentCodeReview, "No recent code review available"))
-                .recentCommitMessage(defaultIfNullOrEmpty(recentCommitMessage, "No recent commit message available"))
-                .advice(defaultIfNullOrEmpty(advice, "No advice provided"))
-                .techStack(defaultIfNullOrEmpty(techStack, List.of("Default Tech Stack")))
-                .fixLogs(defaultIfNullOrEmpty(fixLogs, List.of("No fix logs available")))
-                .build();
-    }
-
-    private void saveMRSummary(WebhookEvent webhookEvent, Long mergeRequestIid, CodeReviewResponse codeReviewResponse,
-                               Project project) {
-        mrSummaryRepository.save(MRSummary.builder()
-                .mrId(mergeRequestIid.toString())
-                .gitlabEmail(webhookEvent.getUser().getEmail())
-                .content(codeReviewResponse.getReview())
-                .project(project)
-                .build());
+    private void postMergeRequestComment(Long projectId, Long mergeRequestIid, String token,
+                                         CodeReviewResponse response) {
+        gitLabServiceClient.addMergeRequestComment(projectId, mergeRequestIid, token, response.getReview(),
+                response.getSummary());
     }
 }
