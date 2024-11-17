@@ -80,6 +80,10 @@ public class ProjectService {
         // 최근 MergeRequest목록 가져오기 (5개)
         List<GitMerge> merges = gitLabServiceClient.fetchGitLabMergeRequests(projectId, projectAccessToken);
 
+        return getGitGraphList(projectId, merges, projectAccessToken);
+    }
+
+    private List<GitGraph> getGitGraphList(Long projectId, List<GitMerge> merges, String projectAccessToken) {
         return merges.stream()
                 .map(mergeRequest -> {
                     // MergeRequest 커밋 가져오기
