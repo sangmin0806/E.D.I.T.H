@@ -4,6 +4,7 @@ import com.edith.developmentassistant.client.dto.rag.CodeReviewRequest;
 import com.edith.developmentassistant.client.dto.rag.CodeReviewResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,24 +73,33 @@ public class RagServiceClient {
     }
 
     public String sendAdviceRequest(Long projectId, String token, List<String> mrSummaries) {
-        String url = URL + "/advice";
+    String url = URL + "/advice";
 
-        log.info("Sending POST request to URL: {}", url);
-        log.info("mrSummaries: {}", mrSummaries);
+    log.info("Sending POST request to URL: {}", url);
+    log.info("mrSummaries: {}", mrSummaries);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_JSON);
 
-        HttpEntity<List<String>> requestEntity = new HttpEntity<>(mrSummaries, headers);
+    HttpEntity<List<String>> requestEntity = new HttpEntity<>(mrSummaries, headers);
 
-        try {
-            return restTemplate.postForObject(url, requestEntity, String.class);
-        } catch (HttpClientErrorException | HttpServerErrorException e) {
-            log.error("HTTP Error: Status code {}, Response body {}", e.getStatusCode(), e.getResponseBodyAsString());
-            throw e;
-        } catch (Exception ex) {
-            log.error("Error during advice request: {}", ex.getMessage(), ex);
-            throw new RuntimeException("Error during advice request", ex);
-        }
+    try {
+        // JSON 응답 자동 디코딩
+        String response = restTemplate.postForObject(url, requestEntity, String.class);
+        log.info("Received response: {}", response);
+
+        // 추가로 JSON 데이터를 파싱해 처리 가능
+        ObjectMapper mapper = new ObjectMapper();
+        Map<String, Object> responseData = mapper.readValue(response, Map.class);
+        log.info("Decoded advice: {}", responseData.get("advice"));
+
+        return response;
+    } catch (HttpClientErrorException | HttpServerErrorException e) {
+        log.error("HTTP Error: Status code {}, Response body {}", e.getStatusCode(), e.getResponseBodyAsString());
+        throw e;
+    } catch (Exception ex) {
+        log.error("Error during advice request: {}", ex.getMessage(), ex);
+        throw new RuntimeException("Error during advice request", ex);
     }
+}
 }
