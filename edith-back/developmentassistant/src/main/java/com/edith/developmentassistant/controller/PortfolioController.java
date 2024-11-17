@@ -6,6 +6,7 @@ import static com.edith.developmentassistant.controller.ApiUtils.success;
 import com.edith.developmentassistant.service.PortfolioService;
 import com.edith.developmentassistant.service.dto.PortfolioDto;
 import com.edith.developmentassistant.service.dto.response.FindAllPortfolioResponse;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class PortfolioController {
     public ApiUtils.ApiResult<?> makePortfolio(
             @CookieValue(value = "accessToken", required = false) String token,
             @PathVariable String projectId,
-            @RequestParam(required = false) String branch) {
+            @RequestParam(required = false) @NotNull String branch) {
 
         PortfolioDto result = portfolioService.createPortfolio(token, projectId, branch);
         return success(result);
