@@ -51,12 +51,12 @@ function RepoDashboard() {
       <div>
         <div className="flex flex-col gap-[2.5rem]">
           <ProjectCurrentState
-            blueStateSubject={"총 커밋 수"}
-            blueStateNum={stat?.totalCommitsCount || 0}
-            pinkStateSubject={"완료한 코드 리뷰"}
-            pinkStateNum={stat?.totalCodeReviewCount || 0}
+            blueStateSubject={"총 MR 수"}
+            blueStateNum={stat?.totalMergeRequestCount || 0}
+            pinkStateSubject={"오늘의 MR 수"}
+            pinkStateNum={stat?.todayMergeRequestsCount || 0}
             yellowStateSubject={"오늘의 커밋 수"}
-            yellowStateNum={stat?.todayTotalCommitsCount || 0}
+            yellowStateNum={stat?.todayCommitsCount || 0}
           />
           {/* 대시보드 첫번째 줄 */}
           <div className="py-8 pl-4 pr-4 bg-white/30 rounded-3xl flex-col justify-center items-center gap-6 inline-flex">
