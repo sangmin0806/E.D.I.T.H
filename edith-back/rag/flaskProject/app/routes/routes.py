@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 def health_check():
     return "I'm Alive!!!"
 
+
 @routes_bp.route('/rag/portfolio', methods=['POST'])
 def portfolio_make():
     try:
@@ -28,6 +29,10 @@ def portfolio_make():
         summaries = data.get('summaries', [])
         merge_request = data.get('mergeRequests', [])
         description = data.get('description', '')
+
+        if description is None:
+            logger.info("description is None")
+            description = ''
 
         # 필드 값 로깅
         logger.info("Processing portfolio for userId: %s", user_id)
