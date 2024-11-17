@@ -65,14 +65,16 @@ public class RagServiceClient {
     }
 
     public String getHealthCheck() {
-        String url = URL + "/health-check";
+        String url = URL + "/rag/health-check";
         log.info("Sending GET request to URL: {}", url);
         return restTemplate.getForObject(url, String.class);
     }
 
     public String sendAdviceRequest(Long projectId, String token, List<String> mrSummaries) {
         String url = URL + "/advice";
+
         log.info("Sending POST request to URL: {}", url);
+        log.info("mrSummaries: {}", mrSummaries);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);

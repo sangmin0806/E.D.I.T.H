@@ -13,6 +13,7 @@ import com.edith.developmentassistant.controller.dto.response.project.ProjectSta
 import com.edith.developmentassistant.controller.dto.response.project.RegisterProjectResponse;
 import com.edith.developmentassistant.controller.dto.response.project.UsersProjectsStats;
 import com.edith.developmentassistant.service.ProjectService;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -97,7 +98,7 @@ public class ProjectController {
     @GetMapping("/stats")
     public ApiResult<ProjectStats> getProjectStats(
             @CookieValue(value = "accessToken") String token,
-            @RequestParam Long id
+            @RequestParam @NotNull Long id
     ) {
         return success(projectService.getProjectStats(token, id));
     }
@@ -105,7 +106,7 @@ public class ProjectController {
     @GetMapping("/dashboard")
     public ApiResult<ProjectDashboardDto> getProjectDashboard(
             @CookieValue(value = "accessToken") String token,
-            @RequestParam Long id) {
+            @RequestParam @NotNull Long id) {
         return success(projectService.getProjectDashboard(id));
     }
 }
