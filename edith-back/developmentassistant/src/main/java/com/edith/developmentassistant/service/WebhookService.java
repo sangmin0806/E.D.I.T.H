@@ -59,7 +59,7 @@ public class WebhookService {
 
             String advice = fetchAdvice(projectId, project.getToken(), mrSummaries);
 
-            log.info("Advice: {}", advice);
+            log.info("Decoded Advice: {}", advice);
 
             CodeReviewResponse response = requestCodeReview(projectId, project.getToken(), mergeDiff, changes);
 
