@@ -55,7 +55,8 @@ public class WebhookService {
             List<CodeReviewChanges> changes = mapChanges(mergeDiff.getChanges());
             List<String> mrSummaries = fetchRecentMRSummaries(projectId);
 
-            String advice = fetchAdvice(projectId, project.getToken(), mrSummaries);
+//            String advice = fetchAdvice(projectId, project.getToken(), mrSummaries);
+            String advice = "이디스의 조언입니다.";
 
             CodeReviewResponse response = requestCodeReview(projectId, project.getToken(), mergeDiff, changes);
 
@@ -64,6 +65,7 @@ public class WebhookService {
             updateDashboard(projectId.intValue(), response, recentCommitMessage, advice, fixLogs);
 
             postMergeRequestComment(projectId, mergeRequestIid, project.getToken(), response);
+
         } catch (Exception e) {
             log.error("Error occurred while processing webhook event", e);
         }
