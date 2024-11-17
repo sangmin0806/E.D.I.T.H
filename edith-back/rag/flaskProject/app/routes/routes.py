@@ -7,7 +7,6 @@ import time
 
 # Blueprint 생성
 routes_bp = Blueprint('routes', __name__)
-log = logging.__get_logger()
 
 # 로거 설정
 logger = logging.getLogger(__name__)
@@ -15,8 +14,8 @@ logger = logging.getLogger(__name__)
 
 @routes_bp.route('/rag/health-check', methods=['GET'])
 def health_check():
-    log.info('health check')
-    log.info('health check')
+    logger.info('health check')
+    logger.info('health check')
     return "I'm Alive!!!"
 
 
@@ -72,7 +71,7 @@ def code_review():
     projectId = data.get('projectId')
     branch = data.get('branch')
     changes = data.get('changes')
-    log.info(f'code review make = {projectId}')
+    logger.info(f'code review make = {projectId}')
 
     review, portfolio, techStack = reviewer.getCodeReview(url, token, projectId, branch, changes)
     if review and portfolio:

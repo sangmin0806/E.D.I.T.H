@@ -21,6 +21,6 @@ def create_app():
 
     from app.routes.routes import routes_bp
     app.register_blueprint(routes_bp)
-    
+
     app.logger.debug("Finished create_app() function.")
     return app
