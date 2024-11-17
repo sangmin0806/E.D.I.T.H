@@ -47,22 +47,26 @@ public class WebhookService {
 
         Project project = findProjectById(projectId);
 
-        MergeRequestDiffResponse mergeDiff = fetchMergeRequestDiff(projectId, mergeRequestIid, project.getToken());
-        List<String> fixLogs = fetchFixLogs(projectId, project.getToken());
-        String recentCommitMessage = fetchRecentCommitMessage(projectId, project.getToken());
+        try {
+            MergeRequestDiffResponse mergeDiff = fetchMergeRequestDiff(projectId, mergeRequestIid, project.getToken());
+            List<String> fixLogs = fetchFixLogs(projectId, project.getToken());
+            String recentCommitMessage = fetchRecentCommitMessage(projectId, project.getToken());
 
-        List<CodeReviewChanges> changes = mapChanges(mergeDiff.getChanges());
-        List<String> mrSummaries = fetchRecentMRSummaries(projectId);
+            List<CodeReviewChanges> changes = mapChanges(mergeDiff.getChanges());
+            List<String> mrSummaries = fetchRecentMRSummaries(projectId);
 
-        String advice = fetchAdvice(projectId, project.getToken(), mrSummaries);
+            String advice = fetchAdvice(projectId, project.getToken(), mrSummaries);
 
-        CodeReviewResponse response = requestCodeReview(projectId, project.getToken(), mergeDiff, changes);
+            CodeReviewResponse response = requestCodeReview(projectId, project.getToken(), mergeDiff, changes);
 
-        saveMRSummary(webhookEvent, mergeRequestIid, response, project);
+            saveMRSummary(webhookEvent, mergeRequestIid, response, project);
 
-        updateDashboard(projectId.intValue(), response, recentCommitMessage, advice, fixLogs);
+            updateDashboard(projectId.intValue(), response, recentCommitMessage, advice, fixLogs);
 
-        postMergeRequestComment(projectId, mergeRequestIid, project.getToken(), response);
+            postMergeRequestComment(projectId, mergeRequestIid, project.getToken(), response);
+        } catch (Exception e) {
+            log.error("Error occurred while processing webhook event", e);
+        }
     }
 
     private Project findProjectById(Long projectId) {
