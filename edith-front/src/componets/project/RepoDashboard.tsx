@@ -63,7 +63,7 @@ function RepoDashboard() {
             <div className="flex w-[90%] gap-4">
               <div className="w-[40%] py-8 pl-8 pr-8 bg-white/30 rounded-3xl flex-col justify-center gap-6 inline-flex shadow-custom">
                 <p className="text-xl font-semibold">최근 커밋 내역</p>
-                <p>{dashboard?.recentCodeReview}</p>
+                <p>{dashboard?.recentCommitMessage}</p>
               </div>
               <div className="w-[60%] py-8 pl-8 pr-8 bg-white/30 rounded-3xl flex-col justify-center gap-6 inline-flex shadow-custom">
                 <div className="flex gap-4">
