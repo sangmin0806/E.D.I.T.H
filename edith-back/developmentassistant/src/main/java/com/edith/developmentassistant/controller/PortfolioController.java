@@ -25,10 +25,12 @@ public class PortfolioController {
 //    public ApiUtils.ApiResult<RegisterProjectResponse> registerProjects(
     public ApiUtils.ApiResult<?> makePortfolio(
             @CookieValue(value = "accessToken", required = false) String token,
-            @PathVariable String projectId,
-            @RequestParam(required = false) String branch) {
+            @PathVariable String projectId
+    ) {
         // TODO : branch가 우리 서비스에서 관리가 안되서 임시처리로 develop 이라고 함
-        branch = "develop";
+        // TODO : @RequestParam String branch
+
+        String branch = "develop";
         PortfolioDto result = portfolioService.createPortfolio(token, projectId, branch);
         return success(result);
     }
