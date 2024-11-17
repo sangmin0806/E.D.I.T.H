@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify
 from app.services import portfolio
-from app.services import reviewer
 import logging
 
 import time
@@ -65,6 +64,8 @@ def portfolio_make():
 
 @routes_bp.route('/rag/code-review', methods=['POST'])
 def code_review():
+    from app.services import reviewer
+
     data = request.get_json()
     url = data.get('url')
     token = data.get('token')
@@ -82,6 +83,8 @@ def code_review():
 
 @routes_bp.route('/rag/advice', methods=['POST'])
 def get_advice():
+    from app.services import reviewer
+
     try:
         # 요청 방식 확인
         if request.method != 'POST':
