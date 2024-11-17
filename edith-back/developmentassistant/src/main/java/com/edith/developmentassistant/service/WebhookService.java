@@ -95,7 +95,7 @@ public class WebhookService {
     }
 
     private String fetchAdvice(Long projectId, String token, List<String> mrSummaries) {
-        return ragServiceClient.getAdvice(projectId, token, mrSummaries);
+        return ragServiceClient.sendAdviceRequest(projectId, token, mrSummaries);
     }
 
     private CodeReviewResponse requestCodeReview(Long projectId, String token, MergeRequestDiffResponse mergeDiff,

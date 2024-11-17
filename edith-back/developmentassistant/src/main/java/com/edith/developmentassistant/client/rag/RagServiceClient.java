@@ -1,12 +1,9 @@
 package com.edith.developmentassistant.client.rag;
 
-import com.edith.developmentassistant.client.dto.rag.CodeReviewChanges;
 import com.edith.developmentassistant.client.dto.rag.CodeReviewRequest;
 import com.edith.developmentassistant.client.dto.rag.CodeReviewResponse;
-import com.edith.developmentassistant.domain.MRSummary;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -73,9 +70,9 @@ public class RagServiceClient {
         return restTemplate.getForObject(url, String.class);
     }
 
-    public String getAdvice(Long projectId, String token, List<String> mrSummaries) {
+    public String sendAdviceRequest(Long projectId, String token, List<String> mrSummaries) {
         String url = URL + "/advice";
-        log.info("Sending GET request to URL: {}", url);
+        log.info("Sending POST request to URL: {}", url);
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -88,8 +85,8 @@ public class RagServiceClient {
             log.error("HTTP Error: Status code {}, Response body {}", e.getStatusCode(), e.getResponseBodyAsString());
             throw e;
         } catch (Exception ex) {
-            log.error("Error during code review request: {}", ex.getMessage(), ex);
-            throw new RuntimeException("Error during code review request", ex);
+            log.error("Error during advice request: {}", ex.getMessage(), ex);
+            throw new RuntimeException("Error during advice request", ex);
         }
     }
 }

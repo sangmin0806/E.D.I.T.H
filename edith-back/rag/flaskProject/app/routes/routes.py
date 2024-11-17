@@ -73,7 +73,6 @@ def code_review():
     changes = data.get('changes')
     log.info(f'code review make = {projectId}')
 
-
     review, portfolio, techStack = reviewer.getCodeReview(url, token, projectId, branch, changes)
     if review and portfolio:
         return jsonify({'status': 'success', 'review': review, 'techStacks': techStack, 'summary': portfolio})
@@ -81,20 +80,23 @@ def code_review():
         return jsonify({'status': 'fail', 'message': '코드 리뷰 생성 중 오류가 발생했습니다.'}), 500
 
 
-@routes_bp.route('/advice', methods=['POST'])
+@routes_bp.route('/rag/advice', methods=['POST'])
 def get_advice():
     try:
+        # 요청 방식 확인
+        if request.method != 'POST':
+            logger.warning("Invalid request method: %s", request.method)
+            return jsonify({'status': 'fail', 'message': 'Invalid request method. Use POST.'}), 405
+
         # 요청 데이터 추출
-        mr_summaries = request.get_json()  # JSON 데이터를 리스트로 수신
+        mr_summaries = request.get_json()
         if not isinstance(mr_summaries, list):
             logger.warning("Invalid data format. Expected a list.")
             return jsonify({'status': 'fail', 'message': 'Invalid data format. Expected a list.'}), 400
 
-        # 요청 데이터 로깅
+        # 로직 처리
         logger.info("Received MR Summaries: %s", mr_summaries)
-
-        # 로직 처리 (예: 요약 데이터 기반으로 조언 생성)
-        advice = reviewer.generate_advice(mr_summaries)  # `generate_advice`는 커스텀 로직
+        advice = reviewer.generate_advice(mr_summaries)
 
         # 성공 응답
         logger.info("Advice generated successfully.")
