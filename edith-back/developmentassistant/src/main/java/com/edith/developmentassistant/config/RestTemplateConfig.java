@@ -43,8 +43,8 @@ public class RestTemplateConfig {
     @Qualifier("ragRestTemplate")
     public RestTemplate ragRestTemplate() {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(600000);    // 30초
-        factory.setReadTimeout(600000);      // 10분
+        factory.setConnectTimeout(6000000);    // 30초
+        factory.setReadTimeout(6000000);      // 10분
         RestTemplate restTemplate = new RestTemplate(factory);
         List<ClientHttpRequestInterceptor> interceptors = new ArrayList<>();
         restTemplate.setInterceptors(interceptors);
@@ -57,8 +57,8 @@ public class RestTemplateConfig {
     public RestTemplate portfolioRestTemplate() {
         // 타임아웃 설정을 위한 Factory 생성
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(600000);    // 30초
-        factory.setReadTimeout(600000);      // 10분
+        factory.setConnectTimeout(6000000);    // 30초
+        factory.setReadTimeout(6000000);      // 10분
 
         // RestTemplate 생성 시 factory 적용
         RestTemplate restTemplate = new RestTemplate(factory);

@@ -87,6 +87,7 @@ def get_advice():
         # 요청 데이터 추출
         mr_summaries = request.get_json()  # JSON 데이터를 리스트로 수신
         if not isinstance(mr_summaries, list):
+            logger.warning("Invalid data format. Expected a list.")
             return jsonify({'status': 'fail', 'message': 'Invalid data format. Expected a list.'}), 400
 
         # 요청 데이터 로깅
@@ -96,6 +97,7 @@ def get_advice():
         advice = reviewer.generate_advice(mr_summaries)  # `generate_advice`는 커스텀 로직
 
         # 성공 응답
+        logger.info("Advice generated successfully.")
         return jsonify({'status': 'success', 'advice': advice}), 200
 
     except Exception as e:
