@@ -45,4 +45,4 @@ ENV FLASK_APP=run.py
 ENV FLASK_RUN_PORT=8083
 
 # gunicorn 실행
-CMD ["gunicorn", "--bind", "0.0.0.0:8083", "--workers=4", "--preload", "--timeout=180", "--log-level=debug", "--error-logfile=/app/logs/error.log", "--access-logfile=/app/logs/access.log", "run:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8083", "--workers=4", "--preload", "--timeout=180", "--log-level=info", "--error-logfile=/app/logs/error.log", "--access-logfile=/app/logs/access.log", "run:app"]

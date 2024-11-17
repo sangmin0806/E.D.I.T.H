@@ -185,18 +185,6 @@ public class ProjectService {
         return userByToken.getEmail();
     }
 
-    private List<ProjectResponse> getProjectsResponses(List<UserProject> userProjects) {
-        return userProjects.stream()
-                .map(userProject -> {
-                    Project project = userProject.getProject();
-                    List<ContributorDto> contributors = gitLabServiceClient.fetchContributors(project.getId(),
-                            project.getToken());
-                    return ProjectResponse.from(project, userProject.getTitle(), contributors,
-                            userProject.getDescription());
-                })
-                .toList();
-    }
-
     private List<ProjectResponse> getProjectsResponsesV2(String token, List<Long> projectIds) {
         return projectIds.stream()
                 .map(projectId -> getProjectByTokenAndProjectId(token, projectId))
