@@ -452,8 +452,8 @@ def generate_advice(mr_summaries):
         5. 간결하고 명확하게 작성
         """
 
-        # LLM 호출 - 올바른 타입(str) 전달
-        response = llm(prompt)
+        # LLM 호출
+        response = llm({"text": prompt})
 
         # 결과 반환
         return response["text"]
