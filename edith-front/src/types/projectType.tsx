@@ -41,7 +41,7 @@ export type ProjectListItem = {
 
 export type commitStat = {
   todayCommitsCount: number;
-  totalMergeRequestCount: number;
+  totalMergeRequestsCount: number;
   todayMergeRequestsCount: number;
 };
 
