@@ -57,6 +57,8 @@ public class WebhookService {
 
             String advice = fetchAdvice(projectId, project.getToken(), mrSummaries);
 
+            log.info("Advice: {}", advice);
+
             CodeReviewResponse response = requestCodeReview(projectId, project.getToken(), mergeDiff, changes);
 
             saveMRSummary(webhookEvent, mergeRequestIid, response, project);
