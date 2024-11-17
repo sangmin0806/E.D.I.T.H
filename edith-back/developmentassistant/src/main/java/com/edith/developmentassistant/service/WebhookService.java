@@ -60,6 +60,16 @@ public class WebhookService {
         List<CodeReviewChanges> changes = MergeDiff.getChanges().stream().map(Change::toCodeReviewChanges)
                 .toList();
 
+        List<MRSummary> MRSummaries = mrSummaryRepository.findTop10ByProjectIdOrderByCreatedDateDesc(projectId);
+
+        List<String> MRSummariesContent = new ArrayList<>();
+
+        for (MRSummary mrSummary : MRSummaries) {
+            MRSummariesContent.add(mrSummary.getContent());
+        }
+
+        String advice = ragServiceClient.getAdvice(projectId, token, MRSummariesContent);
+
         CodeReviewRequest request = CodeReviewRequest.builder()
                 .url(baseUrl)
                 .projectId(projectId.toString())
@@ -77,7 +87,7 @@ public class WebhookService {
                 projectId.intValue(),
                 codeReviewResponse.getReview(),
                 recentCommitMessage,
-                "이디스의 조언입니다.",
+                advice,
                 codeReviewResponse.getTechStack(),
                 fixLogs
         );

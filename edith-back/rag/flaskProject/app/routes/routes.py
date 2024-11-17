@@ -75,3 +75,25 @@ def code_review():
         return jsonify({'status': 'success', 'review': review, 'summary': portfolio})
     else:
         return jsonify({'status': 'fail', 'message': '코드 리뷰 생성 중 오류가 발생했습니다.'}), 500
+
+
+@routes_bp.route('/advice', methods=['POST'])
+def get_advice():
+    try:
+        # 요청 데이터 추출
+        mr_summaries = request.get_json()  # JSON 데이터를 리스트로 수신
+        if not isinstance(mr_summaries, list):
+            return jsonify({'status': 'fail', 'message': 'Invalid data format. Expected a list.'}), 400
+
+        # 요청 데이터 로깅
+        logger.info("Received MR Summaries: %s", mr_summaries)
+
+        # 로직 처리 (예: 요약 데이터 기반으로 조언 생성)
+        advice = reviewer.generate_advice(mr_summaries)  # `generate_advice`는 커스텀 로직
+
+        # 성공 응답
+        return jsonify({'status': 'success', 'advice': advice}), 200
+
+    except Exception as e:
+        logger.exception("Error processing advice request: %s", e)
+        return jsonify({'status': 'fail', 'message': 'Internal server error'}), 500

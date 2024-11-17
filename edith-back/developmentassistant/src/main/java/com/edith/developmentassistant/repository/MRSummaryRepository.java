@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface MRSummaryRepository extends JpaRepository<MRSummary, Long> {
     List<MRSummary> findByProjectId(Long projectId);
+    List<MRSummary> findTop10ByProjectIdOrderByCreatedDateDesc(Long projectId);
 }
