@@ -81,7 +81,7 @@ def code_review():
         return jsonify({'status': 'fail', 'message': '코드 리뷰 생성 중 오류가 발생했습니다.'}), 500
 
 
-@routes_bp.route('/advice', methods=['POST'])
+@routes_bp.route('/rag/advice', methods=['POST'])
 def get_advice():
     try:
         # 요청 데이터 추출
