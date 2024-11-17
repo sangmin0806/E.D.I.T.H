@@ -7,6 +7,7 @@ import com.edith.developmentassistant.client.dto.gitlab.GitGraph;
 import com.edith.developmentassistant.client.dto.gitlab.GitMerge;
 import com.edith.developmentassistant.client.gitlab.GitLabServiceClient;
 import com.edith.developmentassistant.client.user.UserServiceClient;
+import com.edith.developmentassistant.controller.dto.response.project.ProjectDashboardDto;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectDto;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectResponse;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectStats;
@@ -16,11 +17,13 @@ import com.edith.developmentassistant.domain.UserProject;
 import com.edith.developmentassistant.factory.ProjectFactory;
 import com.edith.developmentassistant.repository.ProjectRepository;
 import com.edith.developmentassistant.repository.UserProjectRepository;
+import com.edith.developmentassistant.service.dto.DashboardDto;
 import com.edith.developmentassistant.service.dto.request.RegisterProjectServiceRequest;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -34,6 +37,7 @@ public class ProjectService {
     private final WebhookService webhookService;
     private final UserServiceClient userServiceClient;
     private final GitLabServiceClient gitLabServiceClient;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     public void registerProject(RegisterProjectServiceRequest request, String token) {
 
@@ -69,6 +73,7 @@ public class ProjectService {
     public List<GitGraph> getGitGraphData(Long projectId, String accessToken) {
 
         UserDto userDto = userServiceClient.getUserByToken(accessToken);
+
         String projectAccessToken = gitLabServiceClient.generateProjectAccessToken(projectId,
                 userDto.getVcsAccessToken());
 
@@ -211,62 +216,106 @@ public class ProjectService {
     }
 
     public UsersProjectsStats getUsersProjectsStats(String token) {
+        log.info("developmentassisstant service에서 보내는 JWT Token: {}", token);
         Long userId = getUserIdByToken(token);
         String userEmail = getUserEmailByToken(token);
+        String personalAccessToken = getVcsAccessToken(token);
 
         List<UserProject> userProjects = getUserProjectsBy(userId);
 
         Integer totalProjectsCount = userProjects.size();
 
-        Integer todayCommitsCount = getTodayCommitsCount(userProjects, userEmail);
+        Integer todayCommitsCount = getUserTodayCommitsCount(userProjects, userEmail, personalAccessToken);
 
-        Integer todayMergeRequestsCount = getTodayMergeRequestsCount(userProjects, userEmail);
+        Integer todayMergeRequestsCount = getUserTodayMergeRequestsCount(userProjects, userEmail, personalAccessToken);
 
         return new UsersProjectsStats(totalProjectsCount, todayCommitsCount, todayMergeRequestsCount);
     }
 
+    private String getVcsAccessToken(String token) {
+        return userServiceClient.getUserByToken(token).getVcsAccessToken();
+    }
 
-    private Integer getTodayCommitsCount(List<UserProject> userProjects, String userEmail) {
+
+    private Integer getUserTodayCommitsCount(List<UserProject> userProjects, String userEmail,
+                                             String personalAccessToken) {
         return userProjects.stream()
-                .map(userProject -> gitLabServiceClient.fetchTodayCommitsCount(userProject.getProject().getId(),
-                        userProject.getProject().getToken(), userEmail))
+                .map(userProject -> gitLabServiceClient.fetchTodayUserCommitsCount(userProject.getProject().getId(),
+                        personalAccessToken, userEmail))
                 .reduce(0, Integer::sum);
     }
 
-    private Integer getTodayMergeRequestsCount(List<UserProject> userProjects, String userEmail) {
+    private Integer getUserTodayMergeRequestsCount(List<UserProject> userProjects, String userEmail,
+                                                   String personalAccessToken) {
         return userProjects.stream()
-                .map(userProject -> gitLabServiceClient.fetchTodayMergeRequestsCount(userProject.getProject().getId(),
-                        userProject.getProject().getToken(), userEmail))
+                .map(userProject -> gitLabServiceClient.fetchTodayUserMergeRequestsCount(
+                        userProject.getProject().getId(),
+                        personalAccessToken, userEmail))
                 .reduce(0, Integer::sum);
     }
 
     public ProjectStats getProjectStats(String token, Long projectId) {
 
-        Long userId = getUserIdByToken(token);
+        String projectAccessToken = getProjectAccessToken(projectId);
 
-        String projectAccessToken = projectRepository.findById(projectId)
+        Integer todayCommitsCount = getTodayCommitsCount(projectId, projectAccessToken);
+
+        Integer totalMergedRequestsCount = getTotalMergedRequestsCount(projectId, projectAccessToken);
+
+        Integer todayMergeRequestsCount = getTodayMergeRequestsCount(projectId, projectAccessToken);
+
+        log.info("projectService todayCommitsCount: {}", todayCommitsCount);
+        log.info("projectService totalMergedRequestsCount: {}", totalMergedRequestsCount);
+        log.info("projectService todayMergeRequestsCount: {}", todayMergeRequestsCount);
+
+        return new ProjectStats(todayCommitsCount, totalMergedRequestsCount, todayMergeRequestsCount);
+    }
+
+    private Integer getTodayMergeRequestsCount(Long projectId, String projectAccessToken) {
+        return gitLabServiceClient.fetchTodayMergeRequestsCount(projectId,
+                projectAccessToken);
+    }
+
+    private Integer getTotalMergedRequestsCount(Long projectId, String projectAccessToken) {
+        return gitLabServiceClient.fetchTotalMergeRequestsCount(projectId,
+                projectAccessToken);
+    }
+
+    private Integer getTodayCommitsCount(Long projectId, String projectAccessToken) {
+        return gitLabServiceClient.fetchTodayCommitsCount(projectId, projectAccessToken);
+    }
+
+    private String getProjectAccessToken(Long projectId) {
+        return projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Project not found"))
                 .getToken();
-
-        Integer todayCommitsCount = gitLabServiceClient.fetchTodayCommitsCount(projectId, projectAccessToken,
-                getUserEmailByToken(token));
-
-        Integer totalMergeRequestsCount = getTotalMergeRequestsCount(getUserProjectsBy(userId));
-
-        Integer todayMergeRequestsCount = gitLabServiceClient.fetchTodayMergeRequestsCount(projectId, token,
-                getUserEmailByToken(token));
-
-        return new ProjectStats(todayCommitsCount, totalMergeRequestsCount, todayMergeRequestsCount);
     }
 
-    private Integer getTotalMergeRequestsCount(List<UserProject> userProjects) {
-        return userProjects.stream()
-                .map(userProject -> gitLabServiceClient.fetchMergeRequestsCount(userProject.getProject().getId(),
-                        userProject.getProject().getToken()))
-                .reduce(0, Integer::sum);
+    public ProjectDashboardDto getProjectDashboard(Long projectId) {
+
+        DashboardDto dashboardDto = (DashboardDto) redisTemplate.opsForValue().get("dashboard:" + projectId);
+        log.info("dashboardDto advice : {}", dashboardDto.advice());
+        log.info("dashboardDto recentCodeReview : {}", dashboardDto.recentCodeReview());
+        log.info("dashboardDto recentCommitMessage : {}", dashboardDto.recentCommitMessage());
+        log.info("dashboardDto fixLogs : {}", dashboardDto.fixLogs());
+        log.info("dashboardDto techStack : {}", dashboardDto.techStack());
+
+        return getProjectDashboardDto(dashboardDto);
     }
 
-    public String getRecentCommitMessage(String token, Long projectId) {
-        return gitLabServiceClient.fetchRecentCommitMessage(projectId, token);
+    private static ProjectDashboardDto getProjectDashboardDto(DashboardDto dashboardDto) {
+        if (dashboardDto == null) {
+            return ProjectDashboardDto.builder()
+                    .recentCodeReview("No recent code review")
+                    .recentCommitMessage("No recent commit message")
+                    .advice("No advice")
+                    .fixLogs(List.of())
+                    .techStack(List.of())
+                    .build();
+        }
+
+        return ProjectDashboardDto.from(dashboardDto);
     }
+
+
 }

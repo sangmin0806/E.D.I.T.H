@@ -5,6 +5,7 @@ import {
   ProjectListItem,
   commitStat,
   myCommitStat,
+  projectDashboard,
 } from "../types/projectType";
 import { apiRequest, axiosInstance } from "./axios";
 
@@ -74,4 +75,16 @@ export const getMyCommitsStats = async (): Promise<{
   error?: string;
 }> => {
   return apiRequest(() => axiosInstance.get(`/api/v1/projects/users/stats`));
+};
+
+export const getDashboard = async (
+  projectID: number
+): Promise<{
+  success: boolean;
+  response?: projectDashboard;
+  error?: string;
+}> => {
+  return apiRequest(() =>
+    axiosInstance.get(`/api/v1/projects/dashboard?id=${projectID}`)
+  );
 };

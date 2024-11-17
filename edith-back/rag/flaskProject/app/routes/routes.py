@@ -1,30 +1,66 @@
 from flask import Blueprint, request, jsonify
 from app.services import portfolio
 from app.services import reviewer
-from app.services import logging
+import logging
+
 import time
 
 # Blueprint 생성
 routes_bp = Blueprint('routes', __name__)
 log = logging.__get_logger()
 
+# 로거 설정
+logger = logging.getLogger(__name__)
+
+
 @routes_bp.route('/rag/health-check', methods=['GET'])
 def health_check():
     log.info('health check')
     return "I'm Alive!!!"
 
+
 @routes_bp.route('/rag/portfolio', methods=['POST'])
 def portfolio_make():
-    data = request.get_json()
-    user_id = data['userId']
-    log.info(f'portfolio make = {user_id}')
-    summaries = data.get('summaries')
-    merge_request = data.get('mergeRequests')
-    description = data.get('description')
-    result = portfolio.make_portfolio(user_id, summaries, merge_request, description)
-    if result:
-        return jsonify({'status': 'success', 'portfolio': result}), 200
-    return jsonify({'status': 'fail'}), 400
+    try:
+        # 요청 데이터 로깅
+        data = request.get_json()
+        logger.info("Received request data: %s", data)
+
+        # 데이터 추출
+        user_id = data.get('userId')
+        summaries = data.get('summaries', [])
+        merge_request = data.get('mergeRequests', [])
+        description = data.get('description', '')
+
+        if description is None:
+            logger.info("description is None")
+            description = ''
+
+        # 필드 값 로깅
+        logger.info("Processing portfolio for userId: %s", user_id)
+        logger.debug("Summaries: %s", summaries)
+        logger.debug("Merge Requests: %s", merge_request)
+        logger.debug("Description: %s", description)
+
+        # 포트폴리오 생성 호출
+        result = portfolio.make_portfolio(user_id, summaries, merge_request, description)
+        logger.info("Portfolio creation result: %s", result)
+
+        # 성공 응답
+        if result:
+            logger.info("Portfolio creation succeeded for userId: %s", user_id)
+            return jsonify({'status': 'success', 'portfolio': result}), 200
+
+        # 실패 응답
+        logger.warning("Portfolio creation failed for userId: %s", user_id)
+        return jsonify({'status': 'fail'}), 400
+
+    except KeyError as e:
+        logger.error("KeyError in request data: %s", e)
+        return jsonify({'status': 'fail', 'error': f'Missing key: {str(e)}'}), 400
+    except Exception as e:
+        logger.exception("Unexpected error occurred while processing portfolio")
+        return jsonify({'status': 'fail', 'error': 'Internal server error'}), 500
 
 
 @routes_bp.route('/rag/code-review', methods=['POST'])
@@ -43,3 +79,25 @@ def code_review():
         return jsonify({'status': 'success', 'review': review, 'techStacks': techStack, 'summary': portfolio})
     else:
         return jsonify({'status': 'fail', 'message': '코드 리뷰 생성 중 오류가 발생했습니다.'}), 500
+
+
+@routes_bp.route('/advice', methods=['POST'])
+def get_advice():
+    try:
+        # 요청 데이터 추출
+        mr_summaries = request.get_json()  # JSON 데이터를 리스트로 수신
+        if not isinstance(mr_summaries, list):
+            return jsonify({'status': 'fail', 'message': 'Invalid data format. Expected a list.'}), 400
+
+        # 요청 데이터 로깅
+        logger.info("Received MR Summaries: %s", mr_summaries)
+
+        # 로직 처리 (예: 요약 데이터 기반으로 조언 생성)
+        advice = reviewer.generate_advice(mr_summaries)  # `generate_advice`는 커스텀 로직
+
+        # 성공 응답
+        return jsonify({'status': 'success', 'advice': advice}), 200
+
+    except Exception as e:
+        logger.exception("Error processing advice request: %s", e)
+        return jsonify({'status': 'fail', 'message': 'Internal server error'}), 500

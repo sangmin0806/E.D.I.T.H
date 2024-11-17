@@ -6,6 +6,7 @@ import com.edith.developmentassistant.client.dto.gitlab.GitGraph;
 import com.edith.developmentassistant.client.rag.RagServiceClient;
 import com.edith.developmentassistant.controller.ApiUtils.ApiResult;
 import com.edith.developmentassistant.controller.dto.request.RegisterProjectRequest;
+import com.edith.developmentassistant.controller.dto.response.project.ProjectDashboardDto;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectDto;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectResponse;
 import com.edith.developmentassistant.controller.dto.response.project.ProjectStats;
@@ -14,6 +15,7 @@ import com.edith.developmentassistant.controller.dto.response.project.UsersProje
 import com.edith.developmentassistant.service.ProjectService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/projects")
 @RequiredArgsConstructor
@@ -35,7 +38,7 @@ public class ProjectController {
 
     @PostMapping
     public ApiResult<RegisterProjectResponse> registerProjects(
-            @CookieValue(value = "accessToken", required = false) String token,
+            @CookieValue(value = "accessToken") String token,
             @RequestBody RegisterProjectRequest registerProjectRequest) {
         projectService.registerProject(registerProjectRequest.toServiceRequest(), token);
         return success(null);
@@ -43,13 +46,14 @@ public class ProjectController {
 
     @GetMapping
     public ApiResult<List<ProjectResponse>> getProjects(
-            @CookieValue(value = "accessToken", required = false) String token) {
+            @CookieValue(value = "accessToken") String token) {
+        log.info("ProjectController getProjects token: {}", token);
         return success(projectService.getProjects(token));
     }
 
     @GetMapping("{projectId}")
     public ApiResult<ProjectResponse> getProject(
-            @CookieValue(value = "accessToken", required = false) String token,
+            @CookieValue(value = "accessToken") String token,
             @PathVariable Long projectId
     ) {
         return success(projectService.getProjectByTokenAndProjectId(token, projectId));
@@ -57,7 +61,7 @@ public class ProjectController {
 
     @PutMapping
     public ApiResult<ProjectResponse> updateProject(
-            @CookieValue(value = "accessToken", required = false) String token,
+            @CookieValue(value = "accessToken") String token,
             @RequestBody ProjectDto projectDto) {
         return success(projectService.updateProject(projectDto, token));
     }
@@ -66,7 +70,7 @@ public class ProjectController {
     @GetMapping("/gitgraph/{projectId}")
     public ApiResult<List<GitGraph>> getGitGraphData(
             @PathVariable Long projectId,
-            @CookieValue(value = "accessToken", required = false) String accessToken
+            @CookieValue(value = "accessToken") String accessToken
     ) {
         List<GitGraph> gitGraphDatas = projectService.getGitGraphData(projectId, accessToken);
         return success(gitGraphDatas);
@@ -84,26 +88,24 @@ public class ProjectController {
 
 
     @GetMapping("/users/stats")
-    public ApiResult<UsersProjectsStats> getStats(
-            @CookieValue(value = "accessToken", required = false) String token
+    public ApiResult<UsersProjectsStats> getUsersProjectsStats(
+            @CookieValue(value = "accessToken") String token
     ) {
         return success(projectService.getUsersProjectsStats(token));
     }
 
     @GetMapping("/stats")
     public ApiResult<ProjectStats> getProjectStats(
-            @CookieValue(value = "accessToken", required = false) String token,
+            @CookieValue(value = "accessToken") String token,
             @RequestParam Long id
     ) {
         return success(projectService.getProjectStats(token, id));
     }
 
-    @GetMapping("/commits/recent")
-    public ApiResult<String> getRecentCommitMessage(
-            @CookieValue(value = "accessToken", required = false) String token,
-            @RequestParam Long projectId
-    ) {
-        return success(projectService.getRecentCommitMessage(token, projectId));
+    @GetMapping("/dashboard")
+    public ApiResult<ProjectDashboardDto> getProjectDashboard(
+            @CookieValue(value = "accessToken") String token,
+            @RequestParam Long id) {
+        return success(projectService.getProjectDashboard(id));
     }
-
 }

@@ -18,3 +18,4 @@ public class WebhookEvent extends BaseWebhook {
     private Changes changes;
     private WebhookRepository repository;
 }
+

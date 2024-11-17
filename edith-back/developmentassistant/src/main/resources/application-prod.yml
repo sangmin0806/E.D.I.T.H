@@ -12,6 +12,9 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
-
+  data:
+    redis:
+      host: redis-clusterip.eks-work2.svc.cluster.local
+      port: 6379
 server:
   port: 8082

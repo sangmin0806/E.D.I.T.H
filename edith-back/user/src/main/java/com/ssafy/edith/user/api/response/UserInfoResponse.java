@@ -3,7 +3,7 @@ package com.ssafy.edith.user.api.response;
 import com.ssafy.edith.user.entity.User;
 import com.ssafy.edith.user.util.EncryptionUtil;
 
-public record UserInfoResponse(Long userId,
+public record  UserInfoResponse(Long userId,
                                String email,
                                String password,
                                boolean vcs,

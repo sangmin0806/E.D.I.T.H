@@ -46,6 +46,7 @@ function Header({ userImgSrc }: any) {
   };
   const handleLogout = () => {
     logout();
+    sessionStorage.clear();
     navigate("/");
   };
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);

@@ -13,8 +13,8 @@ import uuid
 import json
 
 
-def getCodeReview(url, token, projectId, branch, changes):
 
+def getCodeReview(url, token, projectId, branch, changes):
     chunker = None
     vectorDB = None
     uuid = generate_uuid()
@@ -35,7 +35,6 @@ def getCodeReview(url, token, projectId, branch, changes):
         project_path = chunker.clone_project()
         if not project_path:
             return '', ''
-
 
         # 3. 리뷰 할 코드들 메서드 Chunking
         file_chunks = []
@@ -68,7 +67,7 @@ def getCodeReview(url, token, projectId, branch, changes):
 
         vectorDB.store_embeddings(file_chunks)
 
-        review_queries = [] # path, diff (전문), 참고할 코드 (메서드)
+        review_queries = []  # path, diff (전문), 참고할 코드 (메서드)
         for change in changes:
             language = get_language_from_extension(change['path'])
 
@@ -96,8 +95,6 @@ def getCodeReview(url, token, projectId, branch, changes):
             for code_chunk in code_chunks:
                 similar_codes.append(vectorDB.query_similar_code(code_chunk, 5))
             review_queries.append([change['path'], change['diff'], similar_codes])
-        
-
 
         # 5. 메서드 별 관련 코드 가져와 리트리버 생성, 질의
         llm_model = LLMModel()
@@ -106,7 +103,7 @@ def getCodeReview(url, token, projectId, branch, changes):
         # 6. LLM 에 질의해 결과 반환
         result = get_code_review(projectId, review_queries, llm)
         return result
-        
+
 
     except Exception as e:
         print(f"오류 발생: {e}")
@@ -125,6 +122,7 @@ def getCodeReview(url, token, projectId, branch, changes):
             except Exception as e:
                 print(f"Error cleaning up project directory: {e}")
 
+
 def get_language_from_extension(file_name: str) -> str:
     extension = file_name.split('.')[-1].lower()  # 확장자 추출
     # 확장자별 언어 매핑
@@ -142,18 +140,18 @@ def get_language_from_extension(file_name: str) -> str:
     }
     return language_map.get(extension, '')
 
-def get_code_review(projectId, review_queries, llm):
 
+def get_code_review(projectId, review_queries, llm):
     uuid = generate_uuid()
     portfolio_memory = ConversationBufferMemory(
-        memory_key=  f"{projectId}_portfolio_{uuid}",
+        memory_key=f"{projectId}_portfolio_{uuid}",
         max_token_limit=4000,
         return_messages=True,
         prompt="""해당 코드리뷰를 참고해 포트폴리오를 만들 해당 MR 의 기술스택, 트러블 슈팅 등을 기록할 수 있게 요약해"""
     )
 
     code_review_memory = ConversationBufferMemory(
-        memory_key= f"{projectId}_code_review_{uuid}",
+        memory_key=f"{projectId}_code_review_{uuid}",
         max_token_limit=4000,
         return_messages=True,
         prompt="""해당 요약본 으로 전체 코드리뷰를 작성하기 위해 중요한 기능, 수정 해야 할 사항, 에러 발생 원인, 트러블 슈팅을 요약해줘"""
@@ -170,6 +168,7 @@ def get_code_review(projectId, review_queries, llm):
         ==='이미 존재하는 참고 코드'===
         {similar_codes}
 
+        ========================
         다음 항목별로 핵심만 간단히 작성해주세요:
         *0. 기능적으로 유사한 코드가 존재하는 경우 : [유사한 코드, 함수 가 있다고 알려줘]
         1. 핵심 기능: [해당 코드의 핵심 기능]
@@ -177,8 +176,12 @@ def get_code_review(projectId, review_queries, llm):
         3. 주의 필요: [잠재적 이슈나 개선필요 사항, Clean Code 지향]
         4. 수정 해야 할 사항: [기능적으로 중복되거나 반드시 수정해야 하는 부분을 중요하게, 코드를 포함해 간략히]
         5. 개선 사항: [해결된 문제점 있는 경우만]
-       
-
+        6. 참고 코드에 기반한 조언: [참고 코드를 비교했을 때 동일한 로직의 구현에서 개선 가능한 포인트는 무엇인가요?
+코딩 스타일, 성능, 재사용성, 유지보수성 중 어느 영역에서 참고 코드와 비교했을 때 보완이 필요한지 명확히 적어주세요.]
+        ===
+        
+        만약 참고 코드가 있다면 없을 때의 상황에 비교해서 총 평 해주세요.(현재는 RAG를 사용하지만 사용하지 않을때와의 비교를 하고자 합니다.)
+        
         * 중요: 꼭 필요한 내용만 간단히 작성해주세요.
     """)
 
@@ -252,8 +255,9 @@ def get_code_review(projectId, review_queries, llm):
         for file_path, code_chunk, similar_codes in review_queries:
 
             try:
-                review_result = chunked_review(projectId, llm, file_path, code_chunk, similar_codes, review_chain, code_review_memory)
-                print('similar_codes : ', similar_codes)
+                review_result = chunked_review(projectId, llm, file_path, code_chunk, similar_codes, review_chain,
+                                               code_review_memory)
+
                 portfolio_memory.save_context(
                     {"input": f"Review for {file_path}"},
                     {"output": review_result}
@@ -291,6 +295,7 @@ def get_code_review(projectId, review_queries, llm):
         portfolio_memory.clear()
         code_review_memory.clear()
 
+
 def parse_git_diff(diff_string):
     # diff 헤더(@@ -0,0 +1,30 @@) 이후부터 파싱
     lines = diff_string.split('\n')
@@ -320,7 +325,9 @@ def parse_git_diff(diff_string):
 
     return removed_lines, added_lines
 
-def chunked_review(project_id, llm, file_path: str, code_chunk: str, similar_codes: [], review_chain, code_review_memory,
+
+def chunked_review(project_id, llm, file_path: str, code_chunk: str, similar_codes: [], review_chain,
+                   code_review_memory,
                    max_token_limit: int = 4000) -> str:
     uuid = generate_uuid()
     file_codeReview_memory = ConversationBufferMemory(
@@ -401,5 +408,56 @@ def chunked_review(project_id, llm, file_path: str, code_chunk: str, similar_cod
 
     return "리뷰 결과가 없습니다."
 
+
 def generate_uuid():
     return str(uuid.uuid4()).replace('-', '')
+
+
+def generate_advice(mr_summaries):
+
+    """
+    MR Summaries 데이터를 기반으로 LLM을 활용해 종합적인 조언 생성.
+    Args:
+        mr_summaries (list): MR 요약 데이터 리스트
+    Returns:
+        str: 전체 MR 요약을 기반으로 한 종합 조언
+    """
+
+    if not isinstance(mr_summaries, list):
+        raise ValueError("mr_summaries는 리스트여야 합니다.")
+
+    if not mr_summaries:
+        return "MR Summaries 데이터가 비어 있습니다. 검토할 요약이 없습니다."
+
+    # LLM 초기화
+    llm_model = LLMModel()
+    llm = llm_model.llm
+
+    try:
+        # MR Summaries를 하나의 텍스트로 병합
+        combined_summaries = "\n".join([f"- {summary}" for summary in mr_summaries])
+
+        # LLM 프롬프트 생성
+        prompt = f"""
+        다음은 여러 Merge Request의 요약 리스트입니다. 이를 기반으로 전체 프로젝트의 기술적 상태와 개선 방향에 대한 조언을 작성해주세요:
+
+        Merge Request Summaries:
+        {combined_summaries}
+
+        작성 지침:
+        1. 전체적인 기술적 상태를 분석
+        2. 주요 개선 방향 제시 (3가지 이내)
+        3. 잠재적 문제와 해결 방안 요약
+        4. 기술 스택 최적화 또는 코드 품질 향상 방법 포함
+        5. 간결하고 명확하게 작성
+        """
+
+        # LLM 호출
+        response = llm({"text": prompt})
+
+        # 결과 반환
+        return response["text"]
+
+    except Exception as e:
+        print(f"LLM을 사용한 조언 생성 중 오류 발생: {e}")
+        raise RuntimeError("조언 생성 실패") from e

@@ -44,7 +44,7 @@ function RepoListContainer() {
           blueStateNum={stat?.totalProjectsCount || 0}
           pinkStateSubject={"오늘 나의 커밋 수"}
           pinkStateNum={stat?.todayCommitsCount || 0}
-          yellowStateSubject={"코드 리뷰 진행중"}
+          yellowStateSubject={"오늘 나의 MR 요청 수"}
           yellowStateNum={stat?.todayMergeRequestsCount || 0}
         />
         <div className="py-8 pl-8 pr-8 bg-white/30 rounded-3xl flex-col justify-center items-center gap-6 inline-flex">

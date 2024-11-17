@@ -8,6 +8,7 @@ import com.ssafy.edith.user.api.response.SignInResponse;
 import com.ssafy.edith.user.api.response.UserInfoResponse;
 import com.ssafy.edith.user.api.service.UserService;
 import com.ssafy.edith.user.util.CookieUtil;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -83,6 +84,7 @@ public class UserController {
 
     @GetMapping("/info")
     public ApiResult<UserInfoResponse> getUserInfo(@CookieValue("accessToken") String accessToken) {
+        log.info("User 서버에서 받은Received JWT Token: {}", accessToken);
         UserInfoResponse userInfoResponse = userService.getUserInfo(accessToken);
         return success(userInfoResponse);
     }

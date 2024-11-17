@@ -32,6 +32,7 @@ public class UserServiceClient {
 
     public UserDto getUserByToken(String accessToken) {
         String url = USER_API_URL + USER_INFO_ENDPOINT;
+        log.info("Received JWT Token: {}", accessToken);
 
         String cookie = "accessToken=" + accessToken;
 
