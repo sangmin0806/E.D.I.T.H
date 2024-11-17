@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 @routes_bp.route('/rag/health-check', methods=['GET'])
 def health_check():
     log.info('health check')
+    log.info('health check')
     return "I'm Alive!!!"
 
 
