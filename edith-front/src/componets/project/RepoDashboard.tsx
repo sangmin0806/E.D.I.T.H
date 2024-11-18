@@ -8,6 +8,7 @@ import { Icon } from "@iconify/react";
 import { getCommitStats, getDashboard } from "../../api/projectApi";
 import { useParams } from "react-router-dom";
 import { commitStat, projectDashboard } from "../../types/projectType";
+import Parser from "html-react-parser";
 
 function RepoDashboard() {
   const [stat, setStat] = useState<commitStat>();
@@ -80,7 +81,7 @@ function RepoDashboard() {
                 <p className="font-semibold">최근 코드 리뷰 </p>
               </div>
               <div className="columns-2 p-4 border border-gray-300 rounded-lg mb-4 space-y-2 text-sm">
-                {dashboard?.recentCodeReview}
+                {Parser(dashboard?.recentCodeReview ?? "")}
               </div>
             </div>
 
