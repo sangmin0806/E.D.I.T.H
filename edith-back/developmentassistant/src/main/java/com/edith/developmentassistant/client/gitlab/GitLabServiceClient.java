@@ -300,7 +300,7 @@ public class GitLabServiceClient {
     }
 
     public List<GitMerge> fetchGitLabMergeRequests(Long projectId, String projectAccessToken) {
-        String url = GITLAB_API_URL + "/projects/" + projectId + "/merge_requests?state=merged&per_page=2";
+        String url = GITLAB_API_URL + "/projects/" + projectId + "/merge_requests?state=merged&per_page=5";
 
         HttpHeaders headers = createHeader(projectAccessToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
