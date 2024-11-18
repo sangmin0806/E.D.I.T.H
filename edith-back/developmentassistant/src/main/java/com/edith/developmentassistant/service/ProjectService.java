@@ -72,10 +72,12 @@ public class ProjectService {
 
     public List<GitGraph> getGitGraphData(Long projectId, String accessToken) {
 
-        UserDto userDto = userServiceClient.getUserByToken(accessToken);
+//        UserDto userDto = userServiceClient.getUserByToken(accessToken);
+//
+//        String projectAccessToken = gitLabServiceClient.generateProjectAccessToken(projectId,
+//                userDto.getVcsAccessToken());
 
-        String projectAccessToken = gitLabServiceClient.generateProjectAccessToken(projectId,
-                userDto.getVcsAccessToken());
+        String projectAccessToken = getProjectAccessToken(projectId);
 
         // 최근 MergeRequest목록 가져오기 (5개)
         List<GitMerge> merges = gitLabServiceClient.fetchGitLabMergeRequests(projectId, projectAccessToken);
