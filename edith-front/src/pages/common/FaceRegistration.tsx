@@ -129,7 +129,7 @@ const Registration: React.FC = () => {
       />
       <div className="min-h-[100vh] flex flex-col justify-center items-center z-10">
         <div className="flex flex-col items-center px-12 py-16 bg-white/60 rounded-3xl shadow border border-black justify-center gap-6 z-20">
-          <h1>FACE ID 등록</h1>
+          <h1>얼굴인식 로그인 등록</h1>
           <div
             style={{ position: "relative", width: "100%", maxWidth: "600px" }}
             className="flex flex-col items-center gap-4"
