@@ -22,7 +22,6 @@ public class PortfolioController {
     private final PortfolioService portfolioService;
 
     @PutMapping("/{projectId}")
-//    public ApiUtils.ApiResult<RegisterProjectResponse> registerProjects(
     public ApiUtils.ApiResult<?> makePortfolio(
             @CookieValue(value = "accessToken", required = false) String token,
             @PathVariable String projectId

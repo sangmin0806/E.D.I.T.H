@@ -58,28 +58,19 @@ public class ProjectService {
 
 
     public List<ProjectResponse> getProjects(String token) {
+        return getProjectsResponsesV2(token, getProjectIds(getUserProjectsBy(getUserIdByToken(token))));
+    }
 
-        Long userId = getUserIdByToken(token);
-
-        List<UserProject> userProjects = getUserProjectsBy(userId);
-
-        List<Long> projectIds = userProjects.stream()
+    private static List<Long> getProjectIds(List<UserProject> userProjects) {
+        return userProjects.stream()
                 .map(userProject -> userProject.getProject().getId())
                 .toList();
-
-        return getProjectsResponsesV2(token, projectIds);
     }
 
     public List<GitGraph> getGitGraphData(Long projectId, String accessToken) {
 
-//        UserDto userDto = userServiceClient.getUserByToken(accessToken);
-//
-//        String projectAccessToken = gitLabServiceClient.generateProjectAccessToken(projectId,
-//                userDto.getVcsAccessToken());
-
         String projectAccessToken = getProjectAccessToken(projectId);
 
-        // 최근 MergeRequest목록 가져오기 (5개)
         List<GitMerge> merges = gitLabServiceClient.fetchGitLabMergeRequests(projectId, projectAccessToken);
 
         return getGitGraphList(projectId, merges, projectAccessToken);
@@ -144,7 +135,6 @@ public class ProjectService {
 
         String content = "";
         String projectName = "";
-
         Project projectToUpdate = null;
 
         UserProject userProject1 = userProjects.stream()
@@ -156,15 +146,19 @@ public class ProjectService {
         projectName = userProject1.getTitle();
         content = userProject1.getDescription();
 
-        if (projectToUpdate == null) {
-            throw new IllegalArgumentException("Project not found for the user");
-        }
+        ifProjectNullReturnRunTimeException(projectToUpdate);
 
         projectToUpdate.updateProject(projectDto);
 
         projectRepository.save(projectToUpdate);
 
         return ProjectResponse.from(projectToUpdate, projectName, null, content);
+    }
+
+    private static void ifProjectNullReturnRunTimeException(Project projectToUpdate) {
+        if (projectToUpdate == null) {
+            throw new IllegalArgumentException("Project not found for the user");
+        }
     }
 
     private List<UserProject> getUserProjectsBy(Long token) {
@@ -201,6 +195,10 @@ public class ProjectService {
     private UserProject createUserProject(RegisterProjectServiceRequest request, Project project, Long userId) {
         log.info("Creating UserProject for userId: {}, id: {}, project-name: {}", userId, project.getId(),
                 request.name());
+        return getUserProject(request, project, userId);
+    }
+
+    private static UserProject getUserProject(RegisterProjectServiceRequest request, Project project, Long userId) {
         return UserProject.builder()
                 .userId(userId)
                 .description(request.contents())
@@ -234,18 +232,26 @@ public class ProjectService {
     private Integer getUserTodayCommitsCount(List<UserProject> userProjects, String userEmail,
                                              String personalAccessToken) {
         return userProjects.stream()
-                .map(userProject -> gitLabServiceClient.fetchTodayUserCommitsCount(userProject.getProject().getId(),
-                        personalAccessToken, userEmail))
+                .map(userProject -> getUserCommitsCount(userEmail, personalAccessToken, userProject))
                 .reduce(0, Integer::sum);
+    }
+
+    private Integer getUserCommitsCount(String userEmail, String personalAccessToken, UserProject userProject) {
+        return gitLabServiceClient.fetchTodayUserCommitsCount(userProject.getProject().getId(),
+                personalAccessToken, userEmail);
     }
 
     private Integer getUserTodayMergeRequestsCount(List<UserProject> userProjects, String userEmail,
                                                    String personalAccessToken) {
         return userProjects.stream()
-                .map(userProject -> gitLabServiceClient.fetchTodayUserMergeRequestsCount(
-                        userProject.getProject().getId(),
-                        personalAccessToken, userEmail))
+                .map(userProject -> getTodayUserMergeRequestsCount(userEmail, personalAccessToken, userProject))
                 .reduce(0, Integer::sum);
+    }
+
+    private Integer getTodayUserMergeRequestsCount(String userEmail, String personalAccessToken, UserProject userProject) {
+        return gitLabServiceClient.fetchTodayUserMergeRequestsCount(
+                userProject.getProject().getId(),
+                personalAccessToken, userEmail);
     }
 
     public ProjectStats getProjectStats(String token, Long projectId) {
