@@ -21,7 +21,7 @@ public class WebhookController {
 
     @PostMapping
     public void getEventFromWebhook(@RequestBody WebhookEvent webhookEvent) {
-        log.info("Received webhookEvent: {}", webhookEvent);
+        log.info("Received webhookEvent: {}", webhookEvent.toString());
         webhookService.commentCodeReview(webhookEvent);
     }
 }
