@@ -1,10 +1,8 @@
-import { formatDate } from "../../types/dataType";
 import PlugImg from "../../assets/plus.png";
-import profileImg from "../../assets/profile.jpg";
+import { useComponentStore } from "../../store/repoPageStore";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
 import KebabMenu from "../common/KebabMenu";
-import { Branch, Contributor } from "../../types/projectType";
+import { Contributor } from "../../types/projectType";
 interface listBoxProps {
   id: number;
   name: string;
@@ -19,10 +17,16 @@ function RepoListBox({
   updatedAt,
   contributors,
 }: listBoxProps) {
+  const { setDashboardProjectName, setDashboardProjectContents } =
+    useComponentStore();
   const navigate = useNavigate();
   const handleClick = () => {
-    //string일수도 있으니까 한번 더 확인하깅
-    navigate(`/dashboard/${id}`);
+    try {
+      setDashboardProjectName(name);
+      setDashboardProjectContents(content);
+    } finally {
+      navigate(`/dashboard/${id}`);
+    }
   };
   return (
     <>

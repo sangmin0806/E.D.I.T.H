@@ -1,6 +1,5 @@
 import { useComponentStore } from "../../store/repoPageStore";
-import React, { useState } from "react";
-import defaultImg from "../../assets/defaultImg.jpg";
+import React from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 interface UserProps {
@@ -12,9 +11,18 @@ const RepoHeader = React.memo(
   ({ userGitAccount, showDashboard }: UserProps) => {
     const navigate = useNavigate();
     const { projectID } = useParams();
+
+    // useComponentStore 훅은 컴포넌트 내부에서 호출
+    const { dashboardProjectName, dashboardProjectContents } =
+      useComponentStore((state) => ({
+        dashboardProjectName: state.dashboardProjectName,
+        dashboardProjectContents: state.dashboardProjectContents,
+      }));
+
     const handleMoveToPortfolio = () => {
       navigate(`/portfolio/${projectID}`);
     };
+
     const handleMoveToDashboard = () => {
       navigate(`/dashboard/${projectID}`);
     };
@@ -25,7 +33,7 @@ const RepoHeader = React.memo(
           <div className="flex flex-col">
             <div className="flex gap-2 items-center">
               <p className="text-black text-[24px] font-semibold">
-                ProjectName
+                {dashboardProjectName}
               </p>
               {showDashboard ? (
                 <div
@@ -49,7 +57,7 @@ const RepoHeader = React.memo(
             </div>
 
             <p className="text-black text-[20px] font-light">
-              Project Contents
+              {dashboardProjectContents}
             </p>
           </div>
         </div>

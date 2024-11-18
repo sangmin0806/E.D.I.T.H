@@ -9,6 +9,7 @@ import { getCommitStats, getDashboard } from "../../api/projectApi";
 import { useParams } from "react-router-dom";
 import { commitStat, projectDashboard } from "../../types/projectType";
 import Parser from "html-react-parser";
+import LoadingSpinner from "../common/LoadingSpinner";
 
 function RepoDashboard() {
   const [stat, setStat] = useState<commitStat>();
@@ -46,6 +47,13 @@ function RepoDashboard() {
       alert(error);
     }
   };
+  if (loading) {
+    return (
+      <div className="flex w-full h-full items-center justify-center">
+        <LoadingSpinner />
+      </div>
+    );
+  }
 
   return (
     <>
