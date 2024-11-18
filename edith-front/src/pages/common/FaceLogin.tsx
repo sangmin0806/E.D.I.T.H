@@ -3,15 +3,14 @@ import * as faceapi from "@vladmandic/face-api";
 import { useNavigate } from "react-router-dom";
 import mainLeft from "../../assets/main_left.png";
 import mainRight from "../../assets/main_right.png";
-import { faceLoginRequest } from "../../api/userApi"; 
+import { faceLoginRequest } from "../../api/userApi";
+
 const App: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [status, setStatus] = useState("Face login을 시작합니다.");
   const [retryLogin, setRetryLogin] = useState(false);
-  const [faceDetectionInterval, setFaceDetectionInterval] = useState<
-    number | null
-  >(null);
+  const [faceDetectionInterval, setFaceDetectionInterval] = useState<number | null>(null);
   const navigate = useNavigate();
 
   const EAR_THRESHOLD = 0.29;
@@ -81,10 +80,7 @@ const App: React.FC = () => {
     const rightEye = landmarks[45];
     const nose = landmarks[30];
     const leftToNoseDist = Math.hypot(leftEye.x - nose.x, leftEye.y - nose.y);
-    const rightToNoseDist = Math.hypot(
-      rightEye.x - nose.x,
-      rightEye.y - nose.y
-    );
+    const rightToNoseDist = Math.hypot(rightEye.x - nose.x, rightEye.y - nose.y);
     return Math.abs(leftToNoseDist - rightToNoseDist) < threshold;
   };
 
@@ -107,10 +103,8 @@ const App: React.FC = () => {
   const sendEmbeddingToServer = async (embedding: Float32Array) => {
     try {
       setStatus("서버로 전송 중...");
-  
-      // faceLoginRequest 호출
       const result = await faceLoginRequest(Array.from(embedding));
-  
+
       console.log("서버에서 받은 데이터:", result);
       if (result.success && result.response) {
         const {
@@ -123,10 +117,10 @@ const App: React.FC = () => {
           refreshToken,
           username,
         } = result.response;
-  
+
         setStatus(`로그인 성공! ${name}님 안녕하세요`);
         stopCamera();
-  
+
         const userInfo = {
           name,
           email,
@@ -137,7 +131,6 @@ const App: React.FC = () => {
         };
 
         sessionStorage.setItem("userInfo", JSON.stringify(userInfo));
-
         navigate("/project");
       } else {
         setStatus("로그인 실패");
@@ -149,76 +142,91 @@ const App: React.FC = () => {
       setRetryLogin(true);
     }
   };
-  
 
   const startFaceDetection = () => {
-    if (videoRef.current && canvasRef.current) {
-      const canvas = canvasRef.current;
-      const context = canvas.getContext("2d")!;
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
-
-      const intervalId = setInterval(async () => {
-        const detections = await faceapi
-          .detectAllFaces(
-            videoRef.current!,
-            new faceapi.TinyFaceDetectorOptions()
-          )
-          .withFaceLandmarks()
-          .withFaceDescriptors();
-
-        context.clearRect(0, 0, canvas.width, canvas.height);
-
-        if (detections.length !== 1) {
-          setStatus(
-            detections.length === 0
-              ? "얼굴이 감지되지 않았습니다."
-              : "한명만 카메라에 나와주세요."
-          );
-          blinkStart = null;
-          return;
-        }
-
-        const landmarks = detections[0].landmarks.positions;
-        const isFrontal = isFrontalFace(landmarks);
-
-        if (!isFrontal) {
-          setStatus("정면을 봐주세요~");
-          drawFaceBox(context, detections[0].detection.box, false);
-          blinkStart = null;
-          return;
-        }
-
-        const ear = calculateEAR(
-          landmarks,
-          [36, 37, 38, 39, 40, 41],
-          [42, 43, 44, 45, 46, 47]
-        );
-
-        if (ear < EAR_THRESHOLD) {
-          if (!blinkStart) blinkStart = Date.now();
-        } else if (blinkStart && Date.now() - blinkStart >= MIN_DURATION) {
-          const embedding = detections[0].descriptor;
-          sendEmbeddingToServer(embedding);
-          blinkStart = null;
-        } else {
-          blinkStart = null;
-        }
-
-        drawFaceBox(context, detections[0].detection.box, isFrontal);
-      }, 100);
-
-      setFaceDetectionInterval(intervalId as unknown as number);
+    if (!videoRef.current || !canvasRef.current) {
+      console.error("비디오 또는 캔버스 요소가 초기화되지 않았습니다.");
+      setStatus("카메라를 사용할 수 없습니다.");
+      return;
     }
+
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d")!;
+    canvas.width = videoRef.current.videoWidth;
+    canvas.height = videoRef.current.videoHeight;
+
+    const intervalId = setInterval(async () => {
+      const detections = await faceapi
+        .detectAllFaces(
+          videoRef.current!,
+          new faceapi.TinyFaceDetectorOptions()
+        )
+        .withFaceLandmarks()
+        .withFaceDescriptors();
+
+      context.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (detections.length !== 1) {
+        setStatus(
+          detections.length === 0
+            ? "얼굴이 감지되지 않았습니다."
+            : "한명만 카메라에 나와주세요."
+        );
+        blinkStart = null;
+        return;
+      }
+
+      const landmarks = detections[0].landmarks.positions;
+      const isFrontal = isFrontalFace(landmarks);
+
+      if (!isFrontal) {
+        setStatus("정면을 봐주세요~");
+        drawFaceBox(context, detections[0].detection.box, false);
+        blinkStart = null;
+        return;
+      }
+
+      const ear = calculateEAR(
+        landmarks,
+        [36, 37, 38, 39, 40, 41],
+        [42, 43, 44, 45, 46, 47]
+      );
+
+      if (ear < EAR_THRESHOLD) {
+        if (!blinkStart) blinkStart = Date.now();
+      } else if (blinkStart && Date.now() - blinkStart >= MIN_DURATION) {
+        const embedding = detections[0].descriptor;
+        sendEmbeddingToServer(embedding);
+        blinkStart = null;
+      } else {
+        blinkStart = null;
+      }
+
+      drawFaceBox(context, detections[0].detection.box, isFrontal);
+    }, 100);
+
+    setFaceDetectionInterval(intervalId as unknown as number);
   };
 
   useEffect(() => {
     const initialize = async () => {
-      await loadModels();
-      await setupCamera();
-      startFaceDetection();
+      try {
+        await loadModels();
+        await setupCamera();
+        startFaceDetection();
+      } catch (error) {
+        console.error("초기화 중 오류 발생:", error);
+        setStatus("초기화 중 문제가 발생했습니다.");
+      }
     };
+
     initialize();
+
+    // 클린업 함수: 언마운트 시 실행
+    return () => {
+      console.log("리소스 정리 중...");
+      stopCamera();
+    };
   }, []);
 
   useEffect(() => {
