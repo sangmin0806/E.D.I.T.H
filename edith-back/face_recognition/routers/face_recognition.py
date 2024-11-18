@@ -1,8 +1,8 @@
 import os
 import logging
-from fastapi import WebSocket, WebSocketDisconnect, APIRouter
+from fastapi import APIRouter, HTTPException, Response
 from qdrant_client import QdrantClient
-import httpx  # HTTP 요청을 위한 라이브러리
+import httpx
 
 # 로거 설정
 logging.basicConfig(level=logging.INFO)
@@ -18,52 +18,65 @@ qdrant_port = os.getenv("QDRANT_PORT", "6333")
 qdrant_client = QdrantClient(host=qdrant_host, port=int(qdrant_port))
 
 # 유사도 임계값 설정
-SIMILARITY_THRESHOLD = 0.3
+SIMILARITY_THRESHOLD = 0.4
 
-@match_router.websocket("/face-login")
-async def websocket_face_recognition(websocket: WebSocket):
-    await websocket.accept()
-    logger.info("클라이언트 WebSocket 연결 성공")
 
-    try:
-        while True:
-            data = await websocket.receive_json()
-            image_vector = data.get("vector")
-            logger.info(f"클라이언트로부터 받은 벡터 데이터: {image_vector}")
+@match_router.post("/face-login")
+async def face_recognition_login(vector: dict, response: Response):
+    """
+    클라이언트로부터 얼굴 벡터를 받아 유사도 검사 후 Spring 서버로 로그인 요청을 보냄.
+    """
+    image_vector = vector.get("vector")
+    logger.info(f"클라이언트로부터 받은 벡터 데이터: {image_vector}")
 
-            user_id, similarity_score = find_most_similar_face(image_vector)
+    # Qdrant에서 가장 유사한 얼굴 찾기
+    user_id, similarity_score = find_most_similar_face(image_vector)
 
-            if user_id and similarity_score <= SIMILARITY_THRESHOLD:
-                # User 서버로 HTTP 요청을 보내고 응답을 받아옴
-                success_response = await send_login_request_to_user_service(user_id)
+    if user_id and similarity_score <= SIMILARITY_THRESHOLD:
+        # Spring 서버로 HTTP 요청을 보냄
+        spring_response = await send_login_request_to_user_service(user_id)
 
-                # User 서버로부터 받은 응답을 WebSocket으로 전달
-                await websocket.send_json({
-                    "userId": user_id,
-                    "similarity_score": similarity_score,
-                    "success": True,
-                    "response": success_response
-                })
-                break  # 유사한 얼굴이 발견되었으므로 종료
-            else:
-                await websocket.send_json({
-                    "userId": user_id,
-                    "similarity_score": similarity_score,
-                    "success": False
-                })
+        if "error" in spring_response:
+            return {
+                "success": False,
+                "error": spring_response["error"],
+            }
 
-    except WebSocketDisconnect:
-        logger.info("클라이언트 WebSocket 연결이 끊어졌습니다.")
-    except Exception as e:
-        logger.error("WebSocket 연결 종료 또는 오류:", exc_info=True)
-    finally:
-        await websocket.close()
+        # Spring 서버에서 받은 응답 데이터 매핑
+        response_data = spring_response.get("response_data", {})
+
+        # FastAPI에서 쿠키 설정
+        for key, value in spring_response.get("cookies", {}).items():
+            response.set_cookie(key=key, value=value, httponly=True, samesite="None")
+
+        return {
+            "success": True,
+            "response": {
+                "accessToken": response_data.get("accessToken"),
+                "refreshToken": response_data.get("refreshToken"),
+                "userId": response_data.get("userId"),
+                "username": response_data.get("username"),
+                "name": response_data.get("name"),
+                "email": response_data.get("email"),
+                "profileImageUrl": response_data.get("profileImageUrl"),
+                "similarity_score": similarity_score,
+            },
+        }
+
+    return {
+        "success": False,
+        "error": "유사한 얼굴을 찾을 수 없습니다.",
+    }
+
 
 def find_most_similar_face(image_vector):
+    """
+    Qdrant에서 가장 유사한 얼굴을 검색.
+    """
     search_result = qdrant_client.search(
         collection_name="user_embeddings",
         query_vector=image_vector,
-        limit=1
+        limit=1,
     )
 
     if search_result:
@@ -74,23 +87,34 @@ def find_most_similar_face(image_vector):
     else:
         return None, None
 
+
 async def send_login_request_to_user_service(user_id: int):
     """
-    userId를 User 서버로 전송하여 로그인 요청을 처리하고 응답을 반환.
+    userId를 Spring 서버로 전송하여 로그인 요청을 처리하고 응답을 반환.
     """
     url = "http://user-spring-boot-service:8181/api/v1/users/face-login"
     payload = {"userId": user_id}
 
     async with httpx.AsyncClient() as client:
         try:
-            logger.info(f"User 서버에 로그인 요청 전: userId={user_id}")
+            logger.info(f"Spring 서버에 로그인 요청 전송: userId={user_id}")
             response = await client.post(url, json=payload)
             response.raise_for_status()
-            logger.info(f"User 서버에 로그인 요청 성공: userId={user_id}")
-            return response.json()  # User 서버의 응답 JSON 반환
+
+            # 쿠키와 응답 데이터 추출
+            cookies = response.cookies
+            response_data = response.json()
+
+            logger.info(f"Spring 서버에서 응답 수신: {response_data}")
+
+            return {
+                "response_data": response_data,
+                "cookies": {cookie.name: cookie.value for cookie in cookies},
+            }
+
         except httpx.HTTPStatusError as e:
-            logger.error(f"User 서버 요청 실패: {e.response.status_code}")
-            return {"error": "User 서버 요청 실패"}
+            logger.error(f"Spring 서버 요청 실패: {e.response.status_code}")
+            return {"error": "Spring 서버 요청 실패"}
         except Exception as e:
-            logger.error("User 서버로 요청 중 오류 발생:", exc_info=True)
-            return {"error": "User 서버로 요청 중 오류 발생"}
+            logger.error("Spring 서버로 요청 중 오류 발생:", exc_info=True)
+            return {"error": "Spring 서버로 요청 중 오류 발생"}
