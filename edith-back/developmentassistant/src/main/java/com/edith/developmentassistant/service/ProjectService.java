@@ -126,6 +126,10 @@ public class ProjectService {
 
         List<ContributorDto> contributors = gitLabServiceClient.fetchContributors(project.getId(), project.getToken());
 
+        log.info("contributors: {}", contributors);
+        log.info("project: {}", project);
+        log.info("userProject: {}", userProject);
+
         return ProjectResponse.from(project, userProject.getTitle(), contributors, userProject.getDescription());
     }
 
