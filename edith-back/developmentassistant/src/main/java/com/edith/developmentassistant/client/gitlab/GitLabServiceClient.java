@@ -15,6 +15,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.List;
@@ -366,8 +367,8 @@ public class GitLabServiceClient {
 
     public Integer fetchTodayUserMergeRequestsCount(Long projectId, String projectAccessToken, String userEmail) {
         // 오늘 날짜를 UTC 시간대로 설정
-        String todayStart = LocalDate.now().atStartOfDay(ZoneOffset.UTC).toString();
-        String todayEnd = LocalDate.now().atTime(23, 59, 59).atZone(ZoneOffset.UTC).toString();
+        String todayStart = LocalDate.now().atStartOfDay(ZoneId.of("Asia/Seoul")).toString();
+        String todayEnd = LocalDate.now().atTime(23, 59, 59).atZone(ZoneId.of("Asia/Seoul")).toString();
         String username = getGitLabUserNameByToken(projectAccessToken);
 
         String url = GITLAB_API_URL + "/projects/" + projectId + "/merge_requests" +
@@ -549,8 +550,8 @@ public class GitLabServiceClient {
 
 
     public Integer fetchTodayCommitsCount(Long projectId, String projectAccessToken) {
-        String todayStart = LocalDate.now().atStartOfDay(ZoneOffset.UTC).toString();
-        String todayEnd = LocalDate.now().atTime(23, 59, 59).atZone(ZoneOffset.UTC).toString();
+        String todayStart = LocalDate.now().atStartOfDay(ZoneId.of("Asia/Seoul")).toString();
+        String todayEnd = LocalDate.now().atTime(23, 59, 59).atZone(ZoneId.of("Asia/Seoul")).toString();
 
         String url = GITLAB_API_URL + "/projects/" + projectId + "/repository/commits" +
                 "?since=" + todayStart + "&until=" + todayEnd;
@@ -578,8 +579,8 @@ public class GitLabServiceClient {
     }
 
     public Integer fetchTodayMergeRequestsCount(Long projectId, String personalAccessToken) {
-        String todayStart = LocalDate.now().atStartOfDay(ZoneOffset.UTC).toString();
-        String todayEnd = LocalDate.now().atTime(23, 59, 59).atZone(ZoneOffset.UTC).toString();
+        String todayStart = LocalDate.now().atStartOfDay(ZoneId.of("Asia/Seoul")).toString();
+        String todayEnd = LocalDate.now().atTime(23, 59, 59).atZone(ZoneId.of("Asia/Seoul")).toString();
 
         String url = GITLAB_API_URL + "/projects/" + projectId + "/merge_requests" +
                 "?created_after=" + todayStart + "&created_before=" + todayEnd;
