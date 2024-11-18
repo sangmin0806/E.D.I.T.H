@@ -44,7 +44,7 @@ const App: React.FC = () => {
       videoRef.current.srcObject = null;
     }
 
-    if (faceDetectionInterval) {
+    if (faceDetectionInterval !== null) {
       clearInterval(faceDetectionInterval);
       setFaceDetectionInterval(null);
     }
