@@ -252,6 +252,7 @@ export const gitGraphData: BranchData[] = [
       message:
         "Merge branch 'feature/S11P31C206-160-BE-포폴반환-변경' into 'develop'",
       author_name: "이중현",
+      author_email: "example@example.com",
       authored_date: "2024-11-08T17:54:52.000+09:00",
       parent_ids: [
         "1ab5300654114fa2cdc9dce46c97b04e2e61c005",
@@ -264,6 +265,7 @@ export const gitGraphData: BranchData[] = [
         message:
           "Merge branch 'develop' of https://lab.ssafy.com/s11-final/S11P31C206 into feature/S11P31C206-160-BE-포폴반환-변경",
         author_name: "Lee-JoungHyun",
+        author_email: "example@example.com",
         authored_date: "2024-11-08T17:12:49.000+09:00",
         parent_ids: [],
       },
@@ -271,6 +273,7 @@ export const gitGraphData: BranchData[] = [
         id: "18a22ca62b09b265471dae110d8aae06f71252db",
         message: "fix: 포폴 내용 변환",
         author_name: "Lee-JoungHyun",
+        author_email: "example@example.com",
         authored_date: "2024-11-08T17:07:49.000+09:00",
         parent_ids: [],
       },
