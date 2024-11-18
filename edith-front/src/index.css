@@ -13,7 +13,10 @@
     padding: 0px;
     font-family: Pretendard Variable;
   }
-
+  pre, code, svg {
+    white-space: pre-wrap;
+    word-break: break-word; /* 긴 단어도 자동 줄바꿈 */
+  }
   body{
     margin: 0px !important;
     padding: 0px !important;
