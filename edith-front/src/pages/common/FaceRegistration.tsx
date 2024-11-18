@@ -58,7 +58,7 @@ const Registration: React.FC = () => {
 
             setImageCount((prevCount) => {
               const newCount = prevCount + 1;
-              setStatus(`사진 ${newCount}장 찍음`);
+              setStatus(`사진 ${newCount}장 찍었어요`);
 
               // 페이드 인/아웃 효과 설정
               setIsTakingPhoto(true);
