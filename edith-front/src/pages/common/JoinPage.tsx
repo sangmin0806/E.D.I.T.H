@@ -158,6 +158,7 @@ function JoinPage() {
           </div>
           <div
             className="p-1.5 bg-black rounded-2xl justify-center items-center gap-2.5 inline-flex cursor-pointer"
+            onClick={() => window.alert('죄송합니다. 자율 프로젝트 발표 기간 이후에 회원 가입이 가능합니다!')}
             // onClick={handleToSignup}
           >
             <p className="w-36 text-center text-white text-xl font-medium font-['Pretendard Variable']">
