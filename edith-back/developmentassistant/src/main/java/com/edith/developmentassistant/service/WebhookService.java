@@ -61,6 +61,8 @@ public class WebhookService {
 
             CodeReviewResponse response = requestCodeReview(projectId, project.getToken(), mergeDiff, changes);
 
+            log.info("Decoded Response: {}", response);
+
             saveMRSummary(webhookEvent, mergeRequestIid, response, project);
 
             updateDashboard(projectId.intValue(), response, recentCommitMessage, advice, fixLogs);
