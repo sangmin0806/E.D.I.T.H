@@ -10,7 +10,7 @@ import {
 } from "../../api/portfolioApi";
 import { useNavigate, useParams } from "react-router-dom";
 import { PortfolioInfo } from "../../types/portfolioType";
-import Parser from "html-react-parser";
+import Parser, { domToReact } from "html-react-parser";
 
 interface portfolioProp {
   userGitAccount: string;
@@ -87,7 +87,7 @@ function RepoPortfolio({ userGitAccount }: portfolioProp) {
   const options = {
     replace: (domNode: any) => {
       if (domNode.name === "body") {
-        domNode.attribs.style = ""; // body의 스타일 제거
+        return <>{domToReact(domNode.children)}</>; // body 내부의 내용만 렌더링
       }
       return domNode;
     },
