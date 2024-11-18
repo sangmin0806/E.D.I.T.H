@@ -61,3 +61,42 @@ export const faceRegisterRequest = async (embeddings: {
     error: result.error,
   };
 };
+export const faceLoginRequest = async (
+  vectorData: number[]
+): Promise<{
+  success: boolean;
+  response?: {
+    accessToken: string;
+    refreshToken: string;
+    userId: number;
+    username: string;
+    name: string;
+    email: string;
+    profileImageUrl: string;
+    similarity_score: number;
+  };
+  error?: string;
+}> => {
+  const result = await apiRequest(() =>
+    axiosInstance.post("/api/v1/face-recognition/face-login", {
+      vector: vectorData,
+    })
+  );
+
+  return {
+    success: result.success,
+    response: result.success
+      ? {
+          accessToken: result.response?.accessToken,
+          refreshToken: result.response?.refreshToken,
+          userId: result.response?.userId,
+          username: result.response?.username,
+          name: result.response?.name,
+          email: result.response?.email,
+          profileImageUrl: result.response?.profileImageUrl,
+          similarity_score: result.response?.similarity_score,
+        }
+      : undefined,
+    error: result.error,
+  };
+};

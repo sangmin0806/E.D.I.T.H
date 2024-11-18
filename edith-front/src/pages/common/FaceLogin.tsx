@@ -3,13 +3,11 @@ import * as faceapi from "@vladmandic/face-api";
 import { useNavigate } from "react-router-dom";
 import mainLeft from "../../assets/main_left.png";
 import mainRight from "../../assets/main_right.png";
-import { apiRequest } from "../../api/axios";
-
+import { faceLoginRequest } from "../../api/userApi"; 
 const App: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [status, setStatus] = useState("Face login을 시작합니다.");
-  const [webSocket, setWebSocket] = useState<WebSocket | null>(null);
   const [retryLogin, setRetryLogin] = useState(false);
   const [faceDetectionInterval, setFaceDetectionInterval] = useState<
     number | null
@@ -106,13 +104,52 @@ const App: React.FC = () => {
     context.strokeRect(x, y, width, height);
   };
 
-  const sendEmbeddingToServer = (embedding: Float32Array) => {
-    if (webSocket && webSocket.readyState === WebSocket.OPEN) {
-      webSocket.send(JSON.stringify({ vector: Array.from(embedding) }));
-    } else {
-      console.log("웹소켓이 열리지 않았습니다. 재시도...");
+  const sendEmbeddingToServer = async (embedding: Float32Array) => {
+    try {
+      setStatus("서버로 전송 중...");
+  
+      // faceLoginRequest 호출
+      const result = await faceLoginRequest(Array.from(embedding));
+  
+      console.log("서버에서 받은 데이터:", result);
+      if (result.success && result.response) {
+        const {
+          name,
+          email,
+          userId,
+          similarity_score,
+          profileImageUrl,
+          accessToken,
+          refreshToken,
+          username,
+        } = result.response;
+  
+        setStatus(`로그인 성공! ${name}님 안녕하세요`);
+        stopCamera();
+  
+        const userInfo = {
+          name,
+          email,
+          userId,
+          similarity_score,
+          profileImageUrl,
+          username,
+        };
+
+        sessionStorage.setItem("userInfo", JSON.stringify(userInfo));
+
+        navigate("/project");
+      } else {
+        setStatus("로그인 실패");
+        setRetryLogin(true);
+      }
+    } catch (error) {
+      console.error("서버 요청 중 오류 발생:", error);
+      setStatus("로그인 요청에 실패했습니다.");
+      setRetryLogin(true);
     }
   };
+  
 
   const startFaceDetection = () => {
     if (videoRef.current && canvasRef.current) {
@@ -162,7 +199,6 @@ const App: React.FC = () => {
           if (!blinkStart) blinkStart = Date.now();
         } else if (blinkStart && Date.now() - blinkStart >= MIN_DURATION) {
           const embedding = detections[0].descriptor;
-          setStatus("서버로 전송 중...");
           sendEmbeddingToServer(embedding);
           blinkStart = null;
         } else {
@@ -176,73 +212,14 @@ const App: React.FC = () => {
     }
   };
 
-  const connectWebSocket = () => {
-    const ws = new WebSocket(
-      "wss://edith-ai.xyz:30443/ws/v1/face-recognition/face-login"
-    );
-
-    ws.onopen = () => {
-      console.log("웹소켓 연결 성공");
-      setWebSocket(ws);
-    };
-
-    ws.onmessage = (message) => {
-      const data = JSON.parse(message.data);
-
-      console.log("서버로부터 받은 데이터:", data);
-
-      if (data.success) {
-        setStatus(
-          `로그인 성공! 사용자 ID: ${data.userId}, 유사도 점수: ${data.similarity_score}`
-        );
-        stopCamera();
-        console.log(data.response);
-        sessionStorage.setItem(
-          "userInfo",
-          data.response ? JSON.stringify(data.response.response) : ""
-        );
-        ws.close();
-        setRetryLogin(false);
-        navigate("/project");
-      } else {
-        setStatus(
-          `로그인 실패: 사용자 ID: ${data.userId}, 유사도 점수: ${data.similarity_score}`
-        );
-        setRetryLogin(true);
-      }
-    };
-
-    ws.onclose = () => {
-      console.log("웹소켓 연결 종료");
-      setWebSocket(null);
-    };
-
-    ws.onerror = (error) => {
-      console.error("웹소켓 오류:", error);
-    };
-  };
-
   useEffect(() => {
     const initialize = async () => {
       await loadModels();
       await setupCamera();
-      connectWebSocket();
+      startFaceDetection();
     };
     initialize();
   }, []);
-
-  useEffect(() => {
-    if (webSocket) {
-      startFaceDetection();
-    }
-
-    return () => {
-      if (faceDetectionInterval) {
-        clearInterval(faceDetectionInterval);
-        setFaceDetectionInterval(null);
-      }
-    };
-  }, [webSocket]);
 
   useEffect(() => {
     if (retryLogin) {
@@ -255,7 +232,7 @@ const App: React.FC = () => {
     <>
       <img
         src={mainRight}
-        className="absolute right-0 top-0 translate-y-8 w-32 z-0" // absolute로 위치 조정
+        className="absolute right-0 top-0 translate-y-8 w-32 z-0"
         alt="Right Image"
       />
       <img
