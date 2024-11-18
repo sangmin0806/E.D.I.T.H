@@ -76,42 +76,51 @@ const GitGraphComponent: React.FC = () => {
         <Gitgraph options={{ template: smallFontTemplate }}>
           {(gitgraph) => {
             const branches: { [key: string]: Branch } = {};
-            
-            data.forEach((branchData) => {
-              const {
-                sourceBranch,
-                targetBranch,
-                mergeCommit,
-                sourceBranchCommits,
-              } = branchData;
-              // console.log("source: ", sourceBranch)
-              // console.log("target: ", targetBranch)
-              // console.log("mergeCOmmit: ", mergeCommit)
-              // console.log("sourceBranchCOmmits: ", sourceBranchCommits)
-              if (!branches[sourceBranch]) {
-                branches[sourceBranch] = gitgraph.branch(sourceBranch);
-              }
-              // console.log("branches[sb]", branches[sourceBranch])
-              sourceBranchCommits.forEach((commitData) => {
-                branches[sourceBranch].commit({
-                  subject: truncateMessage(commitData.message),
-                  author: commitData.author_name,
+              console.log("data: ", data)
+              if (!branches["develop"]) {
+                branches["develop"] = gitgraph.branch("develop");
+              }            
+              data.reverse().forEach((branchData) => {
+                const {
+                  sourceBranch,
+                  targetBranch,
+                  mergeCommit,
+                  sourceBranchCommits,
+                } = branchData;
+                // console.log("source: ", sourceBranch)
+                // console.log("target: ", targetBranch)
+                // console.log("mergeCOmmit: ", mergeCommit)
+                // console.log("sourceBranchCOmmits: ", sourceBranchCommits)
+                if (!branches[sourceBranch]) {
+                  branches[sourceBranch] = gitgraph.branch(sourceBranch);
+                }
+                // console.log("branches[sb]", branches[sourceBranch])
+                sourceBranchCommits.forEach((commitData) => {
+                  console.log("commitData", commitData);
+                  branches[sourceBranch].commit({
+                    hash: commitData.id,
+                    subject: truncateMessage(commitData.message),
+                    author: `${commitData.author_name} <${commitData.author_email}>`,
+                  });
                 });
-              });
 
-              if (!branches[targetBranch]) {
-                branches[targetBranch] = gitgraph.branch(targetBranch);
-              }
-              // console.log("branches[tb]", branches[targetBranch])
-              branches[targetBranch]
-                .merge(
-                  branches[sourceBranch],
-                  truncateMessage(mergeCommit.message)
-                )
-                .commit({
-                  subject: truncateMessage(mergeCommit.message),
-                  author: mergeCommit.author_name,
-                });
+                // if (!branches[targetBranch]) {
+                //   branches[targetBranch] = gitgraph.branch(targetBranch);
+                // }
+                // console.log("branches[tb]", branches[targetBranch])
+                branches["develop"]
+                  .merge({
+                      branch: branches[sourceBranch],
+                    commitOptions: {
+                        hash: mergeCommit.id,
+                        subject: truncateMessage(mergeCommit.message),
+                        author: `${mergeCommit.author_name} <${mergeCommit.author_email}>`,
+                      }
+                  })
+                // .commit({
+                //   subject: truncateMessage(mergeCommit.message),
+                //   author: mergeCommit.author_name,
+                // });
             });
           }}
         </Gitgraph>
