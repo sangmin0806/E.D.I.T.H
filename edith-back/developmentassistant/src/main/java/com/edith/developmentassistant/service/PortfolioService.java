@@ -60,22 +60,23 @@ public class PortfolioService {
     public PortfolioDto createPortfolio(String accessToken, String projectId, String branch) {
 
         try {
-            // 1. User, userProject 찾기
+
             UserDto user = userServiceClient.getUserByToken(accessToken);
-//            UserDto user = createUserDto();
+
             UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getUserId(),
                     Long.parseLong(projectId));
-//            UserProject userProject = createUserProject();
 
             if (userProject == null) {
                 log.error("PortfolioService -> UserProject not found");
                 throw new RuntimeException("PortfolioService -> UserProject not found");
             }
 
-            // 2. project summery 찾기 -> id 로 찾기
+
             List<Summary> summaries = mrSummaryRepository.findByProjectId(Long.parseLong(projectId)).stream()
                     .map(Summary::from)
                     .toList();
+
+
 
             // 3. GitLab 에서 해당 Branch 의 MR 리스트 받아 파싱하기 (WebClient)
             MergeRequestDateRange mergeRequestdateRange = getMergedMRs(projectId, branch, "NHMeAABxUvZVyLq6u5Qx");
