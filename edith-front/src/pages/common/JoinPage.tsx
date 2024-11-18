@@ -158,7 +158,7 @@ function JoinPage() {
           </div>
           <div
             className="p-1.5 bg-black rounded-2xl justify-center items-center gap-2.5 inline-flex cursor-pointer"
-            onClick={handleToSignup}
+            // onClick={handleToSignup}
           >
             <p className="w-36 text-center text-white text-xl font-medium font-['Pretendard Variable']">
               회원가입
