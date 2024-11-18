@@ -93,4 +93,10 @@ public class UserController {
         System.out.println("test success");
         return success("test success");
     }
+    @GetMapping()
+    public ApiResult<UserInfoResponse> getUserById(@CookieValue("accessToken") String accessToken) {
+
+        UserInfoResponse userInfoResponse = userService.getUserInfo(accessToken);
+        return success(userInfoResponse);
+    }
 }
