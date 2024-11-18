@@ -18,7 +18,7 @@ qdrant_port = os.getenv("QDRANT_PORT", "6333")
 qdrant_client = QdrantClient(host=qdrant_host, port=int(qdrant_port))
 
 # 유사도 임계값 설정
-SIMILARITY_THRESHOLD = 0.4
+SIMILARITY_THRESHOLD = 0.3
 
 
 @match_router.post("/face-login")
