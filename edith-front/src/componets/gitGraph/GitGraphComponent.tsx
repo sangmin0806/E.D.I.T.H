@@ -76,7 +76,7 @@ const GitGraphComponent: React.FC = () => {
         <Gitgraph options={{ template: smallFontTemplate }}>
           {(gitgraph) => {
             const branches: { [key: string]: Branch } = {};
-
+            
             data.forEach((branchData) => {
               const {
                 sourceBranch,
@@ -84,11 +84,14 @@ const GitGraphComponent: React.FC = () => {
                 mergeCommit,
                 sourceBranchCommits,
               } = branchData;
-
+              // console.log("source: ", sourceBranch)
+              // console.log("target: ", targetBranch)
+              // console.log("mergeCOmmit: ", mergeCommit)
+              // console.log("sourceBranchCOmmits: ", sourceBranchCommits)
               if (!branches[sourceBranch]) {
                 branches[sourceBranch] = gitgraph.branch(sourceBranch);
               }
-
+              // console.log("branches[sb]", branches[sourceBranch])
               sourceBranchCommits.forEach((commitData) => {
                 branches[sourceBranch].commit({
                   subject: truncateMessage(commitData.message),
@@ -99,6 +102,7 @@ const GitGraphComponent: React.FC = () => {
               if (!branches[targetBranch]) {
                 branches[targetBranch] = gitgraph.branch(targetBranch);
               }
+              // console.log("branches[tb]", branches[targetBranch])
               branches[targetBranch]
                 .merge(
                   branches[sourceBranch],
