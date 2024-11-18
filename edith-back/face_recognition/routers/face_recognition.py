@@ -52,7 +52,7 @@ async def face_recognition_login(vector: dict, response: Response):
 
             # FastAPI에서 쿠키 설정
             for key, value in spring_response.get("cookies", {}).items():
-                response.set_cookie(key=key, value=value, httponly=True, samesite="None")
+                response.set_cookie(key=key, value=value, httponly=True,secure=True, samesite="none")
 
             return {
                 "success": True,
