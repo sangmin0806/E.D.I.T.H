@@ -49,6 +49,9 @@ public class WebhookService {
 
         try {
             MergeRequestDiffResponse mergeDiff = fetchMergeRequestDiff(projectId, mergeRequestIid, project.getToken());
+
+            log.info("Merge Diff: {}", mergeDiff);
+
             List<String> fixLogs = fetchFixLogs(projectId, project.getToken());
             String recentCommitMessage = fetchRecentCommitMessage(projectId, project.getToken());
 
