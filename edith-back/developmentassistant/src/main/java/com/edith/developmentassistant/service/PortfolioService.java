@@ -81,6 +81,7 @@ public class PortfolioService {
             // 3. GitLab 에서 해당 Branch 의 MR 리스트 받아 파싱하기 (WebClient)
             MergeRequestDateRange mergeRequestdateRange = getMergedMRs(projectId, branch, "NHMeAABxUvZVyLq6u5Qx");
             log.info("Merged MRs from {}", mergeRequestdateRange);
+
             // 4. Flask 에 포폴 생성 요청하기
             CreatePortfolioServiceRequest request = new CreatePortfolioServiceRequest(
                     user.getEmail(),
@@ -264,6 +265,7 @@ public class PortfolioService {
 //                .project(project)
 //                .build();
 //    }
+// Test Code for createPortfolio
 
 }
 
