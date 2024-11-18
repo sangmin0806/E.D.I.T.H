@@ -2,6 +2,7 @@ export interface Commit {
   id: string;
   message: string;
   author_name: string;
+  author_email: string;
   authored_date: string;
   parent_ids: string[];
 }
