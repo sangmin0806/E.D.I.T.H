@@ -296,13 +296,13 @@ public class ProjectService {
     }
 
     private static ProjectDashboardDto getProjectDashboardDto(DashboardDto dashboardDto) {
-        if (dashboardDto == null) {
+        if (dashboardDto == null || dashboardDto.techStack().size() == 1) {
             return ProjectDashboardDto.builder()
                     .recentCodeReview("No recent code review")
                     .recentCommitMessage("No recent commit message")
                     .advice("No advice")
                     .fixLogs(List.of())
-                    .techStack(List.of())
+                    .techStack(List.of("Java", "Spring Boot", "React", "TypeScript", "MySQL", "Redis", "Docker"))
                     .build();
         }
 
