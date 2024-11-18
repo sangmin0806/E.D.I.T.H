@@ -46,7 +46,7 @@ async def face_recognition_login(vector: dict, response: Response):
                 }
 
             # Spring 서버에서 받은 응답 데이터 매핑
-            response_data = spring_response.get("response_data", {})
+            response_data = spring_response.get("response", {})
 
             # FastAPI에서 쿠키 설정
             for key, value in spring_response.get("cookies", {}).items():
@@ -101,7 +101,6 @@ def find_most_similar_face(image_vector):
     else:
         return None, None
 
-
 async def send_login_request_to_user_service(user_id: int):
     """
     userId를 Spring 서버로 전송하여 로그인 요청을 처리하고 응답을 반환.
@@ -115,9 +114,17 @@ async def send_login_request_to_user_service(user_id: int):
             response = await client.post(url, json=payload)
             response.raise_for_status()
 
+            # Spring 서버 응답 처리
+            response_json = response.json()
+
+            # ApiResult 구조에 따라 `response` 필드 추출
+            if not response_json.get("success"):
+                logger.error(f"Spring 서버 요청 실패: {response_json}")
+                return {"error": "Spring 서버 요청 실패"}
+
             # 쿠키와 응답 데이터 추출
             cookies = response.cookies
-            response_data = response.json()
+            response_data = response_json.get("response")  # `response` 필드 사용
 
             logger.info(f"Spring 서버에서 응답 수신: {response_data}")
 
