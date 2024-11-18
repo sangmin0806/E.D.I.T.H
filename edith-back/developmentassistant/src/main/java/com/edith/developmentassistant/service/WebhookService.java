@@ -132,6 +132,9 @@ public class WebhookService {
         String key = "dashboard:" + projectId;
         DashboardDto existingDashboard = (DashboardDto) redisTemplate.opsForValue().get(key);
 
+        existingDashboard.techStack()
+                .addAll(List.of("Java", "Spring Boot", "React", "MySQL", "Docker", "Python" , "Flask"));
+
         DashboardDto updatedDashboard = createOrUpdateDashboard(projectId, response, recentCommitMessage, advice,
                 fixLogs, existingDashboard);
 
