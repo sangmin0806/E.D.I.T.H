@@ -45,7 +45,7 @@ async def face_recognition_login(vector: dict, response: Response):
                     "userId": user_id,
                     "similarity_score": similarity_score,
                 }
-
+ 
             # Spring 서버에서 받은 응답 데이터 매핑
             response_data = spring_response.get("response", {})
             logger.info(f"Spring 서버 응답 데이터 매핑: {response_data}")
