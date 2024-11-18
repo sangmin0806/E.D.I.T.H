@@ -88,11 +88,7 @@ public class UserController {
         UserInfoResponse userInfoResponse = userService.getUserInfo(accessToken);
         return success(userInfoResponse);
     }
-    @GetMapping("/test")
-    public ApiResult<String> test() { //routing test
-        System.out.println("test success");
-        return success("test success");
-    }
+
     @GetMapping()
     public ApiResult<UserInfoResponse> getUserById(@CookieValue("accessToken") String accessToken) {
 
