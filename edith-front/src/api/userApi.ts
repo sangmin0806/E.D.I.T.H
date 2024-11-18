@@ -66,14 +66,14 @@ export const faceLoginRequest = async (
 ): Promise<{
   success: boolean;
   response?: {
-    accessToken: string;
-    refreshToken: string;
-    userId: number;
-    username: string;
-    name: string;
-    email: string;
-    profileImageUrl: string;
-    similarity_score: number;
+    accessToken?: string;
+    refreshToken?: string;
+    userId: number | null;
+    username?: string;
+    name?: string;
+    email?: string;
+    profileImageUrl?: string;
+    similarity_score: number | null;
   };
   error?: string;
 }> => {
@@ -85,18 +85,17 @@ export const faceLoginRequest = async (
 
   return {
     success: result.success,
-    response: result.success
-      ? {
-          accessToken: result.response?.accessToken,
-          refreshToken: result.response?.refreshToken,
-          userId: result.response?.userId,
-          username: result.response?.username,
-          name: result.response?.name,
-          email: result.response?.email,
-          profileImageUrl: result.response?.profileImageUrl,
-          similarity_score: result.response?.similarity_score,
-        }
-      : undefined,
+    response: {
+      userId: result.response?.userId ?? null,
+      similarity_score: result.response?.similarity_score ?? null,
+      accessToken: result.success ? result.response?.accessToken : undefined,
+      refreshToken: result.success ? result.response?.refreshToken : undefined,
+      username: result.success ? result.response?.username : undefined,
+      name: result.success ? result.response?.name : undefined,
+      email: result.success ? result.response?.email : undefined,
+      profileImageUrl: result.success ? result.response?.profileImageUrl : undefined,
+    },
     error: result.error,
   };
 };
+
