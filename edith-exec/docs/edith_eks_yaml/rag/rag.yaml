@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rag-flask-app
+  namespace: eks-work
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: rag-flask-app
+  template:
+    metadata:
+      labels:
+        app: rag-flask-app
+    spec:
+      containers:
+        - name: rag-flask-app
+          image: 354918381360.dkr.ecr.ap-northeast-2.amazonaws.com/ssafy/edith:rag-flask-app-49
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8083
+          env:
+            - name: OPENAI_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: openai-api-key
+                  key: OPENAI_API_KEY
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rag-flask-service
+  namespace: eks-work
+spec:
+  type: NodePort
+  ports:
+    - name: http
+      protocol: TCP
+      port: 8183
+      targetPort: 8083
+      nodePort: 32083
+  selector:
+    app: rag-flask-app

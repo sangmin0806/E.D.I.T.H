@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: face-recognition-fastapi-app
+  namespace: eks-work
+spec:
+  replicas: 2
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: face-recognition-fastapi-app
+  template:
+    metadata:
+      labels:
+        app: face-recognition-fastapi-app
+    spec:
+      containers:
+        - name: face-recognition-fastapi-app
+          image: 354918381360.dkr.ecr.ap-northeast-2.amazonaws.com/ssafy/edith:face_recognition-fastapi-app-64
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8084
+          env:
+            - name: QDRANT_HOST
+              value: "qdrant.eks-work2.svc.cluster.local"  # Qdrant의 ClusterIP 주소
+            - name: QDRANT_PORT
+              value: "6333"
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: jwt-secret
+                  key: SPRING_JWT_SECRET
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: face-recognition-fastapi-service
+  namespace: eks-work
+spec:
+  selector:
+    app: face-recognition-fastapi-app
+  ports:
+    - protocol: TCP
+      port: 8184
+      targetPort: 8084
+  type: ClusterIP
