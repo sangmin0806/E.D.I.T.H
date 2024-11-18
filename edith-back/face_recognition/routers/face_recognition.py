@@ -31,6 +31,7 @@ async def face_recognition_login(vector: dict, response: Response):
 
     # Qdrant에서 가장 유사한 얼굴 찾기
     user_id, similarity_score = find_most_similar_face(image_vector)
+    logger.info(f"Qdrant 검색 결과: userId={user_id}, similarity_score={similarity_score}")
 
     if user_id:
         if similarity_score <= SIMILARITY_THRESHOLD:
@@ -47,6 +48,7 @@ async def face_recognition_login(vector: dict, response: Response):
 
             # Spring 서버에서 받은 응답 데이터 매핑
             response_data = spring_response.get("response", {})
+            logger.info(f"Spring 서버 응답 데이터 매핑: {response_data}")
 
             # FastAPI에서 쿠키 설정
             for key, value in spring_response.get("cookies", {}).items():
@@ -101,6 +103,7 @@ def find_most_similar_face(image_vector):
     else:
         return None, None
 
+
 async def send_login_request_to_user_service(user_id: int):
     """
     userId를 Spring 서버로 전송하여 로그인 요청을 처리하고 응답을 반환.
@@ -116,6 +119,7 @@ async def send_login_request_to_user_service(user_id: int):
 
             # Spring 서버 응답 처리
             response_json = response.json()
+            logger.info(f"Spring 서버에서 받은 전체 응답: {response_json}")
 
             # ApiResult 구조에 따라 `response` 필드 추출
             if not response_json.get("success"):
@@ -123,14 +127,15 @@ async def send_login_request_to_user_service(user_id: int):
                 return {"error": "Spring 서버 요청 실패"}
 
             # 쿠키와 응답 데이터 추출
-            cookies = response.cookies
+            cookies = response.cookies.items()  # 쿠키를 (키, 값) 쌍으로 변환
             response_data = response_json.get("response")  # `response` 필드 사용
 
-            logger.info(f"Spring 서버에서 응답 수신: {response_data}")
+            logger.info(f"Spring 서버에서 받은 쿠키: {cookies}")
+            logger.info(f"Spring 서버에서 추출한 response 데이터: {response_data}")
 
             return {
                 "response": response_data,
-                "cookies": {cookie.name: cookie.value for cookie in cookies},
+                "cookies": {key: value for key, value in cookies},  # 쿠키를 딕셔너리로 변환
             }
 
         except httpx.HTTPStatusError as e:
