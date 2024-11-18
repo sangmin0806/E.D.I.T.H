@@ -110,7 +110,7 @@ function JoinPage() {
               </div>
               <div className="justify-start items-center gap-4 inline-flex">
                 <div className="w-40 text-black text-xl font-semibold">
-                  git Peronal Access Token
+                  git Personal Access Token
                 </div>
                 <input
                   name="vcsAccessToken"

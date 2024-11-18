@@ -10,6 +10,7 @@ import {
 } from "../../api/portfolioApi";
 import { useNavigate, useParams } from "react-router-dom";
 import { PortfolioInfo } from "../../types/portfolioType";
+import Parser from "html-react-parser";
 
 interface portfolioProp {
   userGitAccount: string;
@@ -83,6 +84,14 @@ function RepoPortfolio({ userGitAccount }: portfolioProp) {
     }
   };
 
+  const options = {
+    replace: (domNode: any) => {
+      if (domNode.name === "body") {
+        domNode.attribs.style = ""; // body의 스타일 제거
+      }
+      return domNode;
+    },
+  };
   if (loading) {
     return (
       <div className="flex w-full h-full items-center justify-center">
@@ -108,7 +117,7 @@ function RepoPortfolio({ userGitAccount }: portfolioProp) {
                   기간 : {data.startDate} ~ {data.endDate}
                 </p>
               </div>
-              <div className="py-8 pl-8 pr-8 bg-white/60 rounded-3xl flex-col gap-6 inline-flex">
+              <div className="py-8 pl-8 pr-8 bg-white/30 rounded-3xl flex-col gap-6 inline-flex">
                 <div className="flex gap-2 justify-end">
                   <img
                     className="w-8 h-8 cursor-pointer"
@@ -116,7 +125,9 @@ function RepoPortfolio({ userGitAccount }: portfolioProp) {
                     onClick={handleCopy}
                   />
                 </div>
-                <div>{data.portfolio}</div>
+                <div className="bg-white/30">
+                  {Parser(data.portfolio, options)}
+                </div>
               </div>
             </div>
           </div>
