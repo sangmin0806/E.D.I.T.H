@@ -13,6 +13,11 @@
     padding: 0px;
     font-family: Pretendard Variable;
   }
+
+  body{
+    margin: 0px !important;
+    padding: 0px !important;
+  }
   
   h1 {
     font-size: 1.5em;
