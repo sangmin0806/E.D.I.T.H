@@ -129,7 +129,7 @@ async def send_login_request_to_user_service(user_id: int):
             logger.info(f"Spring 서버에서 응답 수신: {response_data}")
 
             return {
-                "response_data": response_data,
+                "response": response_data,
                 "cookies": {cookie.name: cookie.value for cookie in cookies},
             }
 
