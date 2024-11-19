@@ -33,42 +33,9 @@ async def face_recognition_login(vector: dict, response: Response):
     user_id, similarity_score = find_most_similar_face(image_vector)
     logger.info(f"Qdrant 검색 결과: userId={user_id}, similarity_score={similarity_score}")
 
-    if user_id:
-        if similarity_score <= SIMILARITY_THRESHOLD:
-            # Spring 서버로 HTTP 요청을 보냄
-            spring_response = await send_login_request_to_user_service(user_id)
-
-            if "error" in spring_response:
-                return {
-                    "success": False,
-                    "error": spring_response["error"],
-                    "userId": user_id,
-                    "similarity_score": similarity_score,
-                }
- 
-            # Spring 서버에서 받은 응답 데이터 매핑
-            response_data = spring_response.get("response", {})
-            logger.info(f"Spring 서버 응답 데이터 매핑: {response_data}")
-
-            # FastAPI에서 쿠키 설정
-            for key, value in spring_response.get("cookies", {}).items():
-                response.set_cookie(key=key, value=value, httponly=True,secure=True, samesite="none")
-
-            return {
-                "success": True,
-                "response": {
-                    "accessToken": response_data.get("accessToken"),
-                    "refreshToken": response_data.get("refreshToken"),
-                    "userId": response_data.get("userId"),
-                    "username": response_data.get("username"),
-                    "name": response_data.get("name"),
-                    "email": response_data.get("email"),
-                    "profileImageUrl": response_data.get("profileImageUrl"),
-                    "similarity_score": similarity_score,
-                },
-            }
-
-        # 유사도는 있지만 임계값보다 높음
+    # 유사도가 임계값을 초과한 경우 처리
+    if similarity_score > SIMILARITY_THRESHOLD:
+        logger.warning(f"유사도가 임계값을 초과했습니다: {similarity_score} > {SIMILARITY_THRESHOLD}")
         return {
             "success": False,
             "error": "유사도가 기준보다 낮아 로그인을 진행할 수 없습니다.",
@@ -76,14 +43,38 @@ async def face_recognition_login(vector: dict, response: Response):
             "similarity_score": similarity_score,
         }
 
-    # Qdrant에서 유사한 얼굴을 찾지 못한 경우
-    return {
-        "success": False,
-        "error": "유사한 얼굴을 찾을 수 없습니다.",
-        "userId": None,
-        "similarity_score": None,
-    }
+    # 유사도가 임계값 이하인 경우 Spring 서버로 로그인 요청
+    spring_response = await send_login_request_to_user_service(user_id)
 
+    if "error" in spring_response:
+        return {
+            "success": False,
+            "error": spring_response["error"],
+            "userId": user_id,
+            "similarity_score": similarity_score,
+        }
+
+    # Spring 서버에서 받은 응답 데이터 매핑
+    response_data = spring_response.get("response", {})
+    logger.info(f"Spring 서버 응답 데이터 매핑: {response_data}")
+
+    # FastAPI에서 쿠키 설정
+    for key, value in spring_response.get("cookies", {}).items():
+        response.set_cookie(key=key, value=value, httponly=True, secure=True, samesite="none")
+
+    return {
+        "success": True,
+        "response": {
+            "accessToken": response_data.get("accessToken"),
+            "refreshToken": response_data.get("refreshToken"),
+            "userId": response_data.get("userId"),
+            "username": response_data.get("username"),
+            "name": response_data.get("name"),
+            "email": response_data.get("email"),
+            "profileImageUrl": response_data.get("profileImageUrl"),
+            "similarity_score": similarity_score,
+        },
+    }
 
 def find_most_similar_face(image_vector):
     """
