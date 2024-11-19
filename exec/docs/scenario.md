@@ -38,16 +38,14 @@
 - 프로젝트를 진행하며 MR 등록을 했을 때, 일정 시간 후 AI 코드리뷰 등록
 
 ![mr.png](./imgs/mr.png)
-![code_review.png](./imgs/code_review1.png)
-![code_review.png](./imgs/code_review2.png)
+![code_review.png](./imgs/code_review.png)
 
 ### 7. 프로젝트 대시보드 확인
 - 프로젝트에 대한 전체적인 정보 제공
 
 ![project_info.png](./imgs/project_info.png)
-![project_info2.png](./imgs/project_info2.png)
 
 ### 8. 개인 포트폴리오 생성
+- 나의 포트폴리오 생성 버튼을 누를 경우 다음과 같은 AI 기반의 개인 맞춤형 포트폴리오 제공
 
-
-
+![portfolio.png](./imgs/portfolio.png)
