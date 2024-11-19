@@ -106,7 +106,7 @@ const App: React.FC = () => {
       const result = await faceLoginRequest(Array.from(embedding));
 
       console.log("서버에서 받은 데이터:", result);
-      if (result.success && result.response) {
+      if (result.success && result.response?.name) {
         const {
           name,
           email,
