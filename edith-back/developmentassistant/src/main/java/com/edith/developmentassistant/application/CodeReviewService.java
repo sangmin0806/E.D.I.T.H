@@ -137,7 +137,7 @@ public class CodeReviewService {
         if (existingDashboard == null) {
             existingDashboard = DashboardDto.createInitDashboardDto(projectId);
         }
-
+//        우선 주석 처리
 //        existingDashboard.techStack()
 //                .addAll(List.of("Java", "Spring Boot", "React", "MySQL", "Docker", "Python", "Flask"));
 
