@@ -85,6 +85,4 @@ public class DashboardService {
     private Integer getTodayCommitsCount(Long projectId, String projectAccessToken) {
         return gitLabApi.fetchTodayCommitsCount(projectId, projectAccessToken);
     }
-
-
 }

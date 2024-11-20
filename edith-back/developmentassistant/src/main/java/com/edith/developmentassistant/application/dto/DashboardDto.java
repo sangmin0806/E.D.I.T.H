@@ -12,4 +12,8 @@ public record DashboardDto(
         List<String> fixLogs,
         List<String> techStack
 ) {
+
+    public static DashboardDto createInitDashboardDto(Integer projectId) {
+        return new DashboardDto(projectId, "" , "" , "" , List.of(), List.of());
+    }
 }
