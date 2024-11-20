@@ -129,7 +129,7 @@ public class PortfolioService {
                         .get()
                         .uri(uriBuilder -> uriBuilder
                                 .path("/projects/{id}/merge_requests")
-                                .queryParam("target_branch", branch)
+//                                .queryParam("target_branch", branch)
                                 .queryParam("state", "merged")
                                 .queryParam("per_page", perPage)
                                 .queryParam("page", 1)
