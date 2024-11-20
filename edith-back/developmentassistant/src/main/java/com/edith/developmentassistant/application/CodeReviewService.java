@@ -133,6 +133,7 @@ public class CodeReviewService {
         String key = "dashboard:" + projectId;
         DashboardDto existingDashboard = (DashboardDto) redisTemplate.opsForValue().get(key);
 
+        // redis dashboard 정보가 없다면 추가
         if (existingDashboard == null) {
             existingDashboard = DashboardDto.createInitDashboardDto(projectId);
         }
