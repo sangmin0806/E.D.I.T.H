@@ -21,6 +21,7 @@ export const techIcons: { [key: string]: string } = {
   Flask: "simple-icons:flask",
   Java: "logos:java",
   Spring: "logos:spring-icon",
+  SpringBoot: "logos:spring-icon",
   PHP: "logos:php",
   Laravel: "logos:laravel",
   Ruby: "logos:ruby",
