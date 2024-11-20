@@ -73,7 +73,7 @@ def get_portfolio(llm, memory, user_id, memory_key, description) -> str:
                 너는 프로젝트 포트폴리오 제작 전문가야
                 해당 MR 요약본으로 포트폴리오를 *자세히 완성해 
                 *HTML 형식, <title> 부터
-                (프로젝트 설명 : AI 코드리뷰, 포트폴리오 자동 생성 프로젝트)
+                (프로젝트 설명 : """ + description + """)
                 
                 개발자 ID : {user_id}
                 설명: {description}

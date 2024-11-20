@@ -61,13 +61,10 @@ public class PortfolioService {
 
         try {
 
-//            UserDto user = userServiceClient.getUserByToken(accessToken);
-//
-//            UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getUserId(),
-//                    Long.parseLong(projectId));
+            UserDto user = userServiceClient.getUserByToken(accessToken);
 
-            UserDto user = createUserDto();
-            UserProject userProject = createUserProject();
+            UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getUserId(),
+                    Long.parseLong(projectId));
 
             if (userProject == null) {
                 log.error("PortfolioService -> UserProject not found");
@@ -244,29 +241,29 @@ public class PortfolioService {
                 .timeout(Duration.ofSeconds(10));
     }
 
-    private UserDto createUserDto() {
-        return UserDto.builder()
-                .userId(10L)
-                .email("Lee-JoungHyun")
-                .password("1234")
-                .vcsBaseUrl("https://lab.ssafy.com/")
-                .vcsAccessToken("ZH3_Ft1HJmHqwXYmgYHs")
-                .build();
-    }
-
-    private UserProject createUserProject() {
-
-        Project project = Project.builder()
-                .projectId(824085L)
-                .build();
-
-        return UserProject.builder()
-                .userId(10L)
-                .title("E.D.I.T.H.")
-                .description("AI 기반 코드리뷰, 포트폴리오 프로젝트")
-                .project(project)
-                .build();
-    }
+//    private UserDto createUserDto() {
+//        return UserDto.builder()
+//                .userId(10L)
+//                .email("Lee-JoungHyun")
+//                .password("1234")
+//                .vcsBaseUrl("https://lab.ssafy.com/")
+//                .vcsAccessToken("ZH3_Ft1HJmHqwXYmgYHs")
+//                .build();
+//    }
+//
+//    private UserProject createUserProject() {
+//
+//        Project project = Project.builder()
+//                .id(824085L)
+//                .build();
+//
+//        return UserProject.builder()
+//                .userId(10L)
+//                .title("E.D.I.T.H.")
+//                .description("AI 기반 코드리뷰, 포트폴리오 프로젝트")
+//                .project(project)
+//                .build();
+//    }
 // Test Code for createPortfolio
 
 }
