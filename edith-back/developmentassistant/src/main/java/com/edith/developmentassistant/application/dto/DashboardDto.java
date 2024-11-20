@@ -14,6 +14,11 @@ public record DashboardDto(
 ) {
 
     public static DashboardDto createInitDashboardDto(Integer projectId) {
-        return new DashboardDto(projectId, "" , "" , "" , List.of(), List.of());
+        return new DashboardDto(projectId,
+                "" ,
+                "" ,
+                "" ,
+                List.of(),
+                List.of("Java", "Spring Boot", "React", "MySQL", "Docker", "Python", "Flask"));
     }
 }
