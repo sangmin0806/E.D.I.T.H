@@ -31,11 +31,11 @@ public class DashboardService {
     public ProjectDashboardDto getProjectDashboard(Long projectId) {
 
         DashboardDto dashboardDto = (DashboardDto) redisTemplate.opsForValue().get("dashboard:" + projectId);
-        log.info("dashboardDto advice : {}", dashboardDto.advice());
-        log.info("dashboardDto recentCodeReview : {}", dashboardDto.recentCodeReview());
-        log.info("dashboardDto recentCommitMessage : {}", dashboardDto.recentCommitMessage());
-        log.info("dashboardDto fixLogs : {}", dashboardDto.fixLogs());
-        log.info("dashboardDto techStack : {}", dashboardDto.techStack());
+//        log.info("dashboardDto advice : {}", dashboardDto.advice());
+//        log.info("dashboardDto recentCodeReview : {}", dashboardDto.recentCodeReview());
+//        log.info("dashboardDto recentCommitMessage : {}", dashboardDto.recentCommitMessage());
+//        log.info("dashboardDto fixLogs : {}", dashboardDto.fixLogs());
+//        log.info("dashboardDto techStack : {}", dashboardDto.techStack());
 
         return getProjectDashboardDto(dashboardDto);
     }
