@@ -15,11 +15,11 @@ public record ProjectDashboardDto(
 
     public static ProjectDashboardDto from(DashboardDto dashboardDto) {
         return ProjectDashboardDto.builder()
-                .recentCommitMessage(dashboardDto.recentCommitMessage())
-                .recentCodeReview(dashboardDto.recentCodeReview())
-                .advice(dashboardDto.advice())
-                .fixLogs(dashboardDto.fixLogs())
-                .techStack(dashboardDto.techStack())
+                .recentCommitMessage(dashboardDto.getRecentCommitMessage())
+                .recentCodeReview(dashboardDto.getRecentCodeReview())
+                .advice(dashboardDto.getAdvice())
+                .fixLogs(dashboardDto.getFixLogs())
+                .techStack(dashboardDto.getTechStack())
                 .build();
     }
 }

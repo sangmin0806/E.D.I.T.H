@@ -155,7 +155,7 @@ public class CodeReviewService {
                 .recentCodeReview(defaultIfNullOrEmpty(response.getReview(), "No recent code review available"))
                 .recentCommitMessage(defaultIfNullOrEmpty(recentCommitMessage, "No recent commit message available"))
                 .advice(defaultIfNullOrEmpty(advice, "No advice provided"))
-                .techStack(mergeTechStacks(existingDashboard == null ? List.of() : existingDashboard.techStack(),
+                .techStack(mergeTechStacks(existingDashboard == null ? List.of() : existingDashboard.getTechStack(),
                         response.getTechStack()))
                 .fixLogs(defaultIfNullOrEmpty(fixLogs, List.of("No fix logs available")))
                 .build();
