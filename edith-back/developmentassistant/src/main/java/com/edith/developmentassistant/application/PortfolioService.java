@@ -18,6 +18,7 @@ import com.edith.developmentassistant.application.dto.response.GitLabMergeReques
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -32,10 +33,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -118,54 +116,81 @@ public class PortfolioService {
     }
 
     public MergeRequestDateRange getMergedMRs(String projectId, String branch, String accessToken) {
-        return gitLabWebClient
-                .get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/projects/{id}/merge_requests")
-                        .queryParam("target_branch", branch)
-                        .queryParam("state", "merged")
-                        .queryParam("per_page", 100000000)
-                        .build(projectId))
-                .header("PRIVATE-TOKEN", accessToken)
-                .retrieve()
-                .bodyToFlux(GitLabMergeRequestResponse.class)
-                .collectList()
-                .flatMap(mergeRequests -> {
-                    LocalDateTime firstPreparedAt = mergeRequests.stream()
-                            .map(GitLabMergeRequestResponse::getPreparedAt)
-                            .filter(Objects::nonNull)
-                            .min(LocalDateTime::compareTo)
-                            .orElse(null);
+        int perPage = 100; // GitLab 최대 값
+        List<GitLabMergeRequestResponse> allMergeRequests = new ArrayList<>();
 
-                    LocalDateTime lastMergedAt = mergeRequests.stream()
-                            .map(GitLabMergeRequestResponse::getMergedAt)
-                            .filter(Objects::nonNull)
-                            .max(LocalDateTime::compareTo)
-                            .orElse(null);
+        try {
+            int currentPage = 1;
+            int totalPages;
 
-                    return Flux.fromIterable(mergeRequests)
-                            .parallel()
-                            .runOn(Schedulers.boundedElastic())
-                            .flatMap(mr -> getMRDiff(projectId, mr.getIid(), accessToken)
-                                    .map(diff -> new MergeRequest(
-                                            String.valueOf(mr.getIid()),
-                                            mr.getAuthor() != null ? mr.getAuthor().getUsername() : "",
-                                            Optional.ofNullable(mr.getChanges())
-                                                    .orElse(Collections.emptyList())
-                                                    .stream()
-                                                    .map(GitLabMergeRequestResponse.Change::getNewPath)
-                                                    .collect(Collectors.joining(",")),
-                                            diff
-                                    )))
-                            .sequential()
-                            .collectList()
-                            .map(mrs -> new MergeRequestDateRange(firstPreparedAt, lastMergedAt, mrs));
-                })
-                .onErrorResume(e -> {
-                    log.error("Error fetching merge requests: ", e);
-                    return Mono.just(new MergeRequestDateRange(null, null, Collections.emptyList()));
-                })
-                .block(Duration.ofSeconds(30));
+            do {
+                // 페이지별 요청
+                ResponseEntity<List<GitLabMergeRequestResponse>> response = gitLabWebClient
+                        .get()
+                        .uri(uriBuilder -> uriBuilder
+                                .path("/projects/{id}/merge_requests")
+                                .queryParam("target_branch", branch)
+                                .queryParam("state", "merged")
+                                .queryParam("per_page", perPage)
+                                .queryParam("page", 1)
+                                .build(projectId))
+                        .header("PRIVATE-TOKEN", accessToken)
+                        .retrieve()
+                        .toEntityList(GitLabMergeRequestResponse.class)
+                        .block(Duration.ofSeconds(30));
+
+                // 응답 데이터 추가
+                if (response != null && response.getBody() != null) {
+                    allMergeRequests.addAll(response.getBody());
+                }
+
+                // 총 페이지 수 추출
+                HttpHeaders headers = response.getHeaders();
+                totalPages = Integer.parseInt(headers.getFirst("X-Total-Pages"));
+
+                currentPage++; // 다음 페이지로 이동
+            } while (currentPage <= totalPages);
+
+            // 필요한 데이터 추출 및 반환
+            LocalDateTime firstPreparedAt = allMergeRequests.stream()
+                    .map(GitLabMergeRequestResponse::getPreparedAt)
+                    .filter(Objects::nonNull)
+                    .min(LocalDateTime::compareTo)
+                    .orElse(null);
+
+            LocalDateTime lastMergedAt = allMergeRequests.stream()
+                    .map(GitLabMergeRequestResponse::getMergedAt)
+                    .filter(Objects::nonNull)
+                    .max(LocalDateTime::compareTo)
+                    .orElse(null);
+
+            // MR Diff 데이터 추가 병렬 처리
+            List<MergeRequest> mrs = Flux.fromIterable(allMergeRequests)
+                    .parallel()
+                    .runOn(Schedulers.boundedElastic())
+                    .flatMap(mr -> getMRDiff(projectId, mr.getIid(), accessToken)
+                            .map(diff -> new MergeRequest(
+                                    String.valueOf(mr.getIid()),
+                                    mr.getAuthor() != null ? mr.getAuthor().getUsername() : "",
+                                    Optional.ofNullable(mr.getChanges())
+                                            .orElse(Collections.emptyList())
+                                            .stream()
+                                            .map(GitLabMergeRequestResponse.Change::getNewPath)
+                                            .collect(Collectors.joining(",")),
+                                    diff
+                            )))
+                    .sequential()
+                    .collectList()
+                    .block();
+
+
+            log.info("마지막={}", currentPage);
+            return new MergeRequestDateRange(firstPreparedAt, lastMergedAt, mrs);
+
+        } catch (Exception e) {
+            log.error("Error fetching merge requests: ", e);
+            return new MergeRequestDateRange(null, null, Collections.emptyList());
+        }
     }
 
     public PortfolioDto savePortfolio(String accessToken, PortfolioDto portfolio) {
