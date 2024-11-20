@@ -133,12 +133,13 @@ public class CodeReviewService {
         String key = "dashboard:" + projectId;
         DashboardDto existingDashboard = (DashboardDto) redisTemplate.opsForValue().get(key);
 
+        // redis dashboard 정보가 없다면 추가
         if (existingDashboard == null) {
             existingDashboard = DashboardDto.createInitDashboardDto(projectId);
         }
 
-        existingDashboard.techStack()
-                .addAll(List.of("Java", "Spring Boot", "React", "MySQL", "Docker", "Python", "Flask"));
+//        existingDashboard.techStack()
+//                .addAll(List.of("Java", "Spring Boot", "React", "MySQL", "Docker", "Python", "Flask"));
 
         DashboardDto updatedDashboard = createOrUpdateDashboard(projectId, response, recentCommitMessage, advice,
                 fixLogs, existingDashboard);
