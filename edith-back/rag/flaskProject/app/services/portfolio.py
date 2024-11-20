@@ -4,7 +4,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from app.services.llm_model import LLMModel
 import time
-
+import asyncio
 
 def estimate_tokens(text: str) -> int:
     if not text:
@@ -28,7 +28,7 @@ def estimate_tokens(text: str) -> int:
     total_tokens = int(korean_tokens + basic_tokens + special_tokens + newlines)
     return max(1, total_tokens)  # 최소 1토큰
 
-def process_batch(llm, memory, batch, summaries_dict, description):
+async def process_batch(llm, memory, batch, summaries_dict, description):
     summary_prompt = ChatPromptTemplate.from_template("""너는 프로젝트 포트폴리오 제작 전문가야
         이는 MR의 파일별 git diff 들이야 
         포트폴리오 제작할 요약본을 만들어 이때 개발자 별로 구현한 내용을 간략히 정리해줘
@@ -52,7 +52,7 @@ def process_batch(llm, memory, batch, summaries_dict, description):
                                          for mr_id in batch['mrIds'])
         else:
             # 새로운 요약 생성
-            result = summary_chain.invoke({
+            result = await summary_chain.ainvoke({
                 "description": description,
                 "user_id": batch['userId'],
                 "diff": batch['diff']
@@ -73,7 +73,7 @@ def get_portfolio(llm, memory, user_id, memory_key, description) -> str:
                 너는 프로젝트 포트폴리오 제작 전문가야
                 해당 MR 요약본으로 포트폴리오를 *자세히 완성해 
                 *HTML 형식, <title> 부터
-                (프로젝트 설명 : AI 코드리뷰, 포트폴리오 자동 생성 프로젝트)
+                (프로젝트 설명 : """ + description + """)
                 
                 개발자 ID : {user_id}
                 설명: {description}
@@ -179,9 +179,13 @@ def merge_diffs(merge_requests, max_tokens: int = 10000):
 
 
 def get_summary(llm, memory, merge_requests, summaries_dict, description) -> None:
-    for batch in merge_requests:
-        process_batch(llm, memory, batch, summaries_dict, description)
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    tasks = []
 
+    for batch in merge_requests:
+        tasks.append(process_batch(llm, memory, batch, summaries_dict, description))
+    loop.run_until_complete(asyncio.gather(*tasks))
 
 def make_portfolio(user_id, summaries, merge_requests, description) -> str:
     uuid = generate_uuid()
