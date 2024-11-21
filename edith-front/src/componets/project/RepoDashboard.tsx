@@ -101,7 +101,7 @@ function RepoDashboard() {
             {/* 세번째 줄 */}
             <div className="flex gap-4 w-[90%]">
               {/* Tech Stacks */}
-              <div className="w-[35%] py-8 pl-8 pr-8 bg-white/30 rounded-3xl flex-col justify-center gap-6 inline-flex shadow-custom">
+              <div className="w-[35%] py-8 pl-8 pr-8 bg-white/30 rounded-3xl flex-col gap-6 inline-flex justify-start shadow-custom">
                 <p className="text-2xl font-semibold">Tech Stacks</p>
                 <div className="flex flex-col space-y-4">
                   {dashboard?.techStack.map((tech, index) => (
