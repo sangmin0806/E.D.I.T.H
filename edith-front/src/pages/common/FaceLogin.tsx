@@ -13,7 +13,7 @@ const App: React.FC = () => {
   const [faceDetectionInterval, setFaceDetectionInterval] = useState<number | null>(null);
   const navigate = useNavigate();
 
-  const EAR_THRESHOLD = 0.29;
+  const EAR_THRESHOLD = 0.28;
   const MIN_DURATION = 100;
   let blinkStart: number | null = null;
 
