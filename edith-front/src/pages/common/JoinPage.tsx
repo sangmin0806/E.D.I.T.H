@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useRedirectIfLoggedIn } from "../../hooks/useAuth";
 
 function JoinPage() {
-  // 상태 정의
+  // 상태 정의.   
   const [joinInfo, setJoinInfo] = useState<JoinInfo>({
     email: "",
     password: "",
