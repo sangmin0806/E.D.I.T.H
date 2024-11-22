@@ -24,6 +24,6 @@ public class DashboardDto {
                 "",
                 "",
                 List.of(),
-                List.of("Java", "Spring Boot", "React", "MySQL", "Docker", "Python", "Flask"));
+                List.of("Java", "SpringBoot", "React", "MySQL", "Docker", "Python", "Flask"));
     }
 }

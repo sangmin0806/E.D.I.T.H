@@ -1,5 +1,6 @@
 package com.edith.developmentassistant.application;
 
+import com.edith.developmentassistant.domain.model.Project;
 import com.edith.developmentassistant.infrastructure.dto.UserDto;
 import com.edith.developmentassistant.infrastructure.client.user.UserServiceClient;
 import com.edith.developmentassistant.domain.model.Portfolio;
@@ -75,7 +76,7 @@ public class PortfolioService {
 
             // 3. GitLab 에서 해당 Branch 의 MR 리스트 받아 파싱하기 (WebClient)
             MergeRequestDateRange mergeRequestdateRange = getMergedMRs(projectId, branch, user.getVcsAccessToken());
-            log.info("Merged MRs from {}", mergeRequestdateRange);
+            log.info("Merged MRs from {} to {}", mergeRequestdateRange.getStartDate(), mergeRequestdateRange.getEndDate());
 
             // 4. Flask 에 포폴 생성 요청하기
             CreatePortfolioServiceRequest request = new CreatePortfolioServiceRequest(
@@ -85,8 +86,8 @@ public class PortfolioService {
                     mergeRequestdateRange.getMergeRequests()
             );
 
-            log.info("Flask URL: {}", FLASK_PORTFOLIO_URL);
-            log.info("Request data: {}", request);
+//            log.info("Flask URL: {}", FLASK_PORTFOLIO_URL);
+//            log.info("Request data: {}", request);
 
             // 5. 포트폴리오 받아 반환하기
             ResponseEntity<FlaskPortfolioResponse> response = portfolioRestTemplate.postForEntity(
@@ -125,6 +126,7 @@ public class PortfolioService {
 
             do {
                 // 페이지별 요청
+                int finalCurrentPage = currentPage;
                 ResponseEntity<List<GitLabMergeRequestResponse>> response = gitLabWebClient
                         .get()
                         .uri(uriBuilder -> uriBuilder
@@ -132,7 +134,7 @@ public class PortfolioService {
 //                                .queryParam("target_branch", branch)
                                 .queryParam("state", "merged")
                                 .queryParam("per_page", perPage)
-                                .queryParam("page", 1)
+                                .queryParam("page", finalCurrentPage)
                                 .build(projectId))
                         .header("PRIVATE-TOKEN", accessToken)
                         .retrieve()
@@ -184,7 +186,7 @@ public class PortfolioService {
                     .block();
 
 
-            log.info("마지막={}", currentPage);
+//            log.info("마지막={}", currentPage);
             return new MergeRequestDateRange(firstPreparedAt, lastMergedAt, mrs);
 
         } catch (Exception e) {
