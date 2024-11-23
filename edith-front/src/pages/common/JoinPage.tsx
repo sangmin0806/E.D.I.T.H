@@ -82,10 +82,11 @@ function JoinPage() {
             <div className="h-56 flex-col justify-center items-center gap-4 flex">
               <div className="justify-start items-center gap-4 inline-flex">
                 <div className="w-40 text-black text-xl font-semibold">
-                  이메일
+                  아이디(이메일)
                 </div>
                 <input
                   name="email"
+                  placeholder="GitLab 혹은 GitHub 이메일"
                   className="w-96 p-3 bg-white rounded-2xl border border-zinc-400"
                   value={joinInfo.email}
                   onChange={handleInputChange}
@@ -98,6 +99,7 @@ function JoinPage() {
                 <div className="flex flex-col">
                   <input
                     name="password"
+                    placeholder="8~16자의 영문 대/소문자, 숫자, 특수문자 사용"
                     type="password"
                     className="w-96 p-3 bg-white rounded-2xl border border-zinc-400"
                     value={joinInfo.password}
@@ -110,10 +112,11 @@ function JoinPage() {
               </div>
               <div className="justify-start items-center gap-4 inline-flex">
                 <div className="w-40 text-black text-xl font-semibold">
-                  git Personal Access Token
+                  Git Personal Access Token
                 </div>
                 <input
                   name="vcsAccessToken"
+                  type="password"
                   className="w-96 p-3 bg-white rounded-2xl border border-zinc-400"
                   value={joinInfo.vcsAccessToken}
                   onChange={handleInputChange}
@@ -134,7 +137,7 @@ function JoinPage() {
                     htmlFor="inline-radio"
                     className="ms-2 text-[20px] font-medium text-gray-900 dark:text-gray-300"
                   >
-                    git lab
+                    GitLab
                   </label>
                 </div>
                 <div className="flex items-center">
@@ -150,7 +153,7 @@ function JoinPage() {
                     htmlFor="inline-disabled-radio"
                     className="ms-2 text-[20px] font-medium text-gray-400 dark:text-gray-500"
                   >
-                    git hub
+                    GitHub
                   </label>
                 </div>
               </div>
@@ -158,8 +161,8 @@ function JoinPage() {
           </div>
           <div
             className="p-1.5 bg-black rounded-2xl justify-center items-center gap-2.5 inline-flex cursor-pointer"
-            onClick={() => window.alert('죄송합니다. 자율 프로젝트 발표 기간 이후에 회원 가입이 가능합니다!')}
-            // onClick={handleToSignup}
+            // onClick={() => window.alert('죄송합니다. 자율 프로젝트 발표 기간 이후에 회원 가입이 가능합니다!')}
+            onClick={handleToSignup}
           >
             <p className="w-36 text-center text-white text-xl font-medium font-['Pretendard Variable']">
               회원가입
