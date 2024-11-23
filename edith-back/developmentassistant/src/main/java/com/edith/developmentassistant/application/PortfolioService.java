@@ -58,13 +58,13 @@ public class PortfolioService {
 
         try {
 
-//            UserDto user = userServiceClient.getUserByToken(accessToken);
-//
-//            UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getUserId(),
-//                    Long.parseLong(projectId));
+            UserDto user = userServiceClient.getUserByToken(accessToken);
 
-            UserDto user = createUser();
-            UserProject userProject = createProject();
+            UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getUserId(),
+                    Long.parseLong(projectId));
+
+//            UserDto user = createUser();
+//            UserProject userProject = createProject();
 
             if (userProject == null) {
                 log.error("PortfolioService -> UserProject not found");

@@ -47,59 +47,30 @@ async def process_batch(llm, memory, batch, summaries_dict, description):
         """)
 
     summary_chain = summary_prompt | llm | StrOutputParser()
-    try:
-        if all(str(mr_id) in summaries_dict for mr_id in batch['mrIds']):
-            combined_summary = "\n".join(summaries_dict[str(mr_id)]
-                                         for mr_id in batch['mrIds'])
-        else:
+    while True:
+        try:
+            if all(str(mr_id) in summaries_dict for mr_id in batch['mrIds']):
+                combined_summary = "\n".join(summaries_dict[str(mr_id)]
+                                            for mr_id in batch['mrIds'])
+            else:
             # OpenAI API 호출 시 Rate Limit 처리 추가
-            while True:
-                try:
-                    result = await summary_chain.ainvoke({
-                        "description": description,
-                        "user_id": batch['userId'],
-                        "diff": batch['diff']
-                    })
-                    break  # 성공하면 루프 탈출
-                except Exception as e:
-                    if "rate limit" in str(e).lower():
-                        print("Rate limit exceeded. Waiting 1 minute")
-                        await asyncio.sleep(60)  # 대기 후 재시도
-                    else:
-                        raise e  # 다른 예외는 재시도하지 않음
-            combined_summary = result
+                result = await summary_chain.ainvoke({
+                    "description": description,
+                    "user_id": batch['userId'],
+                    "diff": batch['diff']
+                })
+                combined_summary = result
 
-        memory.save_context(
-            {"input": f"{batch['mrIds']}_{batch['userId']}"},
-            {"output": combined_summary},
-        )
-    except Exception as e:
-        print(f"배치 처리 중 오류 발생: {e}")
-
-
-    summary_chain = summary_prompt | llm | StrOutputParser()
-    try:
-        if all(str(mr_id) in summaries_dict for mr_id in batch['mrIds']):
-            # 기존 요약 사용
-            combined_summary = "\n".join(summaries_dict[str(mr_id)]
-                                         for mr_id in batch['mrIds'])
-        else:
-            # 새로운 요약 생성
-            result = await summary_chain.ainvoke({
-                "description": description,
-                "user_id": batch['userId'],
-                "diff": batch['diff']
-            })
-            combined_summary = result
-
-        # 메모리에 저장
-        memory.save_context(
-            {"input": f"{batch['mrIds']}_{batch['userId']}"},
-            {"output": combined_summary},
-        )
-    except Exception as e:
-        print(f"배치 처리 중 오류 발생: {e}")
-
+            memory.save_context(
+                {"input": f"{batch['mrIds']}_{batch['userId']}"},
+                {"output": combined_summary},)
+            break
+        except Exception as e:
+            if "rate limit" in str(e).lower():
+                # print("Rate limit exceeded. Waiting 1 minute")
+                await asyncio.sleep(60)  # TPM 대기 시간 - 1분
+            else:
+                raise e
 
 def get_portfolio(llm, memory, user_id, memory_key, description) -> str:
     portfolio_prompt = ChatPromptTemplate.from_template("""
