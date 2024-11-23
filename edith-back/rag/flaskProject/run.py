@@ -15,5 +15,5 @@ from app import create_app
 app = create_app()
 
 if __name__ == "__main__":
-    logger.info("Starting Flask application on port 8083...")
+    # logger.info("Starting Flask application on port 8083...")
     app.run(port=8083)

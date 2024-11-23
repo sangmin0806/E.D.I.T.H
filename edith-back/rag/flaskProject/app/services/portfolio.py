@@ -29,20 +29,53 @@ def estimate_tokens(text: str) -> int:
     return max(1, total_tokens)  # 최소 1토큰
 
 async def process_batch(llm, memory, batch, summaries_dict, description):
-    summary_prompt = ChatPromptTemplate.from_template("""너는 프로젝트 포트폴리오 제작 전문가야
-        이는 MR의 파일별 git diff 들이야 
-        포트폴리오 제작할 요약본을 만들어 이때 개발자 별로 구현한 내용을 간략히 정리해줘
-        (프로젝트 설명 : {description})
-        
+    summary_prompt = ChatPromptTemplate.from_template("""너는 프로젝트 포트폴리오 제작 전문가야.
+        아래의 diff와 프로젝트 설명을 참고해서, 다음 JSON 형식으로 프로젝트 요약 정보를 작성해줘:
+
+        프로젝트 설명: {description}
         개발자: {user_id}
-        
+
         ===diff===
         {diff}
-        
-        * 전체적인 프로젝트에 관련한 내용
-        1. 기술 스택
-        2. 핵심 기능
-        * 있다면 3. 트러블 슈팅 내역""")
+
+        JSON 형식으로 출력:
+        {{
+            "기술스택": "프로젝트에 사용된 주요 기술 스택 (예: Python, Django)",
+            "핵심_기능": "프로젝트에서 구현된 핵심 기능 (예: 사용자 인증, 결제 시스템)",
+            "개발자": "해당 개발자의 ID (예: {user_id})"
+        }}
+        """)
+
+    summary_chain = summary_prompt | llm | StrOutputParser()
+    try:
+        if all(str(mr_id) in summaries_dict for mr_id in batch['mrIds']):
+            combined_summary = "\n".join(summaries_dict[str(mr_id)]
+                                         for mr_id in batch['mrIds'])
+        else:
+            # OpenAI API 호출 시 Rate Limit 처리 추가
+            while True:
+                try:
+                    result = await summary_chain.ainvoke({
+                        "description": description,
+                        "user_id": batch['userId'],
+                        "diff": batch['diff']
+                    })
+                    break  # 성공하면 루프 탈출
+                except Exception as e:
+                    if "rate limit" in str(e).lower():
+                        print("Rate limit exceeded. Waiting 1 minute")
+                        await asyncio.sleep(60)  # 대기 후 재시도
+                    else:
+                        raise e  # 다른 예외는 재시도하지 않음
+            combined_summary = result
+
+        memory.save_context(
+            {"input": f"{batch['mrIds']}_{batch['userId']}"},
+            {"output": combined_summary},
+        )
+    except Exception as e:
+        print(f"배치 처리 중 오류 발생: {e}")
+
 
     summary_chain = summary_prompt | llm | StrOutputParser()
     try:
@@ -72,7 +105,7 @@ def get_portfolio(llm, memory, user_id, memory_key, description) -> str:
     portfolio_prompt = ChatPromptTemplate.from_template("""
                 너는 프로젝트 포트폴리오 제작 전문가야
                 해당 MR 요약본으로 포트폴리오를 *자세히 완성해 
-                *HTML 형식, <title> 부터
+                *HTML 형식, <title> 부터, 다른 요소 제외
                 (프로젝트 설명 : """ + description + """)
                 
                 개발자 ID : {user_id}
@@ -106,7 +139,7 @@ def get_portfolio(llm, memory, user_id, memory_key, description) -> str:
 def generate_uuid():
     return str(uuid.uuid4()).replace('-', '')
 
-def merge_diffs(merge_requests, max_tokens: int = 10000):
+def merge_diffs(merge_requests, max_tokens: int = 6000):
     sorted_requests = sorted(merge_requests, key=lambda x: x['userId'])
     merged_requests = []
     current_batch = {
@@ -204,6 +237,7 @@ def make_portfolio(user_id, summaries, merge_requests, description) -> str:
         return_messages=True,
         prompt="""해당 코드 리뷰 참고해 종합 portfolio 만들 요약본이야
         프로젝트 설명 : """ + description + """
+        대상 개발자 : """ + user_id + """
         1. 프로젝트의 핵심 기능
         2. 기술스택
         3. 트러블 슈팅과 개발자별 구현한 내용 을 요약해"""

@@ -58,10 +58,13 @@ public class PortfolioService {
 
         try {
 
-            UserDto user = userServiceClient.getUserByToken(accessToken);
+//            UserDto user = userServiceClient.getUserByToken(accessToken);
+//
+//            UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getUserId(),
+//                    Long.parseLong(projectId));
 
-            UserProject userProject = projectService.findUserProjectByUserIdAndProjectId(user.getUserId(),
-                    Long.parseLong(projectId));
+            UserDto user = createUser();
+            UserProject userProject = createProject();
 
             if (userProject == null) {
                 log.error("PortfolioService -> UserProject not found");
@@ -264,6 +267,29 @@ public class PortfolioService {
                     return Mono.just("");
                 })
                 .timeout(Duration.ofSeconds(10));
+    }
+
+    private UserDto createUser() {
+        return UserDto.builder()
+                .userId(10L)
+                .vcsBaseUrl("https://lab.ssafy.com")
+                .vcsAccessToken("oFToGMmLxsGCEyR6741s")
+                .email("Lee-JoungHyun")
+                .password("1234")
+                .build();
+    }
+
+    private UserProject createProject() {
+        Project project = Project.builder()
+                .projectId(824085L)
+                .url("https://lab.ssafy.com")
+                .build();
+
+        return UserProject.builder()
+                .title("E.D.I,T.H.")
+                .description("RAG 를 활용한 AI 코드리뷰, 포트폴리오 생성 서비스")
+                .project(project)
+                .build();
     }
 
 }
