@@ -28,7 +28,8 @@ def estimate_tokens(text: str) -> int:
     total_tokens = int(korean_tokens + basic_tokens + special_tokens + newlines)
     return max(1, total_tokens)  # 최소 1토큰
 
-async def process_batch(llm, memory, batch, summaries_dict, description):
+async def process_batch(llm_model, memory, batch, summaries_dict, description):
+    llm = llm_model.llm
     summary_prompt = ChatPromptTemplate.from_template("""너는 프로젝트 포트폴리오 제작 전문가야.
         아래의 diff와 프로젝트 설명을 참고해서, 다음 JSON 형식으로 프로젝트 요약 정보를 작성해줘:
 
@@ -67,8 +68,9 @@ async def process_batch(llm, memory, batch, summaries_dict, description):
             break
         except Exception as e:
             if "rate limit" in str(e).lower():
+                llm_model.rotate_key()
                 # print("Rate limit exceeded. Waiting 1 minute")
-                await asyncio.sleep(60)  # TPM 대기 시간 - 1분
+                await asyncio.sleep(5)  # TPM 대기 시간 - 5초
             else:
                 raise e
 
@@ -182,13 +184,14 @@ def merge_diffs(merge_requests, max_tokens: int = 6000):
     return merged_requests
 
 
-def get_summary(llm, memory, merge_requests, summaries_dict, description) -> None:
+def get_summary(llm_model, memory, merge_requests, summaries_dict, description) -> None:
+    llm = llm_model.llm
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     tasks = []
 
     for batch in merge_requests:
-        tasks.append(process_batch(llm, memory, batch, summaries_dict, description))
+        tasks.append(process_batch(llm_model, memory, batch, summaries_dict, description))
     loop.run_until_complete(asyncio.gather(*tasks))
 
 def make_portfolio(user_id, summaries, merge_requests, description) -> str:
@@ -214,17 +217,16 @@ def make_portfolio(user_id, summaries, merge_requests, description) -> str:
         3. 트러블 슈팅과 개발자별 구현한 내용 을 요약해"""
     )
     llm_model = LLMModel()
-    llm = llm_model.llm
 
     try:
         # 3. merge_diffs를 사용하여 배치로 나누기
         merged_requests = merge_diffs(merge_requests)
         # 4. 요약 생성 (이미 배치로 나눠진 요청들 처리)
-        get_summary(llm, portfolio_memory, merged_requests, summaries_dict, description)
+        get_summary(llm_model, portfolio_memory, merged_requests, summaries_dict, description)
 
         # 5. 최종 포트폴리오 생성
         result = get_portfolio(
-            llm,
+            llm_model.llm,
             portfolio_memory,
             user_id,
             f"portfolio_{uuid}",
