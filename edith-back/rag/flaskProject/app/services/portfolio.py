@@ -48,8 +48,9 @@ async def process_batch(llm_model, memory, batch, summaries_dict, description):
         """)
 
     summary_chain = summary_prompt | llm | StrOutputParser()
-    while True:
-        try:
+    combined_summary = ''
+    try:
+        while True:
             if all(str(mr_id) in summaries_dict for mr_id in batch['mrIds']):
                 combined_summary = "\n".join(summaries_dict[str(mr_id)]
                                             for mr_id in batch['mrIds'])
@@ -61,18 +62,28 @@ async def process_batch(llm_model, memory, batch, summaries_dict, description):
                     "diff": batch['diff']
                 })
                 combined_summary = result
+            break
+    except Exception as e:
+        if "rate limit" in str(e).lower():
+            llm_model.rotate_key()
+            # print("Rate limit exceeded. Waiting 1 minute")
+            await asyncio.sleep(5)  # TPM 대기 시간 - 5초
+        else:
+            raise e
 
+    try:
+        while True:
             memory.save_context(
                 {"input": f"{batch['mrIds']}_{batch['userId']}"},
                 {"output": combined_summary},)
             break
-        except Exception as e:
-            if "rate limit" in str(e).lower():
-                llm_model.rotate_key()
-                # print("Rate limit exceeded. Waiting 1 minute")
-                await asyncio.sleep(5)  # TPM 대기 시간 - 5초
-            else:
-                raise e
+    except Exception as e:
+        if "rate limit" in str(e).lower():
+            llm_model.rotate_key()
+            # print("Rate limit exceeded. Waiting 1 minute")
+            await asyncio.sleep(5)  # TPM 대기 시간 - 5초
+        else:
+            raise e
 
 def get_portfolio(llm, memory, user_id, memory_key, description) -> str:
     portfolio_prompt = ChatPromptTemplate.from_template("""
@@ -185,7 +196,6 @@ def merge_diffs(merge_requests, max_tokens: int = 6000):
 
 
 def get_summary(llm_model, memory, merge_requests, summaries_dict, description) -> None:
-    llm = llm_model.llm
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     tasks = []

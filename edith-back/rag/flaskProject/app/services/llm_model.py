@@ -7,7 +7,8 @@ class LLMModel:
         # 키를 배열로 로드
         self.api_keys = [
             os.getenv('OPENAI_API_KEY1'),
-            os.getenv('OPENAI_API_KEY2')
+            os.getenv('OPENAI_API_KEY2'),
+            os.getenv('OPENAI_API_KEY3')
         ]
         self.current_key_index = 0
         self.model = model
