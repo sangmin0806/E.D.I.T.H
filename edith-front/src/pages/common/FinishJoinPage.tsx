@@ -3,10 +3,23 @@ import mainRight from "../../assets/main_right.png";
 import logo from "../../assets/logo.png";
 
 import { motion } from "framer-motion";
-import { useRedirectIfLoggedIn } from "../../hooks/useAuth";
+// import { useRedirectIfLoggedIn } from "../../hooks/useAuth";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function FinishJoinPage() {
-  useRedirectIfLoggedIn();
+  // useRedirectIfLoggedIn();
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // 2초 뒤 페이지 이동
+    const timer = setTimeout(() => {
+      navigate("/");
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [navigate]);
 
   return (
     <>

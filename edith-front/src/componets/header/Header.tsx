@@ -70,7 +70,7 @@ function Header({ userImgSrc }: any) {
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center">
               <div className="shrink-0">
-                <img className="size-8" src={logoImg} alt="Your Company" />
+                <img className="size-8 cursor-pointer" src={logoImg} alt="Your Company" onClick={handleMoveToRepo}/>
               </div>
               <div className="hidden md:block">
                 <div className="ml-10 flex items-baseline space-x-4">
