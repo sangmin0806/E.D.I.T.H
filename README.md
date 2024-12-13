@@ -1,5 +1,5 @@
 # 👓 E.D.I.T.H.
-
+<img src="exec/readme_imgs/Thumnail.png" alt="Thumbnail" width="800"/>
 
 ## 🗓️ 프로젝트 개요
 
